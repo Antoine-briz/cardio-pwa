@@ -201,29 +201,6 @@ function renderAnesthRadioVasculaire() {
 //  plus bas (voir bloc “CODE EXISTANT ATB”).
 //
 
-function renderAnesthAntibiopro() {
-  $app.innerHTML = `
-    <section>
-      <h2>Antibioprophylaxie</h2>
-      <div id="antibiopro-root"></div>
-    </section>
-  `;
-
-  const root = document.getElementById("antibiopro-root");
-
-  // 👉 ICI : appelle ta fonction existante de pwa-atb-rules.
-  // Exemple (à adapter exactement au nom de ta fonction) :
-  //
-  //    renderAntibioproForm(root);
-  //
-  // Tu colleras la définition de `renderAntibioproForm` dans le bloc
-  // “// === CODE EXISTANT ATB – ANTIBIOPROPHYLAXIE ===” plus bas.
-}
-
-// =====================================================================
-//  RÉANIMATION – MENU
-// =====================================================================
-
 function renderReanMenu() {
   $app.innerHTML = `
     <section>
