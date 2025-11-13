@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Protocoles d’anesthésie & réanimation</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="stylesheet" href="styles.css?v=1.0.0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" sizes="300x300">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+  <header class="appbar">
+    <h1>
+      Cardio ICU<br>
+      <small>Protocoles d’anesthésie, réanimation et CEC</small>
+    </h1>
+  </header>
+
+  <main class="container">
+    <div id="app"></div>
+  </main>
+
+  <footer class="footer">
+    <small>v1.0 – Usage interne</small>
+  </footer>
+
+  <script type="module" src="./app.js?v=1.0.0"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js", { scope: "./" })
+          .then(reg => console.log("✅ Service Worker enregistré :", reg.scope))
+          .catch(err => console.error("❌ Erreur SW :", err));
+      });
+    }
+  </script>
+</body>
+</html>
