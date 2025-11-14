@@ -5415,14 +5415,12 @@ function renderReanTransplantMenu() {
           Infections et transplantation
         </button>
         <button class="btn" onclick="renderReanTransplantCoronaire()">
-          Prévention de la maladie coronaire du greffon
+          Prévention maladie coronaire du greffon
         </button>
       </div>
     </section>
   `;
 }
-
-// — Hémodynamique
 
 function renderReanTransplantHemodynamique() {
   const encadres = [
@@ -5435,29 +5433,41 @@ function renderReanTransplantHemodynamique() {
             Patient sous ECMO VA
           </label>
         </div>
+
         <div id="tx-gestion-noecmo">
           <p><strong>En l’absence d’ECMO VA :</strong></p>
           <ul>
-            <li>Monitorage Swan-Ganz systématique</li>
-            <li>NO inhalé systématique</li>
-            <li>Objectifs :
+            <li>Monitorage par Swan-Ganz systématique.</li>
+            <li>NO inhalé systématique.</li>
+            <li>Objectifs hémodynamiques :
               <ul>
                 <li>FC 90–110/min</li>
                 <li>PAM &gt; 65 mmHg</li>
                 <li>PVC &lt; 15 mmHg</li>
-                <li>Diurèse &gt; 0,5 mL/kg/min</li>
+                <li>Diurèse &gt; 0,5 mL/kg/h</li>
               </ul>
             </li>
+            <li>Si PVC &gt; 15 mmHg en l’absence de tamponnade :
+              déplétion possible dès J1.</li>
           </ul>
         </div>
+
         <div id="tx-gestion-ecmo" style="display:none;">
-          <p><strong>Assistance par ECMO VA :</strong></p>
+          <p><strong>Assistance par ECMO VA (souvent avec BCPIA) :</strong></p>
           <ul>
-            <li>BCPIA souvent associée.</li>
-            <li>Objectif de débit ECMO suffisant pour perfusion systémique,
-                tout en conservant un certain flux trans-aortique.</li>
-            <li>HNF IVSE avec cible d’ACT / anti-Xa selon protocole.</li>
-            <li>Adaptation de la ventilation (ex : Vt 6–8 mL/kg, FR 15–20/min, PEP 8–10 cmH₂O).</li>
+            <li>HNF IVSE avec objectif anti-Xa 0,2–0,4 UI/L.</li>
+            <li>Faibles doses de Dobutamine (≤ 5 µg/kg/min)
+                pour préserver un flux trans-aortique.</li>
+            <li>Débit d’ECMO minimal pour limiter le risque d’OAP,
+                tout en assurant une bonne perfusion systémique.</li>
+            <li>Ventilation mécanique :
+              <ul>
+                <li>Vt ~ 6 mL/kg</li>
+                <li>FR 15–20/min</li>
+                <li>PEP 8–10 cmH₂O</li>
+                <li>FiO₂ minimale pour SpO₂ 95–98 %</li>
+              </ul>
+            </li>
           </ul>
         </div>
       `,
@@ -5488,19 +5498,63 @@ function setupReanTransplantHemodynamiqueLogic() {
   update();
 }
 
-// — Immunosuppression
-
 function renderReanTransplantImmuno() {
   const encadres = [
     {
-      titre: "Protocole d’immunosuppression",
+      titre: "Caractéristiques du patient (Choix)",
       html: `
-        <p><strong>Traitement immunosuppresseur :</strong></p>
-        <ul>
-          <li>Corticothérapie</li>
-          <li>Anti-calcineurines (Ciclosporine / Tacrolimus)</li>
-          <li>± Mycophénolate mofétil / Azathioprine selon protocole</li>
-        </ul>
+        <div class="form">
+          <div class="row">
+            <label>Poids (kg)
+              <input type="number" id="tx-poids" min="30" max="200" step="1" />
+            </label>
+          </div>
+          <div class="row">
+            <label>
+              <input type="checkbox" id="tx-dsa" />
+              DSA &gt; 3000 MFI
+            </label>
+            <label>
+              <input type="checkbox" id="tx-infect" />
+              Infection pré-opératoire ou haut risque infectieux
+            </label>
+            <label>
+              <input type="checkbox" id="tx-cancer" />
+              Cancer récent
+            </label>
+          </div>
+        </div>
+        <p style="margin-top:8px;">
+          Ces critères conditionnent l’induction, la prophylaxie du rejet humoral,
+          et le début des différents traitements (corticoïdes, Tacrolimus, MMF).
+        </p>
+      `,
+    },
+    {
+      titre: "Induction de l’immunosuppression",
+      html: `<div id="tx-induction"></div>`,
+    },
+    {
+      titre: "Prévention du rejet humoral (DSA &gt; 3000 MFI)",
+      html: `<div id="tx-rejet-humoral"></div>`,
+    },
+    {
+      titre: "Corticothérapie",
+      html: `<div id="tx-cortico"></div>`,
+    },
+    {
+      titre: "Tacrolimus (ou Ciclosporine si CI)",
+      html: `<div id="tx-tacro"></div>`,
+    },
+    {
+      titre: "Mycophénolate mofétil (Cellcept)",
+      html: `
+        <div class="form">
+          <label>GB (G/L)
+            <input type="number" id="tx-gb" min="0" max="20" step="0.1" />
+          </label>
+        </div>
+        <div id="tx-mmf"></div>
       `,
     },
   ];
@@ -5510,16 +5564,310 @@ function renderReanTransplantImmuno() {
     sousTitre: "Protocole d’immunosuppression",
     encadres,
   });
+
+  setupReanTransplantImmunoLogic();
 }
 
-// — Rejet
+function setupReanTransplantImmunoLogic() {
+  const poidsEl = document.getElementById("tx-poids");
+  const dsaEl = document.getElementById("tx-dsa");
+  const infectEl = document.getElementById("tx-infect");
+  const cancerEl = document.getElementById("tx-cancer");
+  const gbEl = document.getElementById("tx-gb");
+
+  const inductionDiv = document.getElementById("tx-induction");
+  const rejetHumoralDiv = document.getElementById("tx-rejet-humoral");
+  const corticoDiv = document.getElementById("tx-cortico");
+  const tacroDiv = document.getElementById("tx-tacro");
+  const mmfDiv = document.getElementById("tx-mmf");
+
+  function num(el) {
+    if (!el) return null;
+    const v = parseFloat((el.value || "").replace(",", "."));
+    return isNaN(v) ? null : v;
+  }
+
+  function update() {
+    const poids = num(poidsEl);
+    const dsaHigh = !!(dsaEl && dsaEl.checked);
+    const highRisk = !!(infectEl && infectEl.checked);
+    const cancer = !!(cancerEl && cancerEl.checked);
+    const gb = num(gbEl);
+    const infectOrCancer = highRisk || cancer;
+
+    // ===== Induction de l’immunosuppression =====
+    if (inductionDiv) {
+      let html = "";
+
+      if (infectOrCancer && !dsaHigh) {
+        // Infection/haut risque ou cancer récent coché + DSA <= 3000
+        html = `
+          <p><strong>Induction par Simulect (Basiliximab) :</strong></p>
+          <ul>
+            <li>20 mg à la fermeture sternale.</li>
+            <li>20 mg à J4.</li>
+          </ul>
+          <p>Utiliser le Basiliximab si infection/haut risque ou cancer récent
+             et DSA ≤ 3000 MFI.</p>
+        `;
+      } else {
+        // Thymoglobulines
+        const doseThymo = poids ? Math.min(1.25 * poids, 100).toFixed(1) : null;
+        html = `
+          <p><strong>Thymoglobulines IVL (sérum anti-lymphocytaire) :</strong></p>
+          <ul>
+            <li>3 à 5 doses de <strong>1,25 mg/kg/j</strong> (max 100 mg/j).</li>
+            ${
+              doseThymo
+                ? `<li>Pour ce patient : environ <strong>${doseThymo} mg/j</strong> (dose max 100 mg).</li>`
+                : ""
+            }
+            <li>Perfusion sur 12 h.</li>
+            <li>4ᵉ et 5ᵉ dose si lymphocytes &gt; 0,1 G/L.</li>
+            <li>Arrêt si Pl &lt; 30 G/L ou Leucocytes &lt; 4 G/L
+                (ou diminution &gt; 50 % entre 2 doses) → ½ doses ultérieures
+                pour atteindre 3 injections.</li>
+          </ul>
+          <p>Utiliser ce schéma si rien n’est coché ou si DSA &gt; 3000 MFI,
+             même en cas d’infection/cancer récent.</p>
+        `;
+      }
+
+      inductionDiv.innerHTML = html;
+    }
+
+    // ===== Prévention du rejet humoral (DSA > 3000) =====
+    if (rejetHumoralDiv) {
+      if (!dsaHigh) {
+        rejetHumoralDiv.innerHTML = `
+          <p>DSA ≤ 3000 MFI : pas de prophylaxie spécifique du rejet humoral.</p>
+        `;
+      } else {
+        let html = `
+          <p><strong>Prévention du rejet humoral (DSA &gt; 3000 MFI) :</strong></p>
+          <p>Echanges plasmatiques <strong>1,3 × masse sanguine</strong>.</p>
+          <div class="form">
+            <div class="row">
+              <label>Hématocrite (%)
+                <input type="number" id="tx-ht" min="15" max="60" step="1" />
+              </label>
+            </div>
+          </div>
+          <div id="tx-ep-resultats"></div>
+          <p style="margin-top:8px;">
+            Planification :
+            <ul>
+              <li>1ʳᵉ séance pré-opératoire.</li>
+              <li>Puis J1, J2, J3 et J4 (5 séances au total).</li>
+              <li>Au moins 6 h entre la fin de la Thymoglobuline et le début de l’EP.</li>
+            </ul>
+          </p>
+          <p><strong>Biologie après EP :</strong></p>
+          <ul>
+            <li>Hémostase après chaque séance (TP, fibrinogène).</li>
+            <li>Tube sec pour dosage des Ac anti-HLA après la série d’EP.</li>
+          </ul>
+        `;
+        rejetHumoralDiv.innerHTML = html;
+
+        // Calcul masse sanguine + volumes
+        const htEl = document.getElementById("tx-ht");
+        const resDiv = document.getElementById("tx-ep-resultats");
+
+        function updateEP() {
+          const ht = num(htEl);
+          if (!poids || !ht || !resDiv) {
+            if (resDiv) {
+              resDiv.innerHTML = "<p>Renseigner poids et hématocrite pour estimer les volumes.</p>";
+            }
+            return;
+          }
+          const masseSanguine = (100 - ht) * 0.7 * poids; // mL
+          const volEP = masseSanguine * 1.3;
+          const volAlb = volEP / 3;
+          const volPfc = volEP * 2 / 3;
+
+          resDiv.innerHTML = `
+            <p><strong>Volumes estimés :</strong></p>
+            <ul>
+              <li>Masse sanguine : ~${(masseSanguine / 1000).toFixed(2)} L</li>
+              <li>Volume à échanger (1,3 × MS) : ~${(volEP / 1000).toFixed(2)} L</li>
+              <li>Albumine 5 % : ~${(volAlb / 1000).toFixed(2)} L</li>
+              <li>PFC : ~${(volPfc / 1000).toFixed(2)} L</li>
+            </ul>
+          `;
+        }
+
+        if (htEl) htEl.addEventListener("input", updateEP);
+        updateEP();
+      }
+    }
+
+    // ===== Corticothérapie =====
+    if (corticoDiv) {
+      let html = `
+        <p><strong>Prednisone PO ou Méthylprednisolone IV :</strong></p>
+        <ul>
+          <li>Posologie initiale : <strong>1 mg/kg/j</strong>
+              de J4 à J10.</li>
+          <li>Si Infection/haut risque ou cancer récent et DSA ≤ 3000 :
+              de J1 à J7.</li>
+          <li>Diminution de 10 mg/j tous les 7 jours.</li>
+          <li>Dose d’entretien : <strong>0,3 mg/kg/j</strong>.</li>
+        </ul>
+      `;
+      if (poids) {
+        const doseInit = (1 * poids).toFixed(1);
+        const doseEnt = (0.3 * poids).toFixed(1);
+        html += `
+          <p>Pour ce patient :</p>
+          <ul>
+            <li>Posologie initiale ≈ <strong>${doseInit} mg/j</strong>.</li>
+            <li>Dose d’entretien ≈ <strong>${doseEnt} mg/j</strong>.</li>
+          </ul>
+        `;
+      }
+      corticoDiv.innerHTML = html;
+    }
+
+    // ===== Tacrolimus =====
+    if (tacroDiv) {
+      let html = `
+        <p><strong>Tacrolimus</strong> (Ciclosporine si CI Tacrolimus) :</p>
+        <ul>
+          <li>Posologie initiale : <strong>0,01 mg/kg/j IVSE</strong>
+              à partir de J2.</li>
+          <li>Si Infection/haut risque ou cancer récent et DSA ≤ 3000 :
+              début possible dès J0.</li>
+          <li>Relais per os : <strong>0,075 mg/kg/j</strong> en 2 prises (08h/20h) dès que possible.</li>
+          <li>Objectif Cmin (T0) : 10–13 ng/mL les 3 premiers mois.</li>
+        </ul>
+      `;
+      if (poids) {
+        const doseIV = (0.01 * poids).toFixed(3);
+        const dosePO = (0.075 * poids).toFixed(2);
+        html += `
+          <p>Pour ce patient :</p>
+          <ul>
+            <li>Dose IVSE ≈ <strong>${doseIV} mg/j</strong>.</li>
+            <li>Dose PO totale ≈ <strong>${dosePO} mg/j</strong>
+                (soit ~${(dosePO / 2).toFixed(2)} mg x2/j).</li>
+          </ul>
+        `;
+      }
+      tacroDiv.innerHTML = html;
+    }
+
+    // ===== Mycophénolate mofétil =====
+    if (mmfDiv) {
+      let html = `
+        <p><strong>Mycophénolate mofétil (Cellcept) :</strong></p>
+        <ul>
+          <li>À partir de J4.</li>
+          <li>À partir de J0 si Infection/haut risque ou cancer récent
+              et DSA ≤ 3000 MFI.</li>
+          <li>Posologie selon NFS :</li>
+        </ul>
+      `;
+
+      if (gb != null) {
+        let reco = "";
+        if (gb > 4) {
+          reco = "1 g x2/j PO ou IV.";
+        } else if (gb >= 3) {
+          reco = "750 mg x2/j PO ou IV.";
+        } else {
+          reco = "ne pas débuter le traitement.";
+        }
+        html += `
+          <p>GB = ${gb.toFixed(1)} G/L → <strong>${reco}</strong></p>
+        `;
+      } else {
+        html += `
+          <p>Renseigner les GB pour proposer la posologie (GB &gt; 4, 3–4, &lt; 3 G/L).</p>
+        `;
+      }
+
+      html += `
+        <p>En cas d’infection : ne pas débuter ou arrêter le traitement si déjà initié.</p>
+        <p>Si Rovalcyte 900 mg x2/j : diminuer la posologie de MMF de 50 %.</p>
+      `;
+
+      mmfDiv.innerHTML = html;
+    }
+  }
+
+  [poidsEl, dsaEl, infectEl, cancerEl, gbEl].forEach(el => {
+    if (el) el.addEventListener("input", update);
+    if (el && el.type === "checkbox") el.addEventListener("change", update);
+  });
+
+  update();
+}
 
 function renderReanTransplantRejet() {
   const encadres = [
     {
-      titre: "Rejet aigu de greffon",
+      titre: "Rejet aigu cellulaire",
       html: `
-        <p>Encadré à remplir à partir de ton tableau détaillé de rejet aigu (traitement, biopsies, etc.).</p>
+        <div class="form">
+          <label>Poids (kg)
+            <input type="number" id="tx-rejet-poids" min="30" max="200" step="1" />
+          </label>
+        </div>
+        <p><strong>Dépistage :</strong></p>
+        <ul>
+          <li>Biopsie myocardique à J15 puis tous les 10 j pendant 2 mois, puis espacement progressif.</li>
+          <li>Échocardiographies répétées.</li>
+        </ul>
+        <p><strong>Prise en charge (Choix) :</strong></p>
+        <div class="form">
+          <label>
+            <input type="radio" name="tx-grade" value="1R">
+            Léger – Grade 1R
+          </label>
+          <label>
+            <input type="radio" name="tx-grade" value="2R">
+            Modéré – Grade 2R
+          </label>
+          <label>
+            <input type="radio" name="tx-grade" value="3R">
+            Grade 3R
+          </label>
+        </div>
+        <div id="tx-rejet-cellulaire-reco"></div>
+      `,
+    },
+    {
+      titre: "Rejet aigu humoral",
+      html: `
+        <p><strong>Dépistage :</strong></p>
+        <ul>
+          <li>Biopsies myocardiques comme pour le rejet cellulaire.</li>
+          <li>Ac anti-HLA :
+            <ul>
+              <li>En réanimation : hebdomadaire.</li>
+              <li>Ensuite :
+                <ul>
+                  <li>Si immunisé : M1, M3, M6, M12.</li>
+                  <li>Si non immunisé : 1 fois/an.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>Échocardiographies répétées.</li>
+        </ul>
+        <p><strong>Prise en charge :</strong></p>
+        <ul>
+          <li>Échanges plasmatiques (1,5 × masse sanguine) :
+            <ul>
+              <li>DSA &gt; 15 000 MFI : 10 séances.</li>
+              <li>DSA &lt; 15 000 MFI : 5 séances (± 5 selon la cinétique des Ac).</li>
+            </ul>
+          </li>
+          <li>IgIV (Privigen) : <strong>0,5 g/kg/j pendant 4 jours</strong>
+              après la dernière séance d’EP.</li>
+        </ul>
       `,
     },
   ];
@@ -5529,21 +5877,183 @@ function renderReanTransplantRejet() {
     sousTitre: "Rejet aigu de greffon",
     encadres,
   });
+
+  setupReanTransplantRejetLogic();
 }
 
-// — Infections
+function setupReanTransplantRejetLogic() {
+  const poidsEl = document.getElementById("tx-rejet-poids");
+  const recoDiv = document.getElementById("tx-rejet-cellulaire-reco");
+  const radios = Array.from(document.querySelectorAll("input[name='tx-grade']"));
+
+  function num(el) {
+    if (!el) return null;
+    const v = parseFloat((el.value || "").replace(",", "."));
+    return isNaN(v) ? null : v;
+  }
+
+  function update() {
+    if (!recoDiv) return;
+    const poids = num(poidsEl);
+    const selected = radios.find(r => r.checked)?.value || null;
+
+    let html = "<p><strong>Proposition de traitement :</strong></p>";
+
+    if (!selected) {
+      html += "<p>Choisir un grade de rejet pour afficher la conduite à tenir.</p>";
+      recoDiv.innerHTML = html;
+      return;
+    }
+
+    if (selected === "1R") {
+      let dosePred = poids ? (1.5 * poids).toFixed(1) : null;
+      html += `
+        <ul>
+          <li>Léger – Grade 1R : généralement pas de traitement agressif.</li>
+          <li>Surveillance clinique, échographique et biopsies selon protocole.</li>
+          <li>Discussion d’une cure courte de corticoïdes selon contexte :</li>
+          ${
+            dosePred
+              ? `<li>Exemple : Prednisone ≈ <strong>${dosePred} mg/j</strong> pendant 5 jours,
+                   ½ dose à J6, puis dose habituelle à partir de J7.</li>`
+              : `<li>Prednisone 1,5 mg/kg 5 jours, ½ dose à J6, dose habituelle dès J7.</li>`
+          }
+        </ul>
+      `;
+    } else if (selected === "2R") {
+      let doseMP = poids ? (10 * poids).toFixed(1) : null;
+      html += `
+        <ul>
+          <li>Modéré – Grade 2R :</li>
+          <li>Bolus de Méthylprednisolone sur 3 jours.</li>
+          ${
+            doseMP
+              ? `<li>Par exemple : ~<strong>${doseMP} mg/j</strong> (10 mg/kg/j) sur 3 jours.</li>`
+              : `<li>Posologie type : 10 mg/kg/j sur 3 jours.</li>`
+          }
+          <li>± Thymoglobuline 1,25 mg/kg/j sur 3 jours si dysfonction VG de novo.</li>
+        </ul>
+      `;
+    } else if (selected === "3R") {
+      let doseMP = poids ? (10 * poids).toFixed(1) : null;
+      html += `
+        <ul>
+          <li>Grade 3R :</li>
+          <li>Bolus de Méthylprednisolone sur 3 jours
+              + Thymoglobuline 1,25 mg/kg/j sur 3 jours
+              + traitement habituel.</li>
+          ${
+            doseMP
+              ? `<li>Exemple : Méthylprednisolone ≈ <strong>${doseMP} mg/j</strong> (10 mg/kg/j).</li>`
+              : ""
+          }
+        </ul>
+      `;
+    }
+
+    recoDiv.innerHTML = html;
+  }
+
+  if (poidsEl) poidsEl.addEventListener("input", update);
+  radios.forEach(r => r.addEventListener("change", update));
+  update();
+}
 
 function renderReanTransplantInfections() {
   const encadres = [
     {
-      titre: "Infections et transplantation",
+      titre: "Poids (pour calculs mg/kg)",
       html: `
-        <p><strong>Prévention / traitement (extraits du tableau) :</strong></p>
+        <div class="form">
+          <label>Poids (kg)
+            <input type="number" id="tx-inf-poids" min="30" max="200" step="1" />
+          </label>
+        </div>
+      `,
+    },
+    {
+      titre: "Infections à CMV",
+      html: `
+        <p><strong>Traitement préventif :</strong></p>
+        <div class="form">
+          <div class="row">
+            <label>Donneur
+              <select id="cmv-donneur">
+                <option value="neg">Négatif</option>
+                <option value="pos">Positif</option>
+              </select>
+            </label>
+            <label>Receveur
+              <select id="cmv-receveur">
+                <option value="neg">Négatif</option>
+                <option value="pos">Positif</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div id="cmv-prophylaxie"></div>
+
+        <p style="margin-top:8px;"><strong>Traitement curatif :</strong></p>
+        <div class="form">
+          <label>
+            <input type="radio" name="cmv-severite" value="severe">
+            Infection sévère
+          </label>
+          <label>
+            <input type="radio" name="cmv-severite" value="frustre">
+            Infection frustre
+          </label>
+        </div>
+        <div id="cmv-curatif"></div>
+      `,
+    },
+    {
+      titre: "Toxoplasmose",
+      html: `
+        <p><strong>Traitement préventif (Choix Donneur/Receveur) :</strong></p>
+        <div class="form">
+          <div class="row">
+            <label>Donneur
+              <select id="toxo-donneur">
+                <option value="neg">Négatif</option>
+                <option value="pos">Positif</option>
+              </select>
+            </label>
+            <label>Receveur
+              <select id="toxo-receveur">
+                <option value="neg">Négatif</option>
+                <option value="pos">Positif</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div id="toxo-prophylaxie"></div>
+
+        <p style="margin-top:8px;"><strong>Traitement curatif :</strong></p>
+        <div id="toxo-curatif"></div>
+      `,
+    },
+    {
+      titre: "Pneumocystose",
+      html: `
+        <p><strong>Traitement préventif :</strong></p>
         <ul>
-          <li>Toxoplasmose : traitement préventif ou curatif selon statut donneur/receveur.</li>
-          <li>Pneumocystose : Bactrim forte, puis relais PO selon durée totale prévue.</li>
-          <li>Hépatite B : se référer au tableau VHB spécifique.</li>
+          <li>Bactrim forte 800/160 mg 1 cp/j systématique à partir de J10
+              (si GB &gt; 2 G/L), à poursuivre la 1ʳᵉ année.</li>
         </ul>
+        <p><strong>Traitement curatif :</strong></p>
+        <div id="pcp-curatif"></div>
+      `,
+    },
+    {
+      titre: "Hépatite B",
+      html: `
+        <p>Se référer au protocole spécifique.</p>
+        <p>
+          <button type="button" class="btn link" onclick="openHepatiteImage()">
+            Lien tableau VHB
+          </button>
+        </p>
       `,
     },
   ];
@@ -5553,9 +6063,155 @@ function renderReanTransplantInfections() {
     sousTitre: "Infections et transplantation",
     encadres,
   });
+
+  setupReanTransplantInfectionsLogic();
 }
 
-// — Prévention maladie coronaire du greffon
+function setupReanTransplantInfectionsLogic() {
+  const poidsEl = document.getElementById("tx-inf-poids");
+
+  const cmvDon = document.getElementById("cmv-donneur");
+  const cmvRec = document.getElementById("cmv-receveur");
+  const cmvProphDiv = document.getElementById("cmv-prophylaxie");
+  const cmvCuratifDiv = document.getElementById("cmv-curatif");
+  const cmvRadios = Array.from(document.querySelectorAll("input[name='cmv-severite']"));
+
+  const toxoDon = document.getElementById("toxo-donneur");
+  const toxoRec = document.getElementById("toxo-receveur");
+  const toxoProphDiv = document.getElementById("toxo-prophylaxie");
+  const toxoCuratifDiv = document.getElementById("toxo-curatif");
+
+  const pcpCuratifDiv = document.getElementById("pcp-curatif");
+
+  function num(el) {
+    if (!el) return null;
+    const v = parseFloat((el.value || "").replace(",", "."));
+    return isNaN(v) ? null : v;
+  }
+
+  function update() {
+    const poids = num(poidsEl);
+
+    // ===== CMV prophylaxie =====
+    if (cmvProphDiv && cmvDon && cmvRec) {
+      const d = cmvDon.value;
+      const r = cmvRec.value;
+      let html = "<p><strong>Prophylaxie CMV :</strong></p><ul>";
+
+      if (d === "neg" && r === "neg") {
+        html += "<li>D-/R- : surveillance clinique.</li>";
+      } else if (d === "pos" && r === "neg") {
+        html += "<li>D+/R- : Valganciclovir 900 mg x2/j pendant 3 mois.</li>";
+      } else {
+        html += `
+          <li>R+ : PCR CMV à partir de J7 puis 1 fois/semaine.</li>
+          <li>Si &gt; 4 log (10 000 copies) : Valganciclovir 900 mg x2/j pendant 3 mois.</li>
+        `;
+      }
+
+      html += "</ul>";
+      cmvProphDiv.innerHTML = html;
+    }
+
+    // ===== CMV curatif =====
+    if (cmvCuratifDiv) {
+      const sel = cmvRadios.find(r => r.checked)?.value || null;
+      let html = "";
+
+      if (!sel) {
+        html = "<p>Choisir infection sévère ou frustre.</p>";
+      } else if (sel === "severe") {
+        let doseMin = poids ? (2.5 * poids).toFixed(1) : null;
+        let doseMax = poids ? (5 * poids).toFixed(1) : null;
+        html = "<p><strong>Infection sévère :</strong></p><ul>";
+        html += "<li>Ganciclovir 2,5 à 5 mg/kg x2/j IVL pendant 15–20 jours,</li>";
+        if (doseMin && doseMax) {
+          html += `<li>→ soit environ ${doseMin}–${doseMax} mg x2/j pour ce patient.</li>`;
+        }
+        html += "<li>Puis Valganciclovir 900 mg x2/j pendant 3 mois.</li></ul>";
+      } else {
+        html = `
+          <p><strong>Infection frustre :</strong></p>
+          <ul>
+            <li>Valganciclovir 900 mg x2/j pendant 3 mois.</li>
+          </ul>
+        `;
+      }
+
+      cmvCuratifDiv.innerHTML = html;
+    }
+
+    // ===== Toxoplasmose =====
+    if (toxoProphDiv && toxoDon && toxoRec) {
+      const d = toxoDon.value;
+      const r = toxoRec.value;
+      let html = "<p><strong>Prophylaxie Toxoplasmose :</strong></p><ul>";
+
+      if (d === "pos" && r === "neg") {
+        html += "<li>D+/R- : Bactrim forte 800/160 mg 1 cp/j à partir de J10 puis à vie (ou Pyriméthamine 50 mg/j).</li>";
+      } else {
+        html += "<li>Autres combinaisons : pas de prophylaxie spécifique.</li>";
+      }
+
+      html += "</ul>";
+      toxoProphDiv.innerHTML = html;
+    }
+
+    if (toxoCuratifDiv) {
+      let doseMin = poids ? (50 * poids).toFixed(0) : null;
+      let doseMax = poids ? (100 * poids).toFixed(0) : null;
+      let html = "<ul>";
+      html += "<li>Pyriméthamine 50 mg/j.</li>";
+      html += "<li>Sulfadiazine 50–100 mg/kg/j.</li>";
+      if (doseMin && doseMax) {
+        html += `<li>→ soit environ ${doseMin}–${doseMax} mg/j de Sulfadiazine pour ce patient.</li>`;
+      }
+      html += "</ul>";
+      toxoCuratifDiv.innerHTML = html;
+    }
+
+    // ===== Pneumocystose curatif =====
+    if (pcpCuratifDiv) {
+      let html = `
+        <ul>
+          <li>Bactrim 100/20 mg/kg/j IVL pendant 10 jours,</li>
+      `;
+      if (poids) {
+        const smx = (100 * poids).toFixed(0);
+        const tmp = (20 * poids).toFixed(0);
+        html += `<li>→ soit ~${smx} mg SMX + ${tmp} mg TMP par jour.</li>`;
+      }
+      html += `
+          <li>Puis relais 50/10 mg/kg/j PO jusqu’à 21 jours au total.</li>
+        </ul>
+      `;
+      pcpCuratifDiv.innerHTML = html;
+    }
+  }
+
+  const allInputs = [
+    poidsEl,
+    cmvDon,
+    cmvRec,
+    ...cmvRadios,
+    toxoDon,
+    toxoRec,
+  ];
+  allInputs.forEach(el => {
+    if (!el) return;
+    if (el.type === "radio" || el.type === "select-one" || el.type === "checkbox") {
+      el.addEventListener("change", update);
+    } else {
+      el.addEventListener("input", update);
+    }
+  });
+
+  update();
+}
+
+function openHepatiteImage() {
+  window.open("img/hepatite.PNG", "_blank");
+}
 
 function renderReanTransplantCoronaire() {
   const encadres = [
@@ -5565,7 +6221,8 @@ function renderReanTransplantCoronaire() {
         <ul>
           <li>Kardégic 75 mg/j PO ou Aspirine 100 mg/j IVL dès que possible
               en l’absence de thrombopénie.</li>
-          <li>Pravastatine 40 mg/j PO à partir de J10 (si bilan hépatique normal).</li>
+          <li>Pravastatine 40 mg/j PO à partir de J10
+              (si bilan hépatique normalisé).</li>
           <li>Coronarographie à 1 an puis tous les 2 ans.</li>
         </ul>
       `,
