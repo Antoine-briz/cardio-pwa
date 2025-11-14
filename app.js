@@ -6060,9 +6060,9 @@ function renderReanTransplantInfections() {
       html: `
         <p>Se référer au protocole spécifique.</p>
         <p>
-          <button type="button" class="btn link" onclick="openHepatiteImage()">
-            Lien tableau VHB
-          </button>
+          <li>
+  VHB : <span class="img-link" onclick="openImg('hepatite.PNG')">🖥️ Tableau hépatite B</span>
+</li>
         </p>
       `,
     },
