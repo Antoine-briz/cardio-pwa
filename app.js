@@ -27,7 +27,7 @@ const routes = {
   "#/reanimation/prescriptions": renderReanPrescriptionsPostOp,
   "#/reanimation/saignements": renderReanSaignementsPostOp,
   "#/reanimation/fa": renderReanFAPostOp,
-  "#/reanimation/eto": renderReanEtoMenu,
+  "#/reanimation/eto": renderReanEto,
   "#/reanimation/antibiotherapie": renderReanAntibiotherapieMenu,
   "#/reanimation/eer": renderReanEerMenu,
   "#/reanimation/transplantation": renderReanTransplantMenu,
