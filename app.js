@@ -5472,11 +5472,11 @@ function renderReanAntibiotherapieMenu() {
     <section>
       <h2>Antibiothérapie en Réanimation</h2>
       <div class="grid">
-        <button class="btn" onclick="renderAtbProbabilisteMenu()">Probabiliste</button>
-        <button class="btn" onclick="renderAtbAdapteeMenu()">Adaptée</button>
-        <button class="btn" onclick="renderAtbDurees()">Durée</button>
-        <button class="btn" onclick="renderAtbRein()">Adaptation rénale</button>
-        <button class="btn" onclick="renderAtbModalites()">Modalités</button>
+        <button class="btn" onclick="renderProbaMenu()">Probabiliste</button>
+        <button class="btn" onclick="renderAdapteeMenu()">Adaptée</button>
+        <button class="btn" onclick="renderDureesForm()">Durée</button>
+        <button class="btn" onclick="renderReinForm()">Adaptation rénale</button>
+        <button class="btn" onclick="renderModalitesForm()">Modalités</button>
       </div>
       <div id="atb-section-root" style="margin-top:16px;"></div>
     </section>
@@ -5486,41 +5486,840 @@ function renderReanAntibiotherapieMenu() {
 // Les 5 fonctions suivantes se contentent de déléguer à tes fonctions
 // existantes de pwa-atb-rules (renderProbaMenu, renderAdapteeMenu, etc.)
 
-function renderAtbProbabilisteMenu() {
-  const root = document.getElementById("atb-section-root");
-  root.innerHTML = "";
-
-  // Appel réel de ta fonction déjà existante :
-  renderProbaMenu(root);
+function renderProbaMenu() {
+  $app.innerHTML = `
+    ${h("card", `<strong>Antibiothérapie probabiliste</strong>`)}
+    ${h("grid cols-2", `
+      <button class="btn outline" onclick="location.hash='#/proba/pneumonies'">Pneumonies</button>
+      <button class="btn outline" onclick="location.hash='#/proba/iu'">Infections urinaires</button>
+      <button class="btn outline" onclick="location.hash='#/proba/abdo'">Infections intra-abdominales</button>
+      <button class="btn outline" onclick="location.hash='#/proba/neuro'">Infections neuro-méningées</button>
+      <button class="btn outline" onclick="location.hash='#/proba/dermohypo'">Infections des parties molles</button>
+      <button class="btn outline" onclick="location.hash='#/proba/endocardite'">Endocardites infectieuses</button>
+      <button class="btn outline" onclick="location.hash='#/proba/mediastinite'">Médiastinites post-opératoires</button>
+      <button class="btn outline" onclick="location.hash='#/proba/scarpa'">Infections de scarpa</button>
+      <button class="btn outline" onclick="location.hash='#/proba/sepsis'">Sepsis sans porte d'entrée</button>
+    `)}
+    ${h("card", `<button class="btn ghost" onclick="history.back()">← Retour</button>`)}
+  `;
 }
 
-function renderAtbAdapteeMenu() {
-  const root = document.getElementById("atb-section-root");
-  root.innerHTML = "";
+function renderAdapteeMenu() {
+  console.log("renderAdapteeMenu is called!"); 
 
-  renderAdapteeMenu(root);
+  const appContainer = document.getElementById("app");
+
+  // Efface le contenu précédent
+  appContainer.innerHTML = "";
+
+  const container = document.createElement("div");
+  container.classList.add("antibiotherapy-container");
+
+  const title = document.createElement("h2");
+  title.textContent = "Antibiothérapie adaptée: germes multisensibles, BMR et BHRe";
+
+  const linksContainer = document.createElement("div");
+  linksContainer.classList.add("germs-links");
+
+  const links = [
+    { href: "#/adaptee/sensibles", text: "Germes multisensibles" },
+    { href: "#/adaptee/SARM", text: "SARM" },
+    { href: "#/adaptee/ampC", text: "Entérobactéries ampC" },
+    { href: "#/adaptee/BLSE", text: "BLSE" },
+    { href: "#/adaptee/pyo", text: "Pseudomonas aeruginosas MDR/XDR" },
+    { href: "#/adaptee/acineto", text: "Acinetobacter baumannii Imipénème-R" },
+    { href: "#/adaptee/steno", text: "Stenotrophomonas maltophilia" },
+    { href: "#/adaptee/carba", text: "Entérobactéries carbapénémases" },
+    { href: "#/adaptee/erv", text: "E. faecium Vancomycine-R" }
+  ];
+
+  links.forEach(link => {
+    const anchor = document.createElement("a");
+    anchor.href = link.href;
+    anchor.textContent = link.text;
+    anchor.addEventListener("click", (e) => {
+      e.preventDefault(); // Empêche la navigation par défaut
+      location.hash = link.href; // Change le hash pour afficher la bonne page
+    });
+    linksContainer.appendChild(anchor);
+  });
+
+  container.appendChild(title);
+  container.appendChild(linksContainer);
+
+  console.log("Inserting content into #app");  // Log pour vérifier l'insertion du contenu
+  appContainer.appendChild(container); // Insère le contenu dans #app
 }
 
-function renderAtbDurees() {
-  const root = document.getElementById("atb-section-root");
-  root.innerHTML = "";
 
-  renderDureesForm(root);
+
+function renderDureesForm() {
+  // ======================= Données – listes =======================
+  const INFECTIONS = {
+    "Pneumonies": ["Communautaire", "PAVM", "Nécrose/abcès", "Empyème pleural"],
+    "Infections urinaires": ["Cystite", "Pyélonéphrite", "IU masculine"],
+    "Bactériémies": ["Inconnue", "Cathéter", "Autre infection"],
+    "Infections intra-abdominales": [
+      "Cholécystite","Angiocholite","Abcès hépatique","Inf. nécrose pancréatique",
+      "Péritonite communautaire","Péritonite nosocomiale","Appendicite","Diverticulite",
+      "Entéro-colite","Inf. liquide ascite"
+    ],
+    "Infections neuro-méningées": ["Méningite", "Encéphalite", "Abcès cérébral"],
+    "Infections des parties molles": ["Non nécrosantes","Nécrosantes"],
+    "Endocardite infectieuse": ["Valve native","Prothèse valvulaire (< ou > 1 an)"]
+  };
+
+  const BACTERIES = {
+    "Cocci Gram -": ["Neisseria meningitidis"],
+    "Cocci Gram +": ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."],
+    "Bacilles Gram -": [
+      "Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia",
+      "Acinetobacter baumannii","Haemophilus influenzae","Legionella pneumophila"
+    ],
+    "Bacilles Gram +": ["Clostridium difficile","Listeria monocytogenes","Nocardia spp."],
+    "Autres": ["Mycoplasma pneumoniae","Mycobacterium tuberculosis"]
+  };
+
+  const GROUPES_BACT = Object.keys(BACTERIES);
+
+  // ======================= UI =======================
+  $app.innerHTML = `
+    <div class="card"><strong>Durée d’antibiothérapie</strong></div>
+
+    <div class="hero-pneu card">
+      <img src="./img/fabrice.png" alt="Durée d'antibiothérapie" class="form-hero">
+    </div>
+
+    <form id="formDuree" class="form">
+      <div class="grid two">
+        <fieldset>
+          <legend>Infection</legend>
+          <label for="selTypeInfect">Type d’infection</label>
+          <select id="selTypeInfect"></select>
+
+          <label for="selSousType">Sous-type d’infection</label>
+          <select id="selSousType"></select>
+        </fieldset>
+
+        <fieldset>
+          <legend>Documentation</legend>
+          <label for="selCatBact">Catégorie</label>
+          <select id="selCatBact"></select>
+
+          <label for="selEspece">Espèce bactérienne</label>
+          <select id="selEspece"></select>
+        </fieldset>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnCalcul">Durée recommandée</button>
+        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
+      </div>
+
+      <div id="resDuree" class="result"></div>
+    </form>
+  `;
+
+  // Remplissage des combos + dépendances
+  const $type = document.getElementById("selTypeInfect");
+  const $sous = document.getElementById("selSousType");
+  const $cat  = document.getElementById("selCatBact");
+  const $esp  = document.getElementById("selEspece");
+
+  function fillSelect(sel, arr) {
+    sel.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join("");
+  }
+
+  fillSelect($type, Object.keys(INFECTIONS));
+  fillSelect($cat, GROUPES_BACT);
+
+  function updateSousTypes() {
+    fillSelect($sous, INFECTIONS[$type.value] || []);
+  }
+  function updateEspeces() {
+    fillSelect($esp, BACTERIES[$cat.value] || []);
+  }
+
+  $type.addEventListener("change", updateSousTypes);
+  $cat.addEventListener("change", updateEspeces);
+
+  // init
+  updateSousTypes();
+  updateEspeces();
+
+  // ======================= Logique / table des durées =======================
+  // dictionnaire "G|S|GB|B" -> durée brute (sera formatée avant affichage)
+  const map = buildDureesMap();
+
+  document.getElementById("btnCalcul").addEventListener("click", () => {
+    const cle = `${$type.value}|${$sous.value}|${$cat.value}|${$esp.value}`;
+    const brut = map[cle] || "Aucune recommandation disponible pour cette combinaison.";
+    document.getElementById("resDuree").textContent = formatDuree(brut);
+  });
+
+  // ---------------- helpers ----------------
+  function buildDureesMap() {
+    const d = {};
+    // 1) tout à "NA" par défaut (seules les combinaisons présentes seront écrasées)
+    for (const g of Object.keys(INFECTIONS)) {
+      for (const s of INFECTIONS[g]) {
+        for (const gb of GROUPES_BACT) {
+          for (const b of BACTERIES[gb]) {
+            d[`${g}|${s}|${gb}|${b}`] = "NA";
+          }
+        }
+      }
+    }
+
+    const add = (G,S,GB,B,val) => { d[`${G}|${S}|${GB}|${B}`] = val; };
+
+    // --------- PNEUMONIES ---------
+    // Communautaire
+    add("Pneumonies","Communautaire","Cocci Gram -","Neisseria meningitidis","7 j");                                           // :contentReference[oaicite:0]{index=0}
+    add("Pneumonies","Communautaire","Cocci Gram +","Streptococcus spp.","5 à 7 j");                                           // :contentReference[oaicite:1]{index=1}
+    add("Pneumonies","Communautaire","Cocci Gram +","Staphylococcus spp.","5 à 7 j");                                          // :contentReference[oaicite:2]{index=2}
+    add("Pneumonies","Communautaire","Cocci Gram +","Enterococcus spp.","5 à 7 j");                                            // :contentReference[oaicite:3]{index=3}
+    add("Pneumonies","Communautaire","Bacilles Gram -","Entérobactéries","5 à 7 j");                                           // :contentReference[oaicite:4]{index=4}
+    add("Pneumonies","Communautaire","Bacilles Gram -","Pseudomonas aeruginosa","7 j");                                        // :contentReference[oaicite:5]{index=5}
+    add("Pneumonies","Communautaire","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");                              // :contentReference[oaicite:6]{index=6}
+    add("Pneumonies","Communautaire","Bacilles Gram -","Acinetobacter baumannii","7 j ");                   // :contentReference[oaicite:7]{index=7}
+    add("Pneumonies","Communautaire","Bacilles Gram -","Legionella pneumophila","14 à 21 j (21 jours en réanimation)");
+    add("Pneumonies","Communautaire","Bacilles Gram -","Haemophilus influenzae","5 à 7 j");                                    // :contentReference[oaicite:8]{index=8}
+    add("Pneumonies","Communautaire","Bacilles Gram +","Nocardia spp.","6 mois");                                              // :contentReference[oaicite:9]{index=9}
+    add("Pneumonies","Communautaire","Autres","Mycoplasma pneumoniae","5 à 7 j");                                              // :contentReference[oaicite:10]{index=10}
+    add("Pneumonies","Communautaire","Autres","Mycobacterium tuberculosis","6 mois");                                          // :contentReference[oaicite:11]{index=11}
+
+    // PAVM
+    add("Pneumonies","PAVM","Cocci Gram +","Streptococcus spp.","7 j");                                                        // :contentReference[oaicite:12]{index=12}
+    add("Pneumonies","PAVM","Cocci Gram +","Staphylococcus spp.","7 j");                                                       // :contentReference[oaicite:13]{index=13}
+    add("Pneumonies","PAVM","Cocci Gram +","Enterococcus spp.","7 j");                                                         // :contentReference[oaicite:14]{index=14}
+    add("Pneumonies","PAVM","Bacilles Gram -","Entérobactéries","7 j");                                                        // :contentReference[oaicite:15]{index=15}
+    add("Pneumonies","PAVM","Bacilles Gram -","Pseudomonas aeruginosa","8 à 15 j");                                            // :contentReference[oaicite:16]{index=16}
+    add("Pneumonies","PAVM","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");                                           // :contentReference[oaicite:17]{index=17}
+    add("Pneumonies","PAVM","Bacilles Gram -","Acinetobacter baumannii","7 j ");                            // :contentReference[oaicite:18]{index=18}
+    add("Pneumonies","PAVM","Bacilles Gram -","Legionella pneumophila","14 à 21 j (21 jours en réanimation)");
+    add("Pneumonies","PAVM","Bacilles Gram -","Haemophilus influenzae","7 j");                                                 // :contentReference[oaicite:19]{index=19}
+
+    // Nécrose / abcès pulmonaires
+    const necabc = "3 à 6 semaines";                                                                                            // :contentReference[oaicite:20]{index=20}
+    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Streptococcus spp.",necabc);
+    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Staphylococcus spp.",necabc);
+    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Enterococcus spp.",necabc);
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Entérobactéries",necabc);
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Pseudomonas aeruginosa",necabc);
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Stenotrophomonas maltophilia",necabc);
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Acinetobacter baumannii",necabc);
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Legionella pneumophila","3 à 6 semaines");
+    add("Pneumonies","Nécrose/abcès","Cocci Gram -","Neisseria meningitidis",necabc);                                          // :contentReference[oaicite:21]{index=21}
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Haemophilus influenzae",necabc);                                       // :contentReference[oaicite:22]{index=22}
+    add("Pneumonies","Nécrose/abcès","Bacilles Gram +","Nocardia spp.","6 mois");                                              // :contentReference[oaicite:23]{index=23}
+    add("Pneumonies","Nécrose/abcès","Autres","Mycobacterium tuberculosis","9 à 12 mois");                                     // :contentReference[oaicite:24]{index=24}
+
+    // Empyème pleural
+    const emp = "15 jours après drainage ; 3 à 4 semaines si pas de drainage";                                                 // :contentReference[oaicite:25]{index=25}
+    add("Pneumonies","Empyème pleural","Cocci Gram +","Streptococcus spp.",emp);
+    add("Pneumonies","Empyème pleural","Cocci Gram +","Staphylococcus spp.",emp);
+    add("Pneumonies","Empyème pleural","Cocci Gram +","Enterococcus spp.",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Entérobactéries",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Pseudomonas aeruginosa",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Stenotrophomonas maltophilia",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Acinetobacter baumannii",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Haemophilus influenzae",emp); 
+    add("Pneumonies","Empyème pleural","Bacilles Gram -","Legionella pneumophila",emp);
+    add("Pneumonies","Empyème pleural","Bacilles Gram +","Nocardia spp.","6 mois");                                            // :contentReference[oaicite:26]{index=26}
+    add("Pneumonies","Empyème pleural","Autres","Mycobacterium tuberculosis",">= 6 mois");                                     // :contentReference[oaicite:27]{index=27}
+
+    // --------- INFECTIONS URINAIRES ---------
+    // Cystite
+    add("Infections urinaires","Cystite","Cocci Gram +","Streptococcus spp.","7 jours si β-lactamine");                      // :contentReference[oaicite:28]{index=28}
+    add("Infections urinaires","Cystite","Cocci Gram +","Staphylococcus spp.","7 jours si β-lactamine");                     // :contentReference[oaicite:29]{index=29}
+    add("Infections urinaires","Cystite","Cocci Gram +","Enterococcus spp.","7 jours si β-lactamine");                       // :contentReference[oaicite:30]{index=30}
+    add("Infections urinaires","Cystite","Bacilles Gram -","Entérobactéries","7 jours si β-lactamine");                      // :contentReference[oaicite:31]{index=31}
+    add("Infections urinaires","Cystite","Bacilles Gram -","Pseudomonas aeruginosa","7 jours si β-lactamine");               // :contentReference[oaicite:32]{index=32}
+    add("Infections urinaires","Cystite","Bacilles Gram -","Stenotrophomonas maltophilia","7 jours si β-lactamine");         // :contentReference[oaicite:33]{index=33}
+    add("Infections urinaires","Cystite","Bacilles Gram -","Acinetobacter baumannii","7 jours si β-lactamine");              // :contentReference[oaicite:34]{index=34}
+    add("Infections urinaires","Cystite","Autres","Mycobacterium tuberculosis","6 mois");                                       // :contentReference[oaicite:35]{index=35}
+
+    // Pyélonéphrite
+    const py = "7 jours si forme simple ; 10 jours si forme grave ou à risque de complication";                                 // :contentReference[oaicite:36]{index=36}
+    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Streptococcus spp.",py);
+    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Staphylococcus spp.",py);
+    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Enterococcus spp.",py);
+    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Entérobactéries",py);
+    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Pseudomonas aeruginosa",py);
+    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Stenotrophomonas maltophilia",py);
+    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Acinetobacter baumannii",py);
+    add("Infections urinaires","Pyélonéphrite","Autres","Mycobacterium tuberculosis","9 à 12 mois");
+
+    // IU masculine
+    const ium = "14 jours (21 jours si uropathie non corrigée)";                                                                // :contentReference[oaicite:37]{index=37}
+    add("Infections urinaires","IU masculine","Cocci Gram +","Streptococcus spp.",ium);
+    add("Infections urinaires","IU masculine","Cocci Gram +","Staphylococcus spp.",ium);
+    add("Infections urinaires","IU masculine","Cocci Gram +","Enterococcus spp.",ium);
+    add("Infections urinaires","IU masculine","Bacilles Gram -","Entérobactéries",ium);
+    add("Infections urinaires","IU masculine","Bacilles Gram -","Pseudomonas aeruginosa",ium);
+    add("Infections urinaires","IU masculine","Bacilles Gram -","Stenotrophomonas maltophilia",ium);
+    add("Infections urinaires","IU masculine","Bacilles Gram -","Acinetobacter baumannii",ium);
+    add("Infections urinaires","IU masculine","Autres","Mycobacterium tuberculosis","9 à 12 mois");
+
+    // --------- BACTÉRIÉMIES ---------
+    // Inconnue
+    add("Bactériémies","Inconnue","Cocci Gram -","Neisseria meningitidis","7 j");                                               // :contentReference[oaicite:38]{index=38}
+    add("Bactériémies","Inconnue","Cocci Gram +","Streptococcus spp.","7 j");                                                   // :contentReference[oaicite:39]{index=39}
+    add("Bactériémies","Inconnue","Cocci Gram +","Staphylococcus spp.","Staphylocoques à coagulase négative : 3 à 5 j ; Staphylococcus aureus ou lugdunensis : 14 j"); // :contentReference[oaicite:40]{index=40}
+    add("Bactériémies","Inconnue","Cocci Gram +","Enterococcus spp.","7 j");                                                    // :contentReference[oaicite:41]{index=41}
+    add("Bactériémies","Inconnue","Bacilles Gram -","Entérobactéries","7 j");                                                   // :contentReference[oaicite:42]{index=42}
+    add("Bactériémies","Inconnue","Bacilles Gram -","Pseudomonas aeruginosa","7 à 10 j");                                       // :contentReference[oaicite:43]{index=43}
+    add("Bactériémies","Inconnue","Bacilles Gram -","Acinetobacter baumannii","7 à 10 j");
+    add("Bactériémies","Inconnue","Bacilles Gram -","Stenotrophomonas maltophilia","7 à 10 j");
+    add("Bactériémies","Inconnue","Bacilles Gram -","Haemophilus influenzae","7 j");
+    add("Bactériémies","Inconnue","Bacilles Gram +","Listeria monocytogenes","21 j");                                           // :contentReference[oaicite:45]{index=45}
+    add("Bactériémies","Inconnue","Bacilles Gram +","Nocardia spp.","6 mois");                                                  // :contentReference[oaicite:46]{index=46}
+    add("Bactériémies","Inconnue","Autres","Mycobacterium tuberculosis","9 à 12 mois");                                         // :contentReference[oaicite:47]{index=47}
+
+    // Cathéter
+    add("Bactériémies","Cathéter","Cocci Gram -","Neisseria meningitidis","7 j");                                               // :contentReference[oaicite:48]{index=48}
+    add("Bactériémies","Cathéter","Cocci Gram +","Streptococcus spp.","7 j");                                                   // :contentReference[oaicite:49]{index=49}
+    add("Bactériémies","Cathéter","Cocci Gram +","Staphylococcus spp.","Staphylocoques à coagulase négative : 3 j ; Staphylococcus aureus ou lugdunensis : 14 j"); // :contentReference[oaicite:50]{index=50}
+    add("Bactériémies","Cathéter","Cocci Gram +","Enterococcus spp.","7 j");                                                    // :contentReference[oaicite:51]{index=51}
+    add("Bactériémies","Cathéter","Bacilles Gram -","Entérobactéries","7 j");                                                   // :contentReference[oaicite:52]{index=52}
+    add("Bactériémies","Cathéter","Bacilles Gram -","Pseudomonas aeruginosa","7 à 10 j");                                       // :contentReference[oaicite:53]{index=53}
+    add("Bactériémies","Cathéter","Bacilles Gram -","Acinetobacter baumannii","7 à 10 j"); 
+    add("Bactériémies","Cathéter","Bacilles Gram -","Stenotrophomonas maltophilia","7 à 10 j");
+    add("Bactériémies","Cathéter","Bacilles Gram -","Haemophilus influenzae","7 j");      // :contentReference[oaicite:54]{index=54}
+    add("Bactériémies","Cathéter","Bacilles Gram +","Nocardia spp.","6 mois"); 
+
+    // Autre infection – identique à l’infection source
+    const idem = "Identique à l'infection responsable";                                                                         // :contentReference[oaicite:55]{index=55}
+    add("Bactériémies","Autre infection","Cocci Gram -","Neisseria meningitidis",idem);
+    add("Bactériémies","Autre infection","Cocci Gram +","Streptococcus spp.",idem);
+    add("Bactériémies","Autre infection","Cocci Gram +","Staphylococcus spp.",idem);
+    add("Bactériémies","Autre infection","Cocci Gram +","Enterococcus spp.",idem);
+    add("Bactériémies","Autre infection","Bacilles Gram -","Entérobactéries",idem);
+    add("Bactériémies","Autre infection","Bacilles Gram -","Pseudomonas aeruginosa",idem);
+    add("Bactériémies","Autre infection","Bacilles Gram -","Acinetobacter baumannii",idem); 
+    add("Bactériémies","Autre infection","Bacilles Gram -","Stenotrophomonas maltophilia",idem);
+    add("Bactériémies","Autre infection","Bacilles Gram -","Haemophilus influenzae",idem);
+    add("Bactériémies","Autre infection","Bacilles Gram +","Listeria monocytogenes","21 j");
+    add("Bactériémies","Autre infection","Bacilles Gram +","Nocardia spp.","6 mois");
+    add("Bactériémies","Autre infection","Autres","Mycobacterium tuberculosis",idem);
+          // :contentReference[oaicite:54]{index=54}
+  
+
+    // --------- INFECTIONS INTRA-ABDOMINALES ---------
+    const chole     = "3 jours post-opératoire ; 7 jours si non opérée";                                                        // :contentReference[oaicite:57]{index=57}
+    const angio     = "3 jours post-drainage, 7 à 10 jours si non drainée";
+    const absh      = "3 à 4 semaines si drainage ; 6 semaines sinon";
+    const inp       = "Aucune recommandation – dépend de l’évolution clinique/radiologique";
+    const peritCom  = "4 jours (5 jours si sepsis)";
+    const peritNos  = "5 à 8 jours (8 jours si sepsis)";
+    const app       = "1 jour (si péritonite = 3 jours ; si non opérée = 7)";
+    const divert    = "7 jours (Antibiothérapie indiquée uniquement si: gravité, grossesse, immunodépression ou ASA3)";
+    const entecol   = "3 à 7 j";
+    const cdiff     = "10 j";
+    const asc       = "5 à 7 jours (5 jours si C3G IV)";
+    const tbLong    = "9 à 12 mois";
+
+    // Cholécystite
+    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
+      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
+                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
+        add("Infections intra-abdominales","Cholécystite",gb,b,chole);
+      }
+    }                                                                                                                            // :contentReference[oaicite:58]{index=58}
+    add("Infections intra-abdominales","Cholécystite","Autres","Mycobacterium tuberculosis",tbLong);                            // :contentReference[oaicite:59]{index=59}
+
+    // Angiocholite
+    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
+      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
+                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
+        add("Infections intra-abdominales","Angiocholite",gb,b,angio);
+      }
+    }                                                                                                                            // :contentReference[oaicite:60]{index=60}
+    add("Infections intra-abdominales","Angiocholite","Autres","Mycobacterium tuberculosis",tbLong);
+
+    // Abcès hépatique
+    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Abcès hépatique","Cocci Gram +",b,absh);
+    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Abcès hépatique","Bacilles Gram -",b,absh);
+    add("Infections intra-abdominales","Abcès hépatique","Autres","Mycobacterium tuberculosis",tbLong);                         // :contentReference[oaicite:61]{index=61}
+
+    // Infection de nécrose pancréatique
+    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Inf. nécrose pancréatique","Cocci Gram +",b,inp);
+    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Inf. nécrose pancréatique","Bacilles Gram -",b,inp);
+    add("Infections intra-abdominales","Inf. nécrose pancréatique","Autres","Mycobacterium tuberculosis",tbLong);               // :contentReference[oaicite:62]{index=62}
+
+    // Péritonite communautaire
+    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Péritonite communautaire","Cocci Gram +",b,peritCom);
+    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Péritonite communautaire","Bacilles Gram -",b,peritCom); // :contentReference[oaicite:63]{index=63}
+    add("Infections intra-abdominales","Péritonite communautaire","Autres","Mycobacterium tuberculosis",tbLong);
+
+    // Péritonite nosocomiale
+    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Péritonite nosocomiale","Cocci Gram +",b,peritNos);
+    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Péritonite nosocomiale","Bacilles Gram -",b,peritNos); // :contentReference[oaicite:64]{index=64}
+
+    // Appendicite
+    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
+      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
+                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
+        add("Infections intra-abdominales","Appendicite",gb,b,app);
+      }
+    }
+    // Diverticulite
+    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
+      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
+                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
+        add("Infections intra-abdominales","Diverticulite",gb,b,divert);
+      }
+    }
+    // Entéro-colite
+    add("Infections intra-abdominales","Entéro-colite","Bacilles Gram -","Entérobactéries",entecol);
+    add("Infections intra-abdominales","Entéro-colite","Bacilles Gram +","Clostridium difficile",cdiff);
+    add("Infections intra-abdominales","Entéro-colite","Autres","Mycobacterium tuberculosis","6 mois");                          // :contentReference[oaicite:65]{index=65}
+    // Inf. liquide ascite
+    add("Infections intra-abdominales","Inf. liquide ascite","Bacilles Gram -","Entérobactéries",asc);
+    add("Infections intra-abdominales","Inf. liquide ascite","Autres","Mycobacterium tuberculosis","NA");                        // :contentReference[oaicite:66]{index=66}
+
+    // --------- INFECTIONS NEURO-MÉNINGÉES ---------
+    // Méningite
+    add("Infections neuro-méningées","Méningite","Cocci Gram -","Neisseria meningitidis","5 à 7 j");                             // :contentReference[oaicite:67]{index=67}
+    add("Infections neuro-méningées","Méningite","Cocci Gram +","Streptococcus spp.","10 à 14 j (14 à 21 j si groupe B)");
+    add("Infections neuro-méningées","Méningite","Cocci Gram +","Staphylococcus spp.","10 à 21 j (généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Cocci Gram +","Enterococcus spp.","21 j (car généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Entérobactéries","21 j (car généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Pseudomonas aeruginosa","21 j (car généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Acinetobacter baumannii","21 j (car généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Stenotrophomonas maltophilia","21 j (car généralement nosocomiale)");
+    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Haemophilus influenzae","7 j");                              // :contentReference[oaicite:68]{index=68}
+    add("Infections neuro-méningées","Méningite","Bacilles Gram +","Listeria monocytogenes","21 j");
+    add("Infections neuro-méningées","Méningite","Autres","Mycobacterium tuberculosis","12 mois");
+
+    // Encéphalite (bactérienne)
+    add("Infections neuro-méningées","Encéphalite","Bacilles Gram +","Listeria monocytogenes","21 j");
+    add("Infections neuro-méningées","Encéphalite","Autres","Mycobacterium tuberculosis","12 à 18 mois");                         // :contentReference[oaicite:69]{index=69}
+
+    // Abcès cérébral
+    const abc = "4 à 6 semaines si drainage (4 semaines si exérèse chirurgicale) ; 8 à 12 semaines en l’absence de geste";       // :contentReference[oaicite:70]{index=70}
+    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Streptococcus spp.",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Staphylococcus spp.",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Enterococcus spp.",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Entérobactéries",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Pseudomonas aeruginosa",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Acinetobacter baumannii",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Stenotrophomonas maltophilia",abc);
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Haemophilus influenzae",abc)
+    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram +","Nocardia spp.","12 à 18 mois");
+    add("Infections neuro-méningées","Abcès cérébral","Autres","Mycobacterium tuberculosis","12 mois");
+
+    // --------- INFECTIONS DES PARTIES MOLLES ---------
+    // Non nécrosantes
+    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Streptococcus spp.","7 j");                             // :contentReference[oaicite:71]{index=71}
+    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Staphylococcus spp.","7 j");
+    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Enterococcus spp.","7 j");
+    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Entérobactéries","7 j");
+    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Pseudomonas aeruginosa","7 j");
+    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Acinetobacter baumannii","7 j");
+    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");
+    add("Infections des parties molles","Non nécrosantes","Bacilles Gram +","Nocardia spp.","3 à 6 mois");
+    add("Infections des parties molles","Non nécrosantes","Autres","Mycobacterium tuberculosis","6 mois");      // :contentReference[oaicite:72]{index=72}
+
+    // Nécrosantes
+    const npo = "10 à 15 jours post-opératoire (selon évolution)";                                                               // :contentReference[oaicite:73]{index=73}
+    add("Infections des parties molles","Nécrosantes","Cocci Gram -","Neisseria meningitidis","7 j (purpura fulminans)");
+    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Streptococcus spp.",npo);
+    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Staphylococcus spp.",npo);
+    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Enterococcus spp.",npo);
+    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Entérobactéries",npo);
+    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Pseudomonas aeruginosa",npo);
+    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Acinetobacter baumannii",npo);
+    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Stenotrophomonas maltophilia",npo);
+    add("Infections des parties molles","Nécrosantes","Bacilles Gram +","Nocardia spp.","3 à 6 mois");
+    add("Infections des parties molles","Nécrosantes","Autres","Mycobacterium tuberculosis","9 à 12 mois");
+
+    // --------- ENDOCARDITE INFECTIEUSE ---------
+    // Valve native
+    add("Endocardite infectieuse","Valve native","Cocci Gram +","Streptococcus spp.","2 à 4 semaines (2 semaines si gentamicine)"); // :contentReference[oaicite:74]{index=74}
+    add("Endocardite infectieuse","Valve native","Cocci Gram +","Staphylococcus spp.","4 à 6 semaines (pas d’aminoside)");
+    add("Endocardite infectieuse","Valve native","Cocci Gram +","Enterococcus spp.","6 semaines (+ 2 semaines gentamicine ou + 6 semaines C3G)");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Entérobactéries","6 semaines (+ 2 semaines gentamicine)");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Pseudomonas aeruginosa",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Acinetobacter baumannii",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Stenotrophomonas maltophilia",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Haemophilus influenzae","4 sem C3G (ou 4 sem amoxicilline + 2 sem gentamicine)");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram +","Listeria monocytogenes","4 semaines de C3G (ou 4 semaines amoxicilline + 2 semaines gentamicine)");
+    add("Endocardite infectieuse","Valve native","Bacilles Gram +","Nocardia spp.","6 mois");
+    add("Endocardite infectieuse","Valve native","Autres","Mycobacterium tuberculosis","9 à 12 mois");
+
+    // Prothèse valvulaire (< ou > 1 an)
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Streptococcus spp.","6 semaines (dont gentamicine 2 semaines)"); // :contentReference[oaicite:75]{index=75}
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Staphylococcus spp.",">= 6 semaines (dont gentamicine 2 semaines)");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Enterococcus spp.","6 semaines (+ 2 semaines gentamicine ou + 6 semaines C3G)");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Entérobactéries","6 semaines (+ 2 semaines gentamicine)");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Pseudomonas aeruginosa",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Acinetobacter baumannii",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Stenotrophomonas maltophilia",">= 6 semaines en bithérapie");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Haemophilus influenzae","6 sem C3G (ou 6 sem amoxicilline + 2 sem gentamicine)");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram +","Nocardia spp.","6 mois");
+    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Autres","Mycobacterium tuberculosis","12 à 18 mois");
+
+    return d;
+  }
+
+  function formatDuree(txt) {
+    if (!txt) return "";
+    if (txt.trim().toUpperCase() === "NA") {
+      return "Non applicable : bactérie jamais/rarement impliquée dans ce type d’infection.";
+    }
+    let r = txt;
+    // Conserver l'intention "=" en ASCII ">="
+    r = r.replace(/=/g, ">=");
+    r = r.replace(/Idem infect°/g, "Identique à l'infection responsable");
+    // j -> jours
+    r = r.replace(/ j /g, " jours ");
+    r = r.replace(/ j$/g, " jours");
+    r = r.replace(/\(j/g, "(jours");
+    r = r.replace(/j\)/g, "jours)");
+    // sem -> semaines
+    r = r.replace(/ sem\. /g, " semaines ");
+    r = r.replace(/ sem /g, " semaines ");
+    r = r.replace(/sem\.$/g, "semaines");
+    r = r.replace(/sem$/g, "semaines");
+    return r;
+  }
 }
 
-function renderAtbRein() {
-  const root = document.getElementById("atb-section-root");
-  root.innerHTML = "";
 
-  renderReinForm(root);
+function renderReinForm() {
+  $app.innerHTML = `
+    <div class="card"><strong>Adaptation à la fonction rénale</strong></div>
+    <div class="hero-pneu card">
+      <img src="./img/dialyse.png" alt="Fonction rénale" class="form-hero">
+    </div>
+
+    <form id="formRein" class="form">
+      <fieldset>
+        <legend>Famille d’antibiotique</legend>
+        <select id="famille">
+          <option value="">— Sélectionner —</option>
+          <option value="betalactamine">β-lactamines</option>
+          <option value="aminoside">Aminosides</option>
+          <option value="fluoroquinolone">Fluoroquinolones</option>
+          <option value="antigram">Anti-Gram+</option>
+          <option value="autres">Autres</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Molécule</legend>
+        <select id="molecule"><option value="">— Choisir une famille d’abord —</option></select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fonction rénale</legend>
+        <select id="fonction">
+          <option value="">— Sélectionner —</option>
+          <option value=">120">DFG > 120 mL/min/1,73m²</option>
+          <option value="30-120">DFG = 30–120 mL/min/1,73m²</option>
+          <option value="30-10">DFG = 30–10 mL/min/1,73m²</option>
+          <option value="<10">DFG < 10 mL/min/1,73m²</option>
+          <option value="hd">Hémodialyse intermittente</option>
+          <option value="cvvh">CVVH 30–35 mL/kg/h</option>
+          <option value="cvvhd">CVVHD 30–35 mL/kg/h</option>
+        </select>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnRein">Afficher la posologie</button>
+        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
+      </div>
+
+      <div id="resRein" class="result"></div>
+    </form>
+  `;
+
+  // ===== Données fidèles au tableau PDF =====
+  // Colonnes: charge | >120 | 30-120 | 30-10 | <10 | hd | cvvh | cvvhd
+  const data = {
+    betalactamine: {
+      "Amoxicilline": {charge:"2g sur 30min",">120":"2g /4 à 6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /12-24h, Jours avec EER: 1g après EER","cvvh":"1g /8h","cvvhd":"1g /6 à 8h"},                                          // :contentReference[oaicite:6]{index=6}
+      "Cloxacilline": {charge:"2g sur 30min",">120":"2g /4 à 6h","30-120":"1g /4 à 6h","30-10":"1g /6 à 8h","<10":"1g /6 à 8h","hd":"Jours sans EER: 1g /6-8h, Jours avec EER: 1g après EER","cvvh":"1g /6h","cvvhd":"1g /4 à 6h"},                                          // :contentReference[oaicite:7]{index=7}
+      "Oxacilline": {charge:"2g sur 30min",">120":"2g /6h","30-120":"2g /4 à 6h","30-10":"2g /4 à 6h","<10":"2g /4 à 6h","hd":"Jours sans EER: 2g /6-8h, Jours avec EER: 1-2g après EER","cvvh":"2g /6h","cvvhd":"2g /4 à 6h"},                                               // :contentReference[oaicite:8]{index=8}
+      "Amoxicilline + Clavulanate": {charge:"2g +0,2g sur 30min",">120":"2g +0,2g /6h","30-120":"1g +0,2g /4 à 8h","30-10":"1g +0,2g /12h","<10":"1g +0,2g /24h","hd":"Jours sans EER: 1g +0,2g /24h, Jours avec EER: 1 +0,2g après EER","cvvh":"1g +0,2g /8h","cvvhd":"1g +0,2g /6 à 8h"}, // :contentReference[oaicite:9]{index=9}
+      "Pipéracilline": {charge:"4g sur 30min",">120":"4g /6h","30-120":"4g /6h","30-10":"4g /8h","<10":"4g /12h","hd":"Jours sans EER: 4g /12-24h, Jours avec EER: 4g après EER","cvvh":"4g /8h","cvvhd":"4g /6 à 8h"},                                                // :contentReference[oaicite:10]{index=10}
+      "Pipéracilline + Tazobactam": {charge:"4g +0,5g sur 30min",">120":"4g +0,5g /6h","30-120":"4g +0,5g /6h","30-10":"4g +0,5g /8h","<10":"4g +0,5g /12h","hd":"Jours sans EER: 4g +0,5 /12-24h, Jours avec EER: 4 +0,5g après EER","cvvh":"4g +0,5g /8h","cvvhd":"4g +0,5g /6 à 8h"},       // :contentReference[oaicite:11]{index=11}
+      "Céfazoline": {charge:"2g sur 30min",">120":"8g/24h IVSE","30-120":"6–8g/24h IVSE","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /12-24h, Jours avec EER: 1g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                      // :contentReference[oaicite:12]{index=12}
+      "Céfotaxime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1-2g /12-24h, Jours avec EER: 1-2g après EER","cvvh":"2g /8h","cvvhd":"2g /6 à 8h"},                                              // :contentReference[oaicite:13]{index=13}
+      "Ceftriaxone": {charge:"2g sur 30min",">120":"1g /12 à 24h","30-120":"1g /12 à 24h","30-10":"1g /24h","<10":"1g /24h","hd":"1 à 2g/24h (peu dialysable)","cvvh":"2g /24h","cvvhd":"2g /24h"},                                        // :contentReference[oaicite:14]{index=14}
+      "Ceftazidime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /6 à 12h","<10":"1g /12h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1-2g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                       // :contentReference[oaicite:15]{index=15}
+      "Céfépime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1-2g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                              // :contentReference[oaicite:16]{index=16}
+      "Ceftobiprole": {charge:"1g sur 1h",">120":"1g /6h","30-120":"0,5–1g /8h","30-10":"1g /12h","<10":"500mg /24h","hd":"Jours sans EER: 500mg /24h, Jours avec EER: 500mg après EER","cvvh":"500mg /8h","cvvhd":"500mg /8h"},                                   // :contentReference[oaicite:17]{index=17}
+      "Ceftaroline": {charge:"600mg sur 1h",">120":"600mg /8h","30-120":"600mg /8h","30-10":"600mg /12h","<10":"600mg /24h","hd":"Jours sans EER: 600mg/24h, Jours avec EER: 600mg après EER","cvvh":"600mg /12h","cvvhd":"600mg /12h"},                                 // :contentReference[oaicite:18]{index=18}
+      "Ceftazidime + Avibactam": {charge:"2g +0,5g sur 2h",">120":"2g +0,5g /6h","30-120":"2g +0,5g /8h","30-10":"2g +0,5g /12h","<10":"2g +0,5g /24h","hd":"Jours sans EER: 2g +0,5g /24h, Jours avec EER: 2g +0,5g après EER","cvvh":"2g +0,5g /8h","cvvhd":"2g +0,5g /8h"}, // :contentReference[oaicite:19]{index=19}
+      "Ceftolozane + Tazobactam": {charge:"1g +0,5g sur 1h",">120":"1g +0,5g /6h","30-120":"1g +0,5g /8h","30-10":"1g +0,5g /12h","<10":"1g +0,5g /24h","hd":"Jours sans EER: 1g +0,5g /24h, Jours avec EER: 1g + 0,5g après EER","cvvh":"1g +0,5g /8h","cvvhd":"1g +0,5g /8h"}, // :contentReference[oaicite:20]{index=20}
+      "Cefidérocol": {charge:"2g sur 1h",">120":"2g /6h","30-120":"2g /8h","30-10":"1g /8h","<10":"0,75g /12h","hd":"Jours sans EER: 0,75g /12h, Jours avec EER: 0,75g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"},                                                   // :contentReference[oaicite:21]{index=21}
+      "Imipénème": {charge:"2g sur 30min",">120":"1g /6h","30-120":"1g /6 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 0,5g /12h, Jours avec EER: 0,5g après EER","cvvh":"1g /8h","cvvhd":"1g /8h"},                                                   // :contentReference[oaicite:22]{index=22}
+      "Méropénème": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /6 à 12h","<10":"1g /12h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1g après EER","cvvh":"1g /8h","cvvhd":"1g /8h"},                                             // :contentReference[oaicite:23]{index=23}
+      "Ertapénème": {charge:"2g sur 30min",">120":"1g /8h","30-120":"1g /12h","30-10":"500mg /24h (à éviter)","<10":"500mg /24h (à éviter)","hd":"0,5-1g après EER uniquement (à éviter)","cvvh":"500mg /24h (à éviter)","cvvhd":"500mg /24h (à éviter)"}, // :contentReference[oaicite:24]{index=24}
+      "Imipénème + Relebactam": {charge:"2g +1g sur 30min",">120":"1g +0,5g /6h","30-120":"1g +0,5g /6 à 8h","30-10":"1g +0,5g /12h","<10":"1g +0,5g /24h","hd":"Jours sans EER: 1g +0,5g /24h, Jours avec EER: 1g +0,5g après EER","cvvh":"1g +0,5g /8h","cvvhd":"1g +0,5g /8h"},       // :contentReference[oaicite:25]{index=25}
+      "Méropénème + Vaborbactam": {charge:"2g +2g sur 30min",">120":"2g +2g /6h","30-120":"2g +2g /8h","30-10":"1g +1g /6 à 12h","<10":"1g +1g /12h","hd":"Jours sans EER: 1g +1g /24h, Jours avec EER: 1g +1g après EER","cvvh":"2g +2g /8h","cvvhd":"2g +2g /8h"},              // :contentReference[oaicite:26]{index=26}
+      "Aztréonam": {charge:"2g sur 30min",">120":"2g /6h","30-120":"2g /6 à 8h","30-10":"1g /8h","<10":"1g /12h","hd":"Jours sans EER: 1g /12h, Jours avec EER: 1-2g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"},                                                   // :contentReference[oaicite:27]{index=27}
+      "Témocilline": {charge:"2g sur 30min",">120":"8–10g/24h IVSE","30-120":"4–6g/24h IVSE","30-10":"2g /24h","<10":"1g /24h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 2g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"}                                       // :contentReference[oaicite:28]{index=28}
+    },
+
+    aminoside: {
+      "Amikacine": {charge:"30mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 2,5 mg/L","cvvh":"—","cvvhd":"—"}, // :contentReference[oaicite:29]{index=29}
+      "Gentamicine": {charge:"8mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 0,5 mg/L","cvvh":"—","cvvhd":"—"},     // :contentReference[oaicite:30]{index=30}
+      "Tobramycine": {charge:"8mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 0,5 mg/L","cvvh":"—","cvvhd":"—"}      // :contentReference[oaicite:31]{index=31}
+    },
+
+    fluoroquinolone: {
+      "Ofloxacine": {charge:"400mg IVL ou PO",">120":"400mg /12h","30-120":"400mg /12h","30-10":"400mg /24h","<10":"200mg /24h","hd":"200mg /24h","cvvh":"400mg /24h","cvvhd":"400mg /24h"},                                   // :contentReference[oaicite:32]{index=32}
+      "Ciprofloxacine": {charge:"400mg IVL ou PO",">120":"400mg /8h","30-120":"400mg /8h","30-10":"400mg /24h","<10":"400mg /24h","hd":"400mg /24h","cvvh":"400mg /12h","cvvhd":"400mg /12h"},                                  // :contentReference[oaicite:33]{index=33}
+      "Lévofloxacine": {charge:"500mg IVL ou PO",">120":"500mg /12h","30-120":"500mg /12h","30-10":"500mg /24h","<10":"500mg /48h","hd":"500mg après EER uniquement","cvvh":"500mg /24h","cvvhd":"500mg /24h"},                           // :contentReference[oaicite:34]{index=34}
+      "Moxifloxacine": {charge:"400mg IVL ou PO",">120":"400mg /24h","30-120":"400mg /24h","30-10":"400mg /24h","<10":"400mg /24h","hd":"400mg /24h","cvvh":"400mg /24h","cvvhd":"400mg /24h"}                                  // :contentReference[oaicite:35]{index=35}
+    },
+
+    antigram: {
+      "Vancomycine": {charge:"30mg/kg sur 1h",">120":"30mg/kg/24h (C. continue 20–25mg/L)","30-120":"30mg/kg/24h (C. continue 20–25mg/L)","30-10":"10mg/kg/24h (C. continue 20–25mg/L)","<10":"10mg/kg/24h (C. continue 20–25mg/L)","hd":"10mg/kg après EER (C résiduelle 20–25mg/L)","cvvh":"15–20 mg/kg/24h (C. continue 20–25mg/L)","cvvhd":"15–20 mg/kg/24h (C. continue 20–25mg/L)"}, // :contentReference[oaicite:36]{index=36}
+      "Teicoplanine": {charge:"6-12mg/kg/12h pour 3 à 5 injections",">120":"12mg/kg/24h (C. résiduelle 20–25mg/L)","30-120":"6-12mg/kg/24h (C. résiduelle 20–25mg/L)","30-10":"4mg/kg/24h (C. résiduelle 20–25mg/L)","<10":"4mg/kg/24h (C. résiduelle 20–25mg/L)","hd":"4mg/kg/24h (C. résiduelle 20–25mg/L)","cvvh":"6–8 mg/kg/24h (C. continue 20–25mg/L)","cvvhd":"6–8 mg/kg/24h (C. continue 20–25mg/L)"}, // :contentReference[oaicite:37]{index=37}
+      "Linézolide": {charge:"600mg IVL ou PO",">120":"600mg /12h","30-120":"600mg /12h","30-10":"600mg /12h","<10":"600mg /12h","hd":"600mg /12h","cvvh":"600mg /12h","cvvhd":"600mg /12h"},                                     // :contentReference[oaicite:38]{index=38}
+      "Daptomycine": {charge:"10mg/kg IVL",">120":"12mg/kg/24h ou 8mg/kg/12h","30-120":"10mg/kg/24h","30-10":"10mg/kg/48h","<10":"10mg/kg/48h","hd":"10mg/kg après EER","cvvh":"10mg/kg/24h","cvvhd":"10mg/kg/24h"},       // :contentReference[oaicite:39]{index=39}
+      "Clindamycine": {charge:"600mg IVL",">120":"600mg /6 à 8h","30-120":"600mg /6 à 8h","30-10":"600mg /6 à 8h","<10":"600mg /6 à 8h","hd":"600mg /6 à 8h","cvvh":"600mg /6 à 8h","cvvhd":"600mg /6 à 8h"}               // :contentReference[oaicite:40]{index=40}
+    },
+
+    autres: {
+      "Colistine": {charge:"9 MUI IVL",">120":"4,5 MUI /12h","30-120":"4,5 MUI /12h","30-10":"4,5 MUI /24h","<10":"3,5 MUI /24h","hd":"2 MUI après EER","cvvh":"—","cvvhd":"—"},                                           // :contentReference[oaicite:41]{index=41}
+      "Cotrimoxazole (pneumocystose)": {charge:"800mg IVL ou PO",">120":"100 mg/kg/j (12 amp/j max)","30-120":"75–100 mg/kg/j (12 amp/j max)","30-10":"40–50 mg/kg/j","<10":"20–25 mg/kg/j","hd":"20 mg/kg/j","cvvh":"15–20 mg/kg/j","cvvhd":"15–20 mg/kg/j"}, // :contentReference[oaicite:42]{index=42}
+      "Cotrimoxazole (autre)": {charge:"800mg IVL ou PO",">120":"800mg /8h","30-120":"800mg /8h","30-10":"800mg /24h","<10":"800mg /48h","hd":"400mg après EER","cvvh":"400mg /24h","cvvhd":"400mg /24h"},                     // :contentReference[oaicite:43]{index=43}
+      "Doxycycline": {charge:"200mg IVL ou PO",">120":"100mg /12h","30-120":"100mg /12h","30-10":"100mg /12h","<10":"100mg /12h","hd":"100mg /12h","cvvh":"100mg /12h","cvvhd":"100mg /12h"},                                   // :contentReference[oaicite:44]{index=44}
+      "Fidaxomicine": {charge:"200mg PO",">120":"200mg /12h","30-120":"200mg /12h","30-10":"200mg /12h","<10":"200mg /12h","hd":"200mg /12h","cvvh":"200mg /12h","cvvhd":"200mg /12h"},                                  // :contentReference[oaicite:45]{index=45}
+      "Métronidazole": {charge:"500mg IVL ou PO",">120":"500mg /8h","30-120":"500mg /8h","30-10":"500mg /8h","<10":"500mg /8h","hd":"500mg /8h","cvvh":"500mg /8h","cvvhd":"500mg /8h"},                                       // :contentReference[oaicite:46]{index=46}
+      "Rifampicine": {charge:"10mg/kg IVL ou PO",">120":"10mg/kg /8h","30-120":"10mg/kg /8h","30-10":"10mg/kg /8h","<10":"10mg/kg /8h","hd":"10mg/kg /8h","cvvh":"10mg/kg /8h","cvvhd":"10mg/kg /8h"},                         // :contentReference[oaicite:47]{index=47}
+      "Spiramycine": {charge:"3 MUI IVL",">120":"3 MUI /8h","30-120":"3 MUI /8h","30-10":"3 MUI /8h","<10":"3 MUI /8h","hd":"3 MUI /8h","cvvh":"3 MUI /8h","cvvhd":"3 MUI /8h"},                                         // :contentReference[oaicite:48]{index=48}
+      "Tigécycline": {charge:"100mg IVL",">120":"50mg /12h","30-120":"50mg /12h","30-10":"50mg /12h","<10":"50mg /12h","hd":"50mg /12h","cvvh":"50mg /12h","cvvhd":"50mg /12h"}                                          // :contentReference[oaicite:49]{index=49}
+    }
+  };
+
+  const selFamille = document.getElementById("famille");
+  const selMolecule = document.getElementById("molecule");
+
+  selFamille.addEventListener("change", () => {
+    const f = selFamille.value;
+    if (!f) { selMolecule.innerHTML = `<option value="">— Choisir une famille d’abord —</option>`; return; }
+    const options = Object.keys(data[f]).map(m => `<option value="${m}">${m}</option>`).join("");
+    selMolecule.innerHTML = `<option value="">— Sélectionner —</option>` + options;
+  });
+
+  document.getElementById("btnRein").addEventListener("click", () => {
+  const f = selFamille.value, m = selMolecule.value, fn = document.getElementById("fonction").value;
+  const out = document.getElementById("resRein");
+
+  if (!f || !m || !fn) {
+    out.textContent = "⚠️ Merci de sélectionner une famille, une molécule et une fonction rénale.";
+    return;
+  }
+
+  const mol = data[f][m];
+  const entretienBrut = mol[fn] || "—";
+  const entretienLisible = humanizeEntretien(entretienBrut);
+
+  // Affichage principal de la réponse
+  out.innerHTML = `
+    <strong>${m}</strong><br>
+    <em>Dose de charge :</em> ${mol.charge}<br>
+    <em>Dose d’entretien (${document.getElementById("fonction").selectedOptions[0].textContent}) :</em> ${entretienLisible}
+  `;
+
+  // Ajout des crédits
+  out.innerHTML += `
+    <div class="credits">
+      D'après le travail de : Dr Gilles TROCHE, Dr Marine PAUL et Dr Antoine BRIZARD<br>
+      (Bases de données ANSM, GPR et Dexther)
+    </div>
+  `;
+
+  // ✅ Ajout de l'encadré d'information supplémentaire
+  const existingNote = document.querySelector(".rein-note");
+  if (existingNote) existingNote.remove(); // Évite les doublons si on reclique plusieurs fois
+
+  const infoDiv = document.createElement("div");
+  infoDiv.className = "info-card rein-note";
+  infoDiv.innerHTML = `
+    <div class="info-content">
+      Le dosage plasmatique des antibiotiques est recommandé en soins critiques,
+      notamment en cas de DFG &lt; 30&nbsp;mL/min/1,73m² ou EER.
+    </div>
+  `;
+
+  out.insertAdjacentElement("afterend", infoDiv);
+});
+}
+// Remplace les "/6h", "/8h", "/12 à 24h", "/8–12h", etc. par "toutes les …"
+function humanizeEntretien(text) {
+  if (!text) return text;
+  // 1) "/ 6h" ; "/6 à 8h" ; "/6–8h" ; "/6-8h"
+  text = text.replace(/\/\s*(\d+(?:\s*(?:à|–|-)\s*\d+)?)\s*h/gi, (_m, grp) => ` toutes les ${grp}h`);
+  return text;
 }
 
-function renderAtbModalites() {
-  const root = document.getElementById("atb-section-root");
-  root.innerHTML = "";
 
-  renderModalitesForm(root);
-}
+function renderModalitesForm() {
+  $app.innerHTML = `
+    <div class="card"><strong>Modalités d’administration des antibiotiques</strong></div>
+
+    <div class="hero-pneu card">
+      <img src="./img/modalite.png" alt="Modalités d'administration" class="form-hero">
+    </div>
+
+    <form id="formModa" class="form">
+      <fieldset>
+        <legend>Classe d’antibiotique</legend>
+        <select id="classeModa">
+          <option value="">— Sélectionner —</option>
+          <option value="betalactamine">β-lactamines</option>
+          <option value="aminoside">Aminosides</option>
+          <option value="fluoroquinolone">Fluoroquinolones</option>
+          <option value="antigram">Anti-Gram+</option>
+          <option value="autres">Autres</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Molécule</legend>
+        <select id="moleculeModa">
+          <option value="">— Choisir une classe d’abord —</option>
+        </select>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnModa">Afficher les modalités</button>
+        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
+      </div>
+
+      <div id="resModa" class="result"></div>
+    </form>
+  `;
+
+  // ==========================
+  // 📋 Données MODALITÉS À COMPLÉTER
+  // ==========================
+  const MODALITES = {
+
+    // ========= β-lactamines =========
+    betalactamine: {
+      "Amoxicilline":             { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1 à 2g", volume:"50mL", perfusion:"IVL 60min", stabilite:"8h"} },
+      "Cloxacilline":             { dosages:"1 ou 2gg", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2 à 6g", volume:"50mL", perfusion:"IVSE 24h", stabilite:"24h"} },
+      "Oxacilline":               { dosages:"1 ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"1 à 2g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"8h"} },
+      "Amoxicilline + Clavulanate":{ dosages:"1g+0,1g ou 2g+0,2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1g +0,25g ou 2g +0,5g", volume:"50mL", perfusion:"IVL 60min", stabilite:"1 à 2h"} },
+      "Pipéracilline":            { dosages:"4g", solvant:"Glucosé 5%", charge:{schema:"4g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"24h"} },
+      "Pipéracilline + Tazobactam":{ dosages:"4g+0,5g", solvant:"Glucosé 5%", charge:{schema:"4g+0,5g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g +0,5g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"12h"} },
+      "Céfazoline":               { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
+      "Céfotaxime":               { dosages:"1g ou 2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"6h"} },
+      "Ceftriaxone":              { dosages:"1g ou 2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"24h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"-"} },
+      "Ceftazidime":              { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 8h", stabilite:"8h"} },
+      "Céfépime":                 { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2 à 3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
+      "Ceftobiprole":             { dosages:"500mg", solvant:"NaCl 0,9%", charge:{schema:"1g dans 500mL IVL sur 120min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"1g", volume:"500mL", perfusion:"IV 4h", stabilite:"6h"} },
+      "Ceftaroline":              { dosages:"600mg", solvant:"Eau PPI", charge:{schema:"600mg dans 100mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"600mg", volume:"100mL", perfusion:"IVL 60min", stabilite:"6h"} },
+      "Ceftazidime + Avibactam":  { dosages:"2g+0,5g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 2h"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 4h", stabilite:"24h"} },
+      "Ceftolozane + Tazobactam": { dosages:"1g+0,5g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 4h", stabilite:"24h"} },
+      "Cefidérocol":              { dosages:"1g", solvant:"NaCl 0,9%", charge:{schema:"2g dans 50mL IVL sur 3h"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"6h"} },
+      "Imipénème":                { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 500mL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"1g", volume:"250mL", perfusion:"IVL 60min", stabilite:"< 3h"} },
+      "Méropénème":               { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"4h"} },
+      "Ertapénème":               { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 100mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"6h"} },
+      "Imipénème + Relebactam":   { dosages:"0,5g+0,25g", solvant:"Glucosé 5%", charge:{schema:"2g dans 500mL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"1g +0,5g", volume:"250mL", perfusion:"IVL 60min", stabilite:"< 3h"} },
+      "Méropénème + Vaborbactam": { dosages:"1g/1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"2g +2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"4h"} },
+      "Aztréonam":                { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 100mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
+      "Témocilline":              { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} }
+    },
+
+    // ========= Aminosides =========
+    aminoside: {
+      "Amikacine":   { dosages:"500mg", solvant:"Glucosé 5%", charge:{schema:"25-30mg/kg dans 250mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 2,5 mg/L", doses:"Adapter selon C. pic", volume:"250mL", perfusion:"IVL 30min", stabilite:"10-14h"} },
+      "Gentamicine": { dosages:"80mg", solvant:"Glucosé 5%", charge:{schema:"8-10mg/kg dans 100mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 0,5 mg/L", doses:"Adapter selon C. pic", volume:"100mL", perfusion:"IVL 30min", stabilite:"10-14h"} },
+      "Tobramycine": { dosages:"75mg", solvant:"Glucosé 5%", charge:{schema:"8-10mg/kg dans 100mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 0,5 mg/L", doses:"Adapter selon C. pic", volume:"100mL", perfusion:"IVL 30min", stabilite:"10-14h"} }
+    },
+
+    // ========= Fluoroquinolones =========
+    fluoroquinolone: {
+      "Ofloxacine":     { dosages:"200mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 40mL", charge:{schema:"400mg IVL (80mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"400mg", volume:"80mL", perfusion:"60min", stabilite:"24h"} },
+      "Ciprofloxacine": { dosages:"200/400mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100/200mL", charge:{schema:"400mg IVL (200mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"400mg", volume:"200mL", perfusion:"60min", stabilite:"> 24h"} },
+      "Lévofloxacine":  { dosages:"500mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100mL", charge:{schema:"500mg IVL (100mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"500mg", volume:"100mL", perfusion:"60min", stabilite:"> 24h"} },
+      "Moxifloxacine":  { dosages:"400mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 250mL", charge:{schema:"400mg IVL (250mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"24h", doses:"400mg", volume:"250mL", perfusion:"60min", stabilite:"24h"} }
+    },
+
+    // ========= Anti-Gram+ =========
+    antigram: {
+      "Vancomycine":  { dosages:"500mg et 1g", solvant:"Glucosé 5%", charge:{schema:"30mg/kg dans 50mL IVL sur 1h"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"20-30mg/kg (Objectif C. continue = 20-25mg/L)", volume:"50mL", perfusion:"IVSE 24h sur VVC/Midline", stabilite:"24h"} },
+      "Teicoplanine": { dosages:"100/200/400mg", solvant:"Glucosé 5%", charge:{schema:"6-12mg/kg/12h dans 50mL pour 3-5 inj IVL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h pour les 3-5 premières injections, puis 24h", doses:"6-12mg/kg/24h (Objectif C. continue = 20-25mg/L)", volume:"50mL", perfusion:"IVL 30min sur VVC/Midline", stabilite:"< 24h"} },
+      "Linézolide":   { dosages:"600mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 300mL", charge:{schema:"600mg IVL (300mL sur 30-120min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"600mg", volume:"300mL", perfusion:"IVL 30-120min", stabilite:"faible, utiliser immédiatement"} },
+      "Daptomycine":  { dosages:"500mg", solvant:"NaCl 0,9%", charge:{schema:"10mg/kg/24h dans 50mL IVL sur 30min "}, entretien:{rythme:"Perfusion intermittente", intervalle:"24g", doses:"10mg/kg", volume:"50mL", perfusion:"30min", stabilite:"faible, utiliser immédiatement"} },
+      "Clindamycine": { dosages:"600/900mg ampoules, 150/300mg comprimés (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"600 à 900mg IVL (100mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"600 à 900mg", volume:"100mL", perfusion:"60min", stabilite:"24h"} }
+    },
+
+    // ========= Autres =========
+    autres: {
+      "Colistine":                   { dosages:"1 MUI ampoule", solvant:"Glucosé 5%", charge:{schema:"6 MUI dans 50mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"3 MUI", volume:"50mL", perfusion:"60min", stabilite:"24h"} },
+      "Cotrimoxazole (pneumocystose)":{ dosages:"400+80mg ampoule, 400+80/800+160mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"800-1200mg IVL (250-500mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"6 à 8h", doses:"800-1200mg", volume:"250-500mL", perfusion:"60min", stabilite:"6h"} },
+      "Cotrimoxazole (autre)":       { dosages:"400+80mg ampoule, 400+80/800+160mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"800mg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"800mg", volume:"250mL", perfusion:"60min", stabilite:"6h"} },
+      "Doxycycline":                 { dosages:"100mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Glucosé 5%", charge:{schema:"200mg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"200mg", volume:"250mL", perfusion:"60min", stabilite:"24h"} },
+      "Fidaxomicine":                { dosages:"200mg comprimé", solvant:"-", charge:{schema:"200mg PO"}, entretien:{rythme:"Per OS", intervalle:"12h", doses:"200mg", volume:"-", perfusion:"-", stabilite:"-"} },
+      "Métronidazole":               { dosages:"500mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100mL", charge:{schema:"500mg IVL (100mL sur 30min) ou PO"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"500mg", volume:"100mL", perfusion:"30min", stabilite:"24h"} },
+      "Rifampicine":                 { dosages:"600mg ampoule ou 300mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"10mg/kg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h à 12h (24h pour BK)", doses:"10mg/kg", volume:"250mL", perfusion:"60min", stabilite:"6h"} },
+      "Spiramycine":                 { dosages:"1,5 MUI ampoule, éviter la voie PO", solvant:"Glucosé 5%", charge:{schema:"3 MUI dans 100mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"1,5 à 3 MUI", volume:"100mL", perfusion:"60mL", stabilite:"12h"} },
+      "Tigécycline":                 { dosages:"50mg ampoule", solvant:"Glucosé 5%", charge:{schema:"200mg dans 250mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"100mg", volume:"100mL", perfusion:"60min", stabilite:"6h"} }
+    }
+  };
+
+  // ====== Dynamique du formulaire ======
+  const selClasse = document.getElementById("classeModa");
+  const selMolecule = document.getElementById("moleculeModa");
+
+  selClasse.addEventListener("change", () => {
+    const c = selClasse.value;
+    if (!c || !MODALITES[c] || Object.keys(MODALITES[c]).length === 0) {
+      selMolecule.innerHTML = `<option value="">— Choisir une classe d’abord —</option>`;
+      return;
+    }
+    const options = Object.keys(MODALITES[c]).map(m => `<option value="${m}">${m}</option>`).join("");
+    selMolecule.innerHTML = `<option value="">— Sélectionner —</option>` + options;
+  });
+
+  // ====== Affichage du résultat ======
+  document.getElementById("btnModa").addEventListener("click", () => {
+    const c = selClasse.value, m = selMolecule.value;
+    const out = document.getElementById("resModa");
+
+    if (!c || !m || !MODALITES[c] || !MODALITES[c][m]) {
+      out.textContent = "⚠️ Merci de sélectionner une classe et une molécule.";
+      return;
+    }
+
+    const F = MODALITES[c][m];
+
+  out.innerHTML = [
+    `<strong>${m}</strong>`,
+    `<em>Dosages disponibles :</em> ${F.dosages || "—"}`,
+    `<em>Solvant préférentiel :</em> ${F.solvant || "—"}`,
+    `<em>Dose de charge :</em> ${(F.charge && F.charge.schema) || "—"}`,
+    `<em>Dose d’entretien :</em>`,
+    [
+      `- <u>Rythme d’administration</u> : ${(F.entretien && F.entretien.rythme) || "—"}`,
+      `- <u>Intervalle après dose de charge</u> : ${(F.entretien && F.entretien.intervalle) || "—"}`,
+      `- <u>Doses habituelles</u> : ${(F.entretien && F.entretien.doses) || "—"}`,
+      `- <u>Volume de dilution</u> : ${(F.entretien && F.entretien.volume) || "—"}`,
+      `- <u>Durée de perfusion</u> : ${(F.entretien && F.entretien.perfusion) || "—"}`,
+      `- <u>Durée de stabilité</u> : ${(F.entretien && F.entretien.stabilite) || "—"}`
+    ].join("<br>")
+  ].join("<br>");
+
+  // ➕ crédits en bas de l’encadré
+  out.innerHTML += `
+    <div class="credits">
+      D'après le travail de : Dr Candice FONTAINE et Dr Antoine BRIZARD<br>
+      (Bases de données ANSM, RCP européennes et Dexther)
+    </div>`;
+}); 
+} 
+
 
 function renderSensiblesPage() {
   const $app = document.getElementById("app");
@@ -6529,24 +7328,6 @@ BACTERIA_DATA.erv = {
   choc: ``
 };
 
-
-function renderProbaMenu() {
-  $app.innerHTML = `
-    ${h("card", `<strong>Antibiothérapie probabiliste</strong>`)}
-    ${h("grid cols-2", `
-      <button class="btn outline" onclick="location.hash='#/proba/pneumonies'">Pneumonies</button>
-      <button class="btn outline" onclick="location.hash='#/proba/iu'">Infections urinaires</button>
-      <button class="btn outline" onclick="location.hash='#/proba/abdo'">Infections intra-abdominales</button>
-      <button class="btn outline" onclick="location.hash='#/proba/neuro'">Infections neuro-méningées</button>
-      <button class="btn outline" onclick="location.hash='#/proba/dermohypo'">Infections des parties molles</button>
-      <button class="btn outline" onclick="location.hash='#/proba/endocardite'">Endocardites infectieuses</button>
-      <button class="btn outline" onclick="location.hash='#/proba/mediastinite'">Médiastinites post-opératoires</button>
-      <button class="btn outline" onclick="location.hash='#/proba/scarpa'">Infections de scarpa</button>
-      <button class="btn outline" onclick="location.hash='#/proba/sepsis'">Sepsis sans porte d'entrée</button>
-    `)}
-    ${h("card", `<button class="btn ghost" onclick="history.back()">← Retour</button>`)}
-  `;
-}
 
 function renderProbaPneumonieForm(){
   $app.innerHTML = `
@@ -8052,822 +8833,6 @@ function renderProbaScarpa() {
     `;
   });
 }
-
-
-
-function renderDureesForm() {
-  // ======================= Données – listes =======================
-  const INFECTIONS = {
-    "Pneumonies": ["Communautaire", "PAVM", "Nécrose/abcès", "Empyème pleural"],
-    "Infections urinaires": ["Cystite", "Pyélonéphrite", "IU masculine"],
-    "Bactériémies": ["Inconnue", "Cathéter", "Autre infection"],
-    "Infections intra-abdominales": [
-      "Cholécystite","Angiocholite","Abcès hépatique","Inf. nécrose pancréatique",
-      "Péritonite communautaire","Péritonite nosocomiale","Appendicite","Diverticulite",
-      "Entéro-colite","Inf. liquide ascite"
-    ],
-    "Infections neuro-méningées": ["Méningite", "Encéphalite", "Abcès cérébral"],
-    "Infections des parties molles": ["Non nécrosantes","Nécrosantes"],
-    "Endocardite infectieuse": ["Valve native","Prothèse valvulaire (< ou > 1 an)"]
-  };
-
-  const BACTERIES = {
-    "Cocci Gram -": ["Neisseria meningitidis"],
-    "Cocci Gram +": ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."],
-    "Bacilles Gram -": [
-      "Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia",
-      "Acinetobacter baumannii","Haemophilus influenzae","Legionella pneumophila"
-    ],
-    "Bacilles Gram +": ["Clostridium difficile","Listeria monocytogenes","Nocardia spp."],
-    "Autres": ["Mycoplasma pneumoniae","Mycobacterium tuberculosis"]
-  };
-
-  const GROUPES_BACT = Object.keys(BACTERIES);
-
-  // ======================= UI =======================
-  $app.innerHTML = `
-    <div class="card"><strong>Durée d’antibiothérapie</strong></div>
-
-    <div class="hero-pneu card">
-      <img src="./img/fabrice.png" alt="Durée d'antibiothérapie" class="form-hero">
-    </div>
-
-    <form id="formDuree" class="form">
-      <div class="grid two">
-        <fieldset>
-          <legend>Infection</legend>
-          <label for="selTypeInfect">Type d’infection</label>
-          <select id="selTypeInfect"></select>
-
-          <label for="selSousType">Sous-type d’infection</label>
-          <select id="selSousType"></select>
-        </fieldset>
-
-        <fieldset>
-          <legend>Documentation</legend>
-          <label for="selCatBact">Catégorie</label>
-          <select id="selCatBact"></select>
-
-          <label for="selEspece">Espèce bactérienne</label>
-          <select id="selEspece"></select>
-        </fieldset>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn" id="btnCalcul">Durée recommandée</button>
-        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
-      </div>
-
-      <div id="resDuree" class="result"></div>
-    </form>
-  `;
-
-  // Remplissage des combos + dépendances
-  const $type = document.getElementById("selTypeInfect");
-  const $sous = document.getElementById("selSousType");
-  const $cat  = document.getElementById("selCatBact");
-  const $esp  = document.getElementById("selEspece");
-
-  function fillSelect(sel, arr) {
-    sel.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join("");
-  }
-
-  fillSelect($type, Object.keys(INFECTIONS));
-  fillSelect($cat, GROUPES_BACT);
-
-  function updateSousTypes() {
-    fillSelect($sous, INFECTIONS[$type.value] || []);
-  }
-  function updateEspeces() {
-    fillSelect($esp, BACTERIES[$cat.value] || []);
-  }
-
-  $type.addEventListener("change", updateSousTypes);
-  $cat.addEventListener("change", updateEspeces);
-
-  // init
-  updateSousTypes();
-  updateEspeces();
-
-  // ======================= Logique / table des durées =======================
-  // dictionnaire "G|S|GB|B" -> durée brute (sera formatée avant affichage)
-  const map = buildDureesMap();
-
-  document.getElementById("btnCalcul").addEventListener("click", () => {
-    const cle = `${$type.value}|${$sous.value}|${$cat.value}|${$esp.value}`;
-    const brut = map[cle] || "Aucune recommandation disponible pour cette combinaison.";
-    document.getElementById("resDuree").textContent = formatDuree(brut);
-  });
-
-  // ---------------- helpers ----------------
-  function buildDureesMap() {
-    const d = {};
-    // 1) tout à "NA" par défaut (seules les combinaisons présentes seront écrasées)
-    for (const g of Object.keys(INFECTIONS)) {
-      for (const s of INFECTIONS[g]) {
-        for (const gb of GROUPES_BACT) {
-          for (const b of BACTERIES[gb]) {
-            d[`${g}|${s}|${gb}|${b}`] = "NA";
-          }
-        }
-      }
-    }
-
-    const add = (G,S,GB,B,val) => { d[`${G}|${S}|${GB}|${B}`] = val; };
-
-    // --------- PNEUMONIES ---------
-    // Communautaire
-    add("Pneumonies","Communautaire","Cocci Gram -","Neisseria meningitidis","7 j");                                           // :contentReference[oaicite:0]{index=0}
-    add("Pneumonies","Communautaire","Cocci Gram +","Streptococcus spp.","5 à 7 j");                                           // :contentReference[oaicite:1]{index=1}
-    add("Pneumonies","Communautaire","Cocci Gram +","Staphylococcus spp.","5 à 7 j");                                          // :contentReference[oaicite:2]{index=2}
-    add("Pneumonies","Communautaire","Cocci Gram +","Enterococcus spp.","5 à 7 j");                                            // :contentReference[oaicite:3]{index=3}
-    add("Pneumonies","Communautaire","Bacilles Gram -","Entérobactéries","5 à 7 j");                                           // :contentReference[oaicite:4]{index=4}
-    add("Pneumonies","Communautaire","Bacilles Gram -","Pseudomonas aeruginosa","7 j");                                        // :contentReference[oaicite:5]{index=5}
-    add("Pneumonies","Communautaire","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");                              // :contentReference[oaicite:6]{index=6}
-    add("Pneumonies","Communautaire","Bacilles Gram -","Acinetobacter baumannii","7 j ");                   // :contentReference[oaicite:7]{index=7}
-    add("Pneumonies","Communautaire","Bacilles Gram -","Legionella pneumophila","14 à 21 j (21 jours en réanimation)");
-    add("Pneumonies","Communautaire","Bacilles Gram -","Haemophilus influenzae","5 à 7 j");                                    // :contentReference[oaicite:8]{index=8}
-    add("Pneumonies","Communautaire","Bacilles Gram +","Nocardia spp.","6 mois");                                              // :contentReference[oaicite:9]{index=9}
-    add("Pneumonies","Communautaire","Autres","Mycoplasma pneumoniae","5 à 7 j");                                              // :contentReference[oaicite:10]{index=10}
-    add("Pneumonies","Communautaire","Autres","Mycobacterium tuberculosis","6 mois");                                          // :contentReference[oaicite:11]{index=11}
-
-    // PAVM
-    add("Pneumonies","PAVM","Cocci Gram +","Streptococcus spp.","7 j");                                                        // :contentReference[oaicite:12]{index=12}
-    add("Pneumonies","PAVM","Cocci Gram +","Staphylococcus spp.","7 j");                                                       // :contentReference[oaicite:13]{index=13}
-    add("Pneumonies","PAVM","Cocci Gram +","Enterococcus spp.","7 j");                                                         // :contentReference[oaicite:14]{index=14}
-    add("Pneumonies","PAVM","Bacilles Gram -","Entérobactéries","7 j");                                                        // :contentReference[oaicite:15]{index=15}
-    add("Pneumonies","PAVM","Bacilles Gram -","Pseudomonas aeruginosa","8 à 15 j");                                            // :contentReference[oaicite:16]{index=16}
-    add("Pneumonies","PAVM","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");                                           // :contentReference[oaicite:17]{index=17}
-    add("Pneumonies","PAVM","Bacilles Gram -","Acinetobacter baumannii","7 j ");                            // :contentReference[oaicite:18]{index=18}
-    add("Pneumonies","PAVM","Bacilles Gram -","Legionella pneumophila","14 à 21 j (21 jours en réanimation)");
-    add("Pneumonies","PAVM","Bacilles Gram -","Haemophilus influenzae","7 j");                                                 // :contentReference[oaicite:19]{index=19}
-
-    // Nécrose / abcès pulmonaires
-    const necabc = "3 à 6 semaines";                                                                                            // :contentReference[oaicite:20]{index=20}
-    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Streptococcus spp.",necabc);
-    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Staphylococcus spp.",necabc);
-    add("Pneumonies","Nécrose/abcès","Cocci Gram +","Enterococcus spp.",necabc);
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Entérobactéries",necabc);
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Pseudomonas aeruginosa",necabc);
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Stenotrophomonas maltophilia",necabc);
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Acinetobacter baumannii",necabc);
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Legionella pneumophila","3 à 6 semaines");
-    add("Pneumonies","Nécrose/abcès","Cocci Gram -","Neisseria meningitidis",necabc);                                          // :contentReference[oaicite:21]{index=21}
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram -","Haemophilus influenzae",necabc);                                       // :contentReference[oaicite:22]{index=22}
-    add("Pneumonies","Nécrose/abcès","Bacilles Gram +","Nocardia spp.","6 mois");                                              // :contentReference[oaicite:23]{index=23}
-    add("Pneumonies","Nécrose/abcès","Autres","Mycobacterium tuberculosis","9 à 12 mois");                                     // :contentReference[oaicite:24]{index=24}
-
-    // Empyème pleural
-    const emp = "15 jours après drainage ; 3 à 4 semaines si pas de drainage";                                                 // :contentReference[oaicite:25]{index=25}
-    add("Pneumonies","Empyème pleural","Cocci Gram +","Streptococcus spp.",emp);
-    add("Pneumonies","Empyème pleural","Cocci Gram +","Staphylococcus spp.",emp);
-    add("Pneumonies","Empyème pleural","Cocci Gram +","Enterococcus spp.",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Entérobactéries",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Pseudomonas aeruginosa",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Stenotrophomonas maltophilia",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Acinetobacter baumannii",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Haemophilus influenzae",emp); 
-    add("Pneumonies","Empyème pleural","Bacilles Gram -","Legionella pneumophila",emp);
-    add("Pneumonies","Empyème pleural","Bacilles Gram +","Nocardia spp.","6 mois");                                            // :contentReference[oaicite:26]{index=26}
-    add("Pneumonies","Empyème pleural","Autres","Mycobacterium tuberculosis",">= 6 mois");                                     // :contentReference[oaicite:27]{index=27}
-
-    // --------- INFECTIONS URINAIRES ---------
-    // Cystite
-    add("Infections urinaires","Cystite","Cocci Gram +","Streptococcus spp.","7 jours si β-lactamine");                      // :contentReference[oaicite:28]{index=28}
-    add("Infections urinaires","Cystite","Cocci Gram +","Staphylococcus spp.","7 jours si β-lactamine");                     // :contentReference[oaicite:29]{index=29}
-    add("Infections urinaires","Cystite","Cocci Gram +","Enterococcus spp.","7 jours si β-lactamine");                       // :contentReference[oaicite:30]{index=30}
-    add("Infections urinaires","Cystite","Bacilles Gram -","Entérobactéries","7 jours si β-lactamine");                      // :contentReference[oaicite:31]{index=31}
-    add("Infections urinaires","Cystite","Bacilles Gram -","Pseudomonas aeruginosa","7 jours si β-lactamine");               // :contentReference[oaicite:32]{index=32}
-    add("Infections urinaires","Cystite","Bacilles Gram -","Stenotrophomonas maltophilia","7 jours si β-lactamine");         // :contentReference[oaicite:33]{index=33}
-    add("Infections urinaires","Cystite","Bacilles Gram -","Acinetobacter baumannii","7 jours si β-lactamine");              // :contentReference[oaicite:34]{index=34}
-    add("Infections urinaires","Cystite","Autres","Mycobacterium tuberculosis","6 mois");                                       // :contentReference[oaicite:35]{index=35}
-
-    // Pyélonéphrite
-    const py = "7 jours si forme simple ; 10 jours si forme grave ou à risque de complication";                                 // :contentReference[oaicite:36]{index=36}
-    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Streptococcus spp.",py);
-    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Staphylococcus spp.",py);
-    add("Infections urinaires","Pyélonéphrite","Cocci Gram +","Enterococcus spp.",py);
-    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Entérobactéries",py);
-    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Pseudomonas aeruginosa",py);
-    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Stenotrophomonas maltophilia",py);
-    add("Infections urinaires","Pyélonéphrite","Bacilles Gram -","Acinetobacter baumannii",py);
-    add("Infections urinaires","Pyélonéphrite","Autres","Mycobacterium tuberculosis","9 à 12 mois");
-
-    // IU masculine
-    const ium = "14 jours (21 jours si uropathie non corrigée)";                                                                // :contentReference[oaicite:37]{index=37}
-    add("Infections urinaires","IU masculine","Cocci Gram +","Streptococcus spp.",ium);
-    add("Infections urinaires","IU masculine","Cocci Gram +","Staphylococcus spp.",ium);
-    add("Infections urinaires","IU masculine","Cocci Gram +","Enterococcus spp.",ium);
-    add("Infections urinaires","IU masculine","Bacilles Gram -","Entérobactéries",ium);
-    add("Infections urinaires","IU masculine","Bacilles Gram -","Pseudomonas aeruginosa",ium);
-    add("Infections urinaires","IU masculine","Bacilles Gram -","Stenotrophomonas maltophilia",ium);
-    add("Infections urinaires","IU masculine","Bacilles Gram -","Acinetobacter baumannii",ium);
-    add("Infections urinaires","IU masculine","Autres","Mycobacterium tuberculosis","9 à 12 mois");
-
-    // --------- BACTÉRIÉMIES ---------
-    // Inconnue
-    add("Bactériémies","Inconnue","Cocci Gram -","Neisseria meningitidis","7 j");                                               // :contentReference[oaicite:38]{index=38}
-    add("Bactériémies","Inconnue","Cocci Gram +","Streptococcus spp.","7 j");                                                   // :contentReference[oaicite:39]{index=39}
-    add("Bactériémies","Inconnue","Cocci Gram +","Staphylococcus spp.","Staphylocoques à coagulase négative : 3 à 5 j ; Staphylococcus aureus ou lugdunensis : 14 j"); // :contentReference[oaicite:40]{index=40}
-    add("Bactériémies","Inconnue","Cocci Gram +","Enterococcus spp.","7 j");                                                    // :contentReference[oaicite:41]{index=41}
-    add("Bactériémies","Inconnue","Bacilles Gram -","Entérobactéries","7 j");                                                   // :contentReference[oaicite:42]{index=42}
-    add("Bactériémies","Inconnue","Bacilles Gram -","Pseudomonas aeruginosa","7 à 10 j");                                       // :contentReference[oaicite:43]{index=43}
-    add("Bactériémies","Inconnue","Bacilles Gram -","Acinetobacter baumannii","7 à 10 j");
-    add("Bactériémies","Inconnue","Bacilles Gram -","Stenotrophomonas maltophilia","7 à 10 j");
-    add("Bactériémies","Inconnue","Bacilles Gram -","Haemophilus influenzae","7 j");
-    add("Bactériémies","Inconnue","Bacilles Gram +","Listeria monocytogenes","21 j");                                           // :contentReference[oaicite:45]{index=45}
-    add("Bactériémies","Inconnue","Bacilles Gram +","Nocardia spp.","6 mois");                                                  // :contentReference[oaicite:46]{index=46}
-    add("Bactériémies","Inconnue","Autres","Mycobacterium tuberculosis","9 à 12 mois");                                         // :contentReference[oaicite:47]{index=47}
-
-    // Cathéter
-    add("Bactériémies","Cathéter","Cocci Gram -","Neisseria meningitidis","7 j");                                               // :contentReference[oaicite:48]{index=48}
-    add("Bactériémies","Cathéter","Cocci Gram +","Streptococcus spp.","7 j");                                                   // :contentReference[oaicite:49]{index=49}
-    add("Bactériémies","Cathéter","Cocci Gram +","Staphylococcus spp.","Staphylocoques à coagulase négative : 3 j ; Staphylococcus aureus ou lugdunensis : 14 j"); // :contentReference[oaicite:50]{index=50}
-    add("Bactériémies","Cathéter","Cocci Gram +","Enterococcus spp.","7 j");                                                    // :contentReference[oaicite:51]{index=51}
-    add("Bactériémies","Cathéter","Bacilles Gram -","Entérobactéries","7 j");                                                   // :contentReference[oaicite:52]{index=52}
-    add("Bactériémies","Cathéter","Bacilles Gram -","Pseudomonas aeruginosa","7 à 10 j");                                       // :contentReference[oaicite:53]{index=53}
-    add("Bactériémies","Cathéter","Bacilles Gram -","Acinetobacter baumannii","7 à 10 j"); 
-    add("Bactériémies","Cathéter","Bacilles Gram -","Stenotrophomonas maltophilia","7 à 10 j");
-    add("Bactériémies","Cathéter","Bacilles Gram -","Haemophilus influenzae","7 j");      // :contentReference[oaicite:54]{index=54}
-    add("Bactériémies","Cathéter","Bacilles Gram +","Nocardia spp.","6 mois"); 
-
-    // Autre infection – identique à l’infection source
-    const idem = "Identique à l'infection responsable";                                                                         // :contentReference[oaicite:55]{index=55}
-    add("Bactériémies","Autre infection","Cocci Gram -","Neisseria meningitidis",idem);
-    add("Bactériémies","Autre infection","Cocci Gram +","Streptococcus spp.",idem);
-    add("Bactériémies","Autre infection","Cocci Gram +","Staphylococcus spp.",idem);
-    add("Bactériémies","Autre infection","Cocci Gram +","Enterococcus spp.",idem);
-    add("Bactériémies","Autre infection","Bacilles Gram -","Entérobactéries",idem);
-    add("Bactériémies","Autre infection","Bacilles Gram -","Pseudomonas aeruginosa",idem);
-    add("Bactériémies","Autre infection","Bacilles Gram -","Acinetobacter baumannii",idem); 
-    add("Bactériémies","Autre infection","Bacilles Gram -","Stenotrophomonas maltophilia",idem);
-    add("Bactériémies","Autre infection","Bacilles Gram -","Haemophilus influenzae",idem);
-    add("Bactériémies","Autre infection","Bacilles Gram +","Listeria monocytogenes","21 j");
-    add("Bactériémies","Autre infection","Bacilles Gram +","Nocardia spp.","6 mois");
-    add("Bactériémies","Autre infection","Autres","Mycobacterium tuberculosis",idem);
-          // :contentReference[oaicite:54]{index=54}
-  
-
-    // --------- INFECTIONS INTRA-ABDOMINALES ---------
-    const chole     = "3 jours post-opératoire ; 7 jours si non opérée";                                                        // :contentReference[oaicite:57]{index=57}
-    const angio     = "3 jours post-drainage, 7 à 10 jours si non drainée";
-    const absh      = "3 à 4 semaines si drainage ; 6 semaines sinon";
-    const inp       = "Aucune recommandation – dépend de l’évolution clinique/radiologique";
-    const peritCom  = "4 jours (5 jours si sepsis)";
-    const peritNos  = "5 à 8 jours (8 jours si sepsis)";
-    const app       = "1 jour (si péritonite = 3 jours ; si non opérée = 7)";
-    const divert    = "7 jours (Antibiothérapie indiquée uniquement si: gravité, grossesse, immunodépression ou ASA3)";
-    const entecol   = "3 à 7 j";
-    const cdiff     = "10 j";
-    const asc       = "5 à 7 jours (5 jours si C3G IV)";
-    const tbLong    = "9 à 12 mois";
-
-    // Cholécystite
-    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
-      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
-                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
-        add("Infections intra-abdominales","Cholécystite",gb,b,chole);
-      }
-    }                                                                                                                            // :contentReference[oaicite:58]{index=58}
-    add("Infections intra-abdominales","Cholécystite","Autres","Mycobacterium tuberculosis",tbLong);                            // :contentReference[oaicite:59]{index=59}
-
-    // Angiocholite
-    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
-      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
-                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
-        add("Infections intra-abdominales","Angiocholite",gb,b,angio);
-      }
-    }                                                                                                                            // :contentReference[oaicite:60]{index=60}
-    add("Infections intra-abdominales","Angiocholite","Autres","Mycobacterium tuberculosis",tbLong);
-
-    // Abcès hépatique
-    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Abcès hépatique","Cocci Gram +",b,absh);
-    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Abcès hépatique","Bacilles Gram -",b,absh);
-    add("Infections intra-abdominales","Abcès hépatique","Autres","Mycobacterium tuberculosis",tbLong);                         // :contentReference[oaicite:61]{index=61}
-
-    // Infection de nécrose pancréatique
-    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Inf. nécrose pancréatique","Cocci Gram +",b,inp);
-    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Inf. nécrose pancréatique","Bacilles Gram -",b,inp);
-    add("Infections intra-abdominales","Inf. nécrose pancréatique","Autres","Mycobacterium tuberculosis",tbLong);               // :contentReference[oaicite:62]{index=62}
-
-    // Péritonite communautaire
-    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Péritonite communautaire","Cocci Gram +",b,peritCom);
-    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Péritonite communautaire","Bacilles Gram -",b,peritCom); // :contentReference[oaicite:63]{index=63}
-    add("Infections intra-abdominales","Péritonite communautaire","Autres","Mycobacterium tuberculosis",tbLong);
-
-    // Péritonite nosocomiale
-    for (const b of ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]) add("Infections intra-abdominales","Péritonite nosocomiale","Cocci Gram +",b,peritNos);
-    for (const b of ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"]) add("Infections intra-abdominales","Péritonite nosocomiale","Bacilles Gram -",b,peritNos); // :contentReference[oaicite:64]{index=64}
-
-    // Appendicite
-    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
-      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
-                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
-        add("Infections intra-abdominales","Appendicite",gb,b,app);
-      }
-    }
-    // Diverticulite
-    for (const gb of ["Cocci Gram +","Bacilles Gram -"]) {
-      for (const b of (gb==="Cocci Gram +"? ["Streptococcus spp.","Staphylococcus spp.","Enterococcus spp."]
-                                         : ["Entérobactéries","Pseudomonas aeruginosa","Stenotrophomonas maltophilia","Acinetobacter baumannii"])) {
-        add("Infections intra-abdominales","Diverticulite",gb,b,divert);
-      }
-    }
-    // Entéro-colite
-    add("Infections intra-abdominales","Entéro-colite","Bacilles Gram -","Entérobactéries",entecol);
-    add("Infections intra-abdominales","Entéro-colite","Bacilles Gram +","Clostridium difficile",cdiff);
-    add("Infections intra-abdominales","Entéro-colite","Autres","Mycobacterium tuberculosis","6 mois");                          // :contentReference[oaicite:65]{index=65}
-    // Inf. liquide ascite
-    add("Infections intra-abdominales","Inf. liquide ascite","Bacilles Gram -","Entérobactéries",asc);
-    add("Infections intra-abdominales","Inf. liquide ascite","Autres","Mycobacterium tuberculosis","NA");                        // :contentReference[oaicite:66]{index=66}
-
-    // --------- INFECTIONS NEURO-MÉNINGÉES ---------
-    // Méningite
-    add("Infections neuro-méningées","Méningite","Cocci Gram -","Neisseria meningitidis","5 à 7 j");                             // :contentReference[oaicite:67]{index=67}
-    add("Infections neuro-méningées","Méningite","Cocci Gram +","Streptococcus spp.","10 à 14 j (14 à 21 j si groupe B)");
-    add("Infections neuro-méningées","Méningite","Cocci Gram +","Staphylococcus spp.","10 à 21 j (généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Cocci Gram +","Enterococcus spp.","21 j (car généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Entérobactéries","21 j (car généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Pseudomonas aeruginosa","21 j (car généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Acinetobacter baumannii","21 j (car généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Stenotrophomonas maltophilia","21 j (car généralement nosocomiale)");
-    add("Infections neuro-méningées","Méningite","Bacilles Gram -","Haemophilus influenzae","7 j");                              // :contentReference[oaicite:68]{index=68}
-    add("Infections neuro-méningées","Méningite","Bacilles Gram +","Listeria monocytogenes","21 j");
-    add("Infections neuro-méningées","Méningite","Autres","Mycobacterium tuberculosis","12 mois");
-
-    // Encéphalite (bactérienne)
-    add("Infections neuro-méningées","Encéphalite","Bacilles Gram +","Listeria monocytogenes","21 j");
-    add("Infections neuro-méningées","Encéphalite","Autres","Mycobacterium tuberculosis","12 à 18 mois");                         // :contentReference[oaicite:69]{index=69}
-
-    // Abcès cérébral
-    const abc = "4 à 6 semaines si drainage (4 semaines si exérèse chirurgicale) ; 8 à 12 semaines en l’absence de geste";       // :contentReference[oaicite:70]{index=70}
-    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Streptococcus spp.",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Staphylococcus spp.",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Cocci Gram +","Enterococcus spp.",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Entérobactéries",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Pseudomonas aeruginosa",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Acinetobacter baumannii",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Stenotrophomonas maltophilia",abc);
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram -","Haemophilus influenzae",abc)
-    add("Infections neuro-méningées","Abcès cérébral","Bacilles Gram +","Nocardia spp.","12 à 18 mois");
-    add("Infections neuro-méningées","Abcès cérébral","Autres","Mycobacterium tuberculosis","12 mois");
-
-    // --------- INFECTIONS DES PARTIES MOLLES ---------
-    // Non nécrosantes
-    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Streptococcus spp.","7 j");                             // :contentReference[oaicite:71]{index=71}
-    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Staphylococcus spp.","7 j");
-    add("Infections des parties molles","Non nécrosantes","Cocci Gram +","Enterococcus spp.","7 j");
-    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Entérobactéries","7 j");
-    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Pseudomonas aeruginosa","7 j");
-    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Acinetobacter baumannii","7 j");
-    add("Infections des parties molles","Non nécrosantes","Bacilles Gram -","Stenotrophomonas maltophilia","7 j");
-    add("Infections des parties molles","Non nécrosantes","Bacilles Gram +","Nocardia spp.","3 à 6 mois");
-    add("Infections des parties molles","Non nécrosantes","Autres","Mycobacterium tuberculosis","6 mois");      // :contentReference[oaicite:72]{index=72}
-
-    // Nécrosantes
-    const npo = "10 à 15 jours post-opératoire (selon évolution)";                                                               // :contentReference[oaicite:73]{index=73}
-    add("Infections des parties molles","Nécrosantes","Cocci Gram -","Neisseria meningitidis","7 j (purpura fulminans)");
-    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Streptococcus spp.",npo);
-    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Staphylococcus spp.",npo);
-    add("Infections des parties molles","Nécrosantes","Cocci Gram +","Enterococcus spp.",npo);
-    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Entérobactéries",npo);
-    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Pseudomonas aeruginosa",npo);
-    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Acinetobacter baumannii",npo);
-    add("Infections des parties molles","Nécrosantes","Bacilles Gram -","Stenotrophomonas maltophilia",npo);
-    add("Infections des parties molles","Nécrosantes","Bacilles Gram +","Nocardia spp.","3 à 6 mois");
-    add("Infections des parties molles","Nécrosantes","Autres","Mycobacterium tuberculosis","9 à 12 mois");
-
-    // --------- ENDOCARDITE INFECTIEUSE ---------
-    // Valve native
-    add("Endocardite infectieuse","Valve native","Cocci Gram +","Streptococcus spp.","2 à 4 semaines (2 semaines si gentamicine)"); // :contentReference[oaicite:74]{index=74}
-    add("Endocardite infectieuse","Valve native","Cocci Gram +","Staphylococcus spp.","4 à 6 semaines (pas d’aminoside)");
-    add("Endocardite infectieuse","Valve native","Cocci Gram +","Enterococcus spp.","6 semaines (+ 2 semaines gentamicine ou + 6 semaines C3G)");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Entérobactéries","6 semaines (+ 2 semaines gentamicine)");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Pseudomonas aeruginosa",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Acinetobacter baumannii",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Stenotrophomonas maltophilia",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram -","Haemophilus influenzae","4 sem C3G (ou 4 sem amoxicilline + 2 sem gentamicine)");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram +","Listeria monocytogenes","4 semaines de C3G (ou 4 semaines amoxicilline + 2 semaines gentamicine)");
-    add("Endocardite infectieuse","Valve native","Bacilles Gram +","Nocardia spp.","6 mois");
-    add("Endocardite infectieuse","Valve native","Autres","Mycobacterium tuberculosis","9 à 12 mois");
-
-    // Prothèse valvulaire (< ou > 1 an)
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Streptococcus spp.","6 semaines (dont gentamicine 2 semaines)"); // :contentReference[oaicite:75]{index=75}
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Staphylococcus spp.",">= 6 semaines (dont gentamicine 2 semaines)");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Cocci Gram +","Enterococcus spp.","6 semaines (+ 2 semaines gentamicine ou + 6 semaines C3G)");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Entérobactéries","6 semaines (+ 2 semaines gentamicine)");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Pseudomonas aeruginosa",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Acinetobacter baumannii",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Stenotrophomonas maltophilia",">= 6 semaines en bithérapie");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram -","Haemophilus influenzae","6 sem C3G (ou 6 sem amoxicilline + 2 sem gentamicine)");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Bacilles Gram +","Nocardia spp.","6 mois");
-    add("Endocardite infectieuse","Prothèse valvulaire (< ou > 1 an)","Autres","Mycobacterium tuberculosis","12 à 18 mois");
-
-    return d;
-  }
-
-  function formatDuree(txt) {
-    if (!txt) return "";
-    if (txt.trim().toUpperCase() === "NA") {
-      return "Non applicable : bactérie jamais/rarement impliquée dans ce type d’infection.";
-    }
-    let r = txt;
-    // Conserver l'intention "=" en ASCII ">="
-    r = r.replace(/=/g, ">=");
-    r = r.replace(/Idem infect°/g, "Identique à l'infection responsable");
-    // j -> jours
-    r = r.replace(/ j /g, " jours ");
-    r = r.replace(/ j$/g, " jours");
-    r = r.replace(/\(j/g, "(jours");
-    r = r.replace(/j\)/g, "jours)");
-    // sem -> semaines
-    r = r.replace(/ sem\. /g, " semaines ");
-    r = r.replace(/ sem /g, " semaines ");
-    r = r.replace(/sem\.$/g, "semaines");
-    r = r.replace(/sem$/g, "semaines");
-    return r;
-  }
-}
-
-function renderAdapteeMenu() {
-  console.log("renderAdapteeMenu is called!"); 
-
-  const appContainer = document.getElementById("app");
-
-  // Efface le contenu précédent
-  appContainer.innerHTML = "";
-
-  const container = document.createElement("div");
-  container.classList.add("antibiotherapy-container");
-
-  const title = document.createElement("h2");
-  title.textContent = "Antibiothérapie adaptée: germes multisensibles, BMR et BHRe";
-
-  const linksContainer = document.createElement("div");
-  linksContainer.classList.add("germs-links");
-
-  const links = [
-    { href: "#/adaptee/sensibles", text: "Germes multisensibles" },
-    { href: "#/adaptee/SARM", text: "SARM" },
-    { href: "#/adaptee/ampC", text: "Entérobactéries ampC" },
-    { href: "#/adaptee/BLSE", text: "BLSE" },
-    { href: "#/adaptee/pyo", text: "Pseudomonas aeruginosas MDR/XDR" },
-    { href: "#/adaptee/acineto", text: "Acinetobacter baumannii Imipénème-R" },
-    { href: "#/adaptee/steno", text: "Stenotrophomonas maltophilia" },
-    { href: "#/adaptee/carba", text: "Entérobactéries carbapénémases" },
-    { href: "#/adaptee/erv", text: "E. faecium Vancomycine-R" }
-  ];
-
-  links.forEach(link => {
-    const anchor = document.createElement("a");
-    anchor.href = link.href;
-    anchor.textContent = link.text;
-    anchor.addEventListener("click", (e) => {
-      e.preventDefault(); // Empêche la navigation par défaut
-      location.hash = link.href; // Change le hash pour afficher la bonne page
-    });
-    linksContainer.appendChild(anchor);
-  });
-
-  container.appendChild(title);
-  container.appendChild(linksContainer);
-
-  console.log("Inserting content into #app");  // Log pour vérifier l'insertion du contenu
-  appContainer.appendChild(container); // Insère le contenu dans #app
-}
-
-
-function renderReinForm() {
-  $app.innerHTML = `
-    <div class="card"><strong>Adaptation à la fonction rénale</strong></div>
-    <div class="hero-pneu card">
-      <img src="./img/dialyse.png" alt="Fonction rénale" class="form-hero">
-    </div>
-
-    <form id="formRein" class="form">
-      <fieldset>
-        <legend>Famille d’antibiotique</legend>
-        <select id="famille">
-          <option value="">— Sélectionner —</option>
-          <option value="betalactamine">β-lactamines</option>
-          <option value="aminoside">Aminosides</option>
-          <option value="fluoroquinolone">Fluoroquinolones</option>
-          <option value="antigram">Anti-Gram+</option>
-          <option value="autres">Autres</option>
-        </select>
-      </fieldset>
-
-      <fieldset>
-        <legend>Molécule</legend>
-        <select id="molecule"><option value="">— Choisir une famille d’abord —</option></select>
-      </fieldset>
-
-      <fieldset>
-        <legend>Fonction rénale</legend>
-        <select id="fonction">
-          <option value="">— Sélectionner —</option>
-          <option value=">120">DFG > 120 mL/min/1,73m²</option>
-          <option value="30-120">DFG = 30–120 mL/min/1,73m²</option>
-          <option value="30-10">DFG = 30–10 mL/min/1,73m²</option>
-          <option value="<10">DFG < 10 mL/min/1,73m²</option>
-          <option value="hd">Hémodialyse intermittente</option>
-          <option value="cvvh">CVVH 30–35 mL/kg/h</option>
-          <option value="cvvhd">CVVHD 30–35 mL/kg/h</option>
-        </select>
-      </fieldset>
-
-      <div class="actions">
-        <button type="button" class="btn" id="btnRein">Afficher la posologie</button>
-        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
-      </div>
-
-      <div id="resRein" class="result"></div>
-    </form>
-  `;
-
-  // ===== Données fidèles au tableau PDF =====
-  // Colonnes: charge | >120 | 30-120 | 30-10 | <10 | hd | cvvh | cvvhd
-  const data = {
-    betalactamine: {
-      "Amoxicilline": {charge:"2g sur 30min",">120":"2g /4 à 6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /12-24h, Jours avec EER: 1g après EER","cvvh":"1g /8h","cvvhd":"1g /6 à 8h"},                                          // :contentReference[oaicite:6]{index=6}
-      "Cloxacilline": {charge:"2g sur 30min",">120":"2g /4 à 6h","30-120":"1g /4 à 6h","30-10":"1g /6 à 8h","<10":"1g /6 à 8h","hd":"Jours sans EER: 1g /6-8h, Jours avec EER: 1g après EER","cvvh":"1g /6h","cvvhd":"1g /4 à 6h"},                                          // :contentReference[oaicite:7]{index=7}
-      "Oxacilline": {charge:"2g sur 30min",">120":"2g /6h","30-120":"2g /4 à 6h","30-10":"2g /4 à 6h","<10":"2g /4 à 6h","hd":"Jours sans EER: 2g /6-8h, Jours avec EER: 1-2g après EER","cvvh":"2g /6h","cvvhd":"2g /4 à 6h"},                                               // :contentReference[oaicite:8]{index=8}
-      "Amoxicilline + Clavulanate": {charge:"2g +0,2g sur 30min",">120":"2g +0,2g /6h","30-120":"1g +0,2g /4 à 8h","30-10":"1g +0,2g /12h","<10":"1g +0,2g /24h","hd":"Jours sans EER: 1g +0,2g /24h, Jours avec EER: 1 +0,2g après EER","cvvh":"1g +0,2g /8h","cvvhd":"1g +0,2g /6 à 8h"}, // :contentReference[oaicite:9]{index=9}
-      "Pipéracilline": {charge:"4g sur 30min",">120":"4g /6h","30-120":"4g /6h","30-10":"4g /8h","<10":"4g /12h","hd":"Jours sans EER: 4g /12-24h, Jours avec EER: 4g après EER","cvvh":"4g /8h","cvvhd":"4g /6 à 8h"},                                                // :contentReference[oaicite:10]{index=10}
-      "Pipéracilline + Tazobactam": {charge:"4g +0,5g sur 30min",">120":"4g +0,5g /6h","30-120":"4g +0,5g /6h","30-10":"4g +0,5g /8h","<10":"4g +0,5g /12h","hd":"Jours sans EER: 4g +0,5 /12-24h, Jours avec EER: 4 +0,5g après EER","cvvh":"4g +0,5g /8h","cvvhd":"4g +0,5g /6 à 8h"},       // :contentReference[oaicite:11]{index=11}
-      "Céfazoline": {charge:"2g sur 30min",">120":"8g/24h IVSE","30-120":"6–8g/24h IVSE","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /12-24h, Jours avec EER: 1g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                      // :contentReference[oaicite:12]{index=12}
-      "Céfotaxime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1-2g /12-24h, Jours avec EER: 1-2g après EER","cvvh":"2g /8h","cvvhd":"2g /6 à 8h"},                                              // :contentReference[oaicite:13]{index=13}
-      "Ceftriaxone": {charge:"2g sur 30min",">120":"1g /12 à 24h","30-120":"1g /12 à 24h","30-10":"1g /24h","<10":"1g /24h","hd":"1 à 2g/24h (peu dialysable)","cvvh":"2g /24h","cvvhd":"2g /24h"},                                        // :contentReference[oaicite:14]{index=14}
-      "Ceftazidime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /6 à 12h","<10":"1g /12h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1-2g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                       // :contentReference[oaicite:15]{index=15}
-      "Céfépime": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1-2g après EER","cvvh":"2g /12h","cvvhd":"2g /8 à 12h"},                                              // :contentReference[oaicite:16]{index=16}
-      "Ceftobiprole": {charge:"1g sur 1h",">120":"1g /6h","30-120":"0,5–1g /8h","30-10":"1g /12h","<10":"500mg /24h","hd":"Jours sans EER: 500mg /24h, Jours avec EER: 500mg après EER","cvvh":"500mg /8h","cvvhd":"500mg /8h"},                                   // :contentReference[oaicite:17]{index=17}
-      "Ceftaroline": {charge:"600mg sur 1h",">120":"600mg /8h","30-120":"600mg /8h","30-10":"600mg /12h","<10":"600mg /24h","hd":"Jours sans EER: 600mg/24h, Jours avec EER: 600mg après EER","cvvh":"600mg /12h","cvvhd":"600mg /12h"},                                 // :contentReference[oaicite:18]{index=18}
-      "Ceftazidime + Avibactam": {charge:"2g +0,5g sur 2h",">120":"2g +0,5g /6h","30-120":"2g +0,5g /8h","30-10":"2g +0,5g /12h","<10":"2g +0,5g /24h","hd":"Jours sans EER: 2g +0,5g /24h, Jours avec EER: 2g +0,5g après EER","cvvh":"2g +0,5g /8h","cvvhd":"2g +0,5g /8h"}, // :contentReference[oaicite:19]{index=19}
-      "Ceftolozane + Tazobactam": {charge:"1g +0,5g sur 1h",">120":"1g +0,5g /6h","30-120":"1g +0,5g /8h","30-10":"1g +0,5g /12h","<10":"1g +0,5g /24h","hd":"Jours sans EER: 1g +0,5g /24h, Jours avec EER: 1g + 0,5g après EER","cvvh":"1g +0,5g /8h","cvvhd":"1g +0,5g /8h"}, // :contentReference[oaicite:20]{index=20}
-      "Cefidérocol": {charge:"2g sur 1h",">120":"2g /6h","30-120":"2g /8h","30-10":"1g /8h","<10":"0,75g /12h","hd":"Jours sans EER: 0,75g /12h, Jours avec EER: 0,75g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"},                                                   // :contentReference[oaicite:21]{index=21}
-      "Imipénème": {charge:"2g sur 30min",">120":"1g /6h","30-120":"1g /6 à 8h","30-10":"1g /12h","<10":"1g /24h","hd":"Jours sans EER: 0,5g /12h, Jours avec EER: 0,5g après EER","cvvh":"1g /8h","cvvhd":"1g /8h"},                                                   // :contentReference[oaicite:22]{index=22}
-      "Méropénème": {charge:"2g sur 30min",">120":"2g /6h","30-120":"1g /4 à 8h","30-10":"1g /6 à 12h","<10":"1g /12h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 1g après EER","cvvh":"1g /8h","cvvhd":"1g /8h"},                                             // :contentReference[oaicite:23]{index=23}
-      "Ertapénème": {charge:"2g sur 30min",">120":"1g /8h","30-120":"1g /12h","30-10":"500mg /24h (à éviter)","<10":"500mg /24h (à éviter)","hd":"0,5-1g après EER uniquement (à éviter)","cvvh":"500mg /24h (à éviter)","cvvhd":"500mg /24h (à éviter)"}, // :contentReference[oaicite:24]{index=24}
-      "Imipénème + Relebactam": {charge:"2g +1g sur 30min",">120":"1g +0,5g /6h","30-120":"1g +0,5g /6 à 8h","30-10":"1g +0,5g /12h","<10":"1g +0,5g /24h","hd":"Jours sans EER: 1g +0,5g /24h, Jours avec EER: 1g +0,5g après EER","cvvh":"1g +0,5g /8h","cvvhd":"1g +0,5g /8h"},       // :contentReference[oaicite:25]{index=25}
-      "Méropénème + Vaborbactam": {charge:"2g +2g sur 30min",">120":"2g +2g /6h","30-120":"2g +2g /8h","30-10":"1g +1g /6 à 12h","<10":"1g +1g /12h","hd":"Jours sans EER: 1g +1g /24h, Jours avec EER: 1g +1g après EER","cvvh":"2g +2g /8h","cvvhd":"2g +2g /8h"},              // :contentReference[oaicite:26]{index=26}
-      "Aztréonam": {charge:"2g sur 30min",">120":"2g /6h","30-120":"2g /6 à 8h","30-10":"1g /8h","<10":"1g /12h","hd":"Jours sans EER: 1g /12h, Jours avec EER: 1-2g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"},                                                   // :contentReference[oaicite:27]{index=27}
-      "Témocilline": {charge:"2g sur 30min",">120":"8–10g/24h IVSE","30-120":"4–6g/24h IVSE","30-10":"2g /24h","<10":"1g /24h","hd":"Jours sans EER: 1g /24h, Jours avec EER: 2g après EER","cvvh":"2g /8h","cvvhd":"2g /8h"}                                       // :contentReference[oaicite:28]{index=28}
-    },
-
-    aminoside: {
-      "Amikacine": {charge:"30mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 2,5 mg/L","cvvh":"—","cvvhd":"—"}, // :contentReference[oaicite:29]{index=29}
-      "Gentamicine": {charge:"8mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 0,5 mg/L","cvvh":"—","cvvhd":"—"},     // :contentReference[oaicite:30]{index=30}
-      "Tobramycine": {charge:"8mg/kg sur 30min",">120":"Généralement pas d’entretien","30-120":"Généralement pas d’entretien","30-10":"Généralement pas d’entretien","<10":"Généralement pas d’entretien","hd":"Uniquement si C résiduelle < 0,5 mg/L","cvvh":"—","cvvhd":"—"}      // :contentReference[oaicite:31]{index=31}
-    },
-
-    fluoroquinolone: {
-      "Ofloxacine": {charge:"400mg IVL ou PO",">120":"400mg /12h","30-120":"400mg /12h","30-10":"400mg /24h","<10":"200mg /24h","hd":"200mg /24h","cvvh":"400mg /24h","cvvhd":"400mg /24h"},                                   // :contentReference[oaicite:32]{index=32}
-      "Ciprofloxacine": {charge:"400mg IVL ou PO",">120":"400mg /8h","30-120":"400mg /8h","30-10":"400mg /24h","<10":"400mg /24h","hd":"400mg /24h","cvvh":"400mg /12h","cvvhd":"400mg /12h"},                                  // :contentReference[oaicite:33]{index=33}
-      "Lévofloxacine": {charge:"500mg IVL ou PO",">120":"500mg /12h","30-120":"500mg /12h","30-10":"500mg /24h","<10":"500mg /48h","hd":"500mg après EER uniquement","cvvh":"500mg /24h","cvvhd":"500mg /24h"},                           // :contentReference[oaicite:34]{index=34}
-      "Moxifloxacine": {charge:"400mg IVL ou PO",">120":"400mg /24h","30-120":"400mg /24h","30-10":"400mg /24h","<10":"400mg /24h","hd":"400mg /24h","cvvh":"400mg /24h","cvvhd":"400mg /24h"}                                  // :contentReference[oaicite:35]{index=35}
-    },
-
-    antigram: {
-      "Vancomycine": {charge:"30mg/kg sur 1h",">120":"30mg/kg/24h (C. continue 20–25mg/L)","30-120":"30mg/kg/24h (C. continue 20–25mg/L)","30-10":"10mg/kg/24h (C. continue 20–25mg/L)","<10":"10mg/kg/24h (C. continue 20–25mg/L)","hd":"10mg/kg après EER (C résiduelle 20–25mg/L)","cvvh":"15–20 mg/kg/24h (C. continue 20–25mg/L)","cvvhd":"15–20 mg/kg/24h (C. continue 20–25mg/L)"}, // :contentReference[oaicite:36]{index=36}
-      "Teicoplanine": {charge:"6-12mg/kg/12h pour 3 à 5 injections",">120":"12mg/kg/24h (C. résiduelle 20–25mg/L)","30-120":"6-12mg/kg/24h (C. résiduelle 20–25mg/L)","30-10":"4mg/kg/24h (C. résiduelle 20–25mg/L)","<10":"4mg/kg/24h (C. résiduelle 20–25mg/L)","hd":"4mg/kg/24h (C. résiduelle 20–25mg/L)","cvvh":"6–8 mg/kg/24h (C. continue 20–25mg/L)","cvvhd":"6–8 mg/kg/24h (C. continue 20–25mg/L)"}, // :contentReference[oaicite:37]{index=37}
-      "Linézolide": {charge:"600mg IVL ou PO",">120":"600mg /12h","30-120":"600mg /12h","30-10":"600mg /12h","<10":"600mg /12h","hd":"600mg /12h","cvvh":"600mg /12h","cvvhd":"600mg /12h"},                                     // :contentReference[oaicite:38]{index=38}
-      "Daptomycine": {charge:"10mg/kg IVL",">120":"12mg/kg/24h ou 8mg/kg/12h","30-120":"10mg/kg/24h","30-10":"10mg/kg/48h","<10":"10mg/kg/48h","hd":"10mg/kg après EER","cvvh":"10mg/kg/24h","cvvhd":"10mg/kg/24h"},       // :contentReference[oaicite:39]{index=39}
-      "Clindamycine": {charge:"600mg IVL",">120":"600mg /6 à 8h","30-120":"600mg /6 à 8h","30-10":"600mg /6 à 8h","<10":"600mg /6 à 8h","hd":"600mg /6 à 8h","cvvh":"600mg /6 à 8h","cvvhd":"600mg /6 à 8h"}               // :contentReference[oaicite:40]{index=40}
-    },
-
-    autres: {
-      "Colistine": {charge:"9 MUI IVL",">120":"4,5 MUI /12h","30-120":"4,5 MUI /12h","30-10":"4,5 MUI /24h","<10":"3,5 MUI /24h","hd":"2 MUI après EER","cvvh":"—","cvvhd":"—"},                                           // :contentReference[oaicite:41]{index=41}
-      "Cotrimoxazole (pneumocystose)": {charge:"800mg IVL ou PO",">120":"100 mg/kg/j (12 amp/j max)","30-120":"75–100 mg/kg/j (12 amp/j max)","30-10":"40–50 mg/kg/j","<10":"20–25 mg/kg/j","hd":"20 mg/kg/j","cvvh":"15–20 mg/kg/j","cvvhd":"15–20 mg/kg/j"}, // :contentReference[oaicite:42]{index=42}
-      "Cotrimoxazole (autre)": {charge:"800mg IVL ou PO",">120":"800mg /8h","30-120":"800mg /8h","30-10":"800mg /24h","<10":"800mg /48h","hd":"400mg après EER","cvvh":"400mg /24h","cvvhd":"400mg /24h"},                     // :contentReference[oaicite:43]{index=43}
-      "Doxycycline": {charge:"200mg IVL ou PO",">120":"100mg /12h","30-120":"100mg /12h","30-10":"100mg /12h","<10":"100mg /12h","hd":"100mg /12h","cvvh":"100mg /12h","cvvhd":"100mg /12h"},                                   // :contentReference[oaicite:44]{index=44}
-      "Fidaxomicine": {charge:"200mg PO",">120":"200mg /12h","30-120":"200mg /12h","30-10":"200mg /12h","<10":"200mg /12h","hd":"200mg /12h","cvvh":"200mg /12h","cvvhd":"200mg /12h"},                                  // :contentReference[oaicite:45]{index=45}
-      "Métronidazole": {charge:"500mg IVL ou PO",">120":"500mg /8h","30-120":"500mg /8h","30-10":"500mg /8h","<10":"500mg /8h","hd":"500mg /8h","cvvh":"500mg /8h","cvvhd":"500mg /8h"},                                       // :contentReference[oaicite:46]{index=46}
-      "Rifampicine": {charge:"10mg/kg IVL ou PO",">120":"10mg/kg /8h","30-120":"10mg/kg /8h","30-10":"10mg/kg /8h","<10":"10mg/kg /8h","hd":"10mg/kg /8h","cvvh":"10mg/kg /8h","cvvhd":"10mg/kg /8h"},                         // :contentReference[oaicite:47]{index=47}
-      "Spiramycine": {charge:"3 MUI IVL",">120":"3 MUI /8h","30-120":"3 MUI /8h","30-10":"3 MUI /8h","<10":"3 MUI /8h","hd":"3 MUI /8h","cvvh":"3 MUI /8h","cvvhd":"3 MUI /8h"},                                         // :contentReference[oaicite:48]{index=48}
-      "Tigécycline": {charge:"100mg IVL",">120":"50mg /12h","30-120":"50mg /12h","30-10":"50mg /12h","<10":"50mg /12h","hd":"50mg /12h","cvvh":"50mg /12h","cvvhd":"50mg /12h"}                                          // :contentReference[oaicite:49]{index=49}
-    }
-  };
-
-  const selFamille = document.getElementById("famille");
-  const selMolecule = document.getElementById("molecule");
-
-  selFamille.addEventListener("change", () => {
-    const f = selFamille.value;
-    if (!f) { selMolecule.innerHTML = `<option value="">— Choisir une famille d’abord —</option>`; return; }
-    const options = Object.keys(data[f]).map(m => `<option value="${m}">${m}</option>`).join("");
-    selMolecule.innerHTML = `<option value="">— Sélectionner —</option>` + options;
-  });
-
-  document.getElementById("btnRein").addEventListener("click", () => {
-  const f = selFamille.value, m = selMolecule.value, fn = document.getElementById("fonction").value;
-  const out = document.getElementById("resRein");
-
-  if (!f || !m || !fn) {
-    out.textContent = "⚠️ Merci de sélectionner une famille, une molécule et une fonction rénale.";
-    return;
-  }
-
-  const mol = data[f][m];
-  const entretienBrut = mol[fn] || "—";
-  const entretienLisible = humanizeEntretien(entretienBrut);
-
-  // Affichage principal de la réponse
-  out.innerHTML = `
-    <strong>${m}</strong><br>
-    <em>Dose de charge :</em> ${mol.charge}<br>
-    <em>Dose d’entretien (${document.getElementById("fonction").selectedOptions[0].textContent}) :</em> ${entretienLisible}
-  `;
-
-  // Ajout des crédits
-  out.innerHTML += `
-    <div class="credits">
-      D'après le travail de : Dr Gilles TROCHE, Dr Marine PAUL et Dr Antoine BRIZARD<br>
-      (Bases de données ANSM, GPR et Dexther)
-    </div>
-  `;
-
-  // ✅ Ajout de l'encadré d'information supplémentaire
-  const existingNote = document.querySelector(".rein-note");
-  if (existingNote) existingNote.remove(); // Évite les doublons si on reclique plusieurs fois
-
-  const infoDiv = document.createElement("div");
-  infoDiv.className = "info-card rein-note";
-  infoDiv.innerHTML = `
-    <div class="info-content">
-      Le dosage plasmatique des antibiotiques est recommandé en soins critiques,
-      notamment en cas de DFG &lt; 30&nbsp;mL/min/1,73m² ou EER.
-    </div>
-  `;
-
-  out.insertAdjacentElement("afterend", infoDiv);
-});
-}
-// Remplace les "/6h", "/8h", "/12 à 24h", "/8–12h", etc. par "toutes les …"
-function humanizeEntretien(text) {
-  if (!text) return text;
-  // 1) "/ 6h" ; "/6 à 8h" ; "/6–8h" ; "/6-8h"
-  text = text.replace(/\/\s*(\d+(?:\s*(?:à|–|-)\s*\d+)?)\s*h/gi, (_m, grp) => ` toutes les ${grp}h`);
-  return text;
-}
-
-function renderModalitesForm() {
-  $app.innerHTML = `
-    <div class="card"><strong>Modalités d’administration des antibiotiques</strong></div>
-
-    <div class="hero-pneu card">
-      <img src="./img/modalite.png" alt="Modalités d'administration" class="form-hero">
-    </div>
-
-    <form id="formModa" class="form">
-      <fieldset>
-        <legend>Classe d’antibiotique</legend>
-        <select id="classeModa">
-          <option value="">— Sélectionner —</option>
-          <option value="betalactamine">β-lactamines</option>
-          <option value="aminoside">Aminosides</option>
-          <option value="fluoroquinolone">Fluoroquinolones</option>
-          <option value="antigram">Anti-Gram+</option>
-          <option value="autres">Autres</option>
-        </select>
-      </fieldset>
-
-      <fieldset>
-        <legend>Molécule</legend>
-        <select id="moleculeModa">
-          <option value="">— Choisir une classe d’abord —</option>
-        </select>
-      </fieldset>
-
-      <div class="actions">
-        <button type="button" class="btn" id="btnModa">Afficher les modalités</button>
-        <button type="button" class="btn ghost" onclick="history.back()">← Retour</button>
-      </div>
-
-      <div id="resModa" class="result"></div>
-    </form>
-  `;
-
-  // ==========================
-  // 📋 Données MODALITÉS À COMPLÉTER
-  // ==========================
-  const MODALITES = {
-
-    // ========= β-lactamines =========
-    betalactamine: {
-      "Amoxicilline":             { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1 à 2g", volume:"50mL", perfusion:"IVL 60min", stabilite:"8h"} },
-      "Cloxacilline":             { dosages:"1 ou 2gg", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2 à 6g", volume:"50mL", perfusion:"IVSE 24h", stabilite:"24h"} },
-      "Oxacilline":               { dosages:"1 ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"1 à 2g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"8h"} },
-      "Amoxicilline + Clavulanate":{ dosages:"1g+0,1g ou 2g+0,2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1g +0,25g ou 2g +0,5g", volume:"50mL", perfusion:"IVL 60min", stabilite:"1 à 2h"} },
-      "Pipéracilline":            { dosages:"4g", solvant:"Glucosé 5%", charge:{schema:"4g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"24h"} },
-      "Pipéracilline + Tazobactam":{ dosages:"4g+0,5g", solvant:"Glucosé 5%", charge:{schema:"4g+0,5g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g +0,5g", volume:"50mL", perfusion:"IVSE 6h", stabilite:"12h"} },
-      "Céfazoline":               { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
-      "Céfotaxime":               { dosages:"1g ou 2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"4 à 6h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"6h"} },
-      "Ceftriaxone":              { dosages:"1g ou 2g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"24h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"-"} },
-      "Ceftazidime":              { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 8h", stabilite:"8h"} },
-      "Céfépime":                 { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2 à 3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
-      "Ceftobiprole":             { dosages:"500mg", solvant:"NaCl 0,9%", charge:{schema:"1g dans 500mL IVL sur 120min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"1g", volume:"500mL", perfusion:"IV 4h", stabilite:"6h"} },
-      "Ceftaroline":              { dosages:"600mg", solvant:"Eau PPI", charge:{schema:"600mg dans 100mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"600mg", volume:"100mL", perfusion:"IVL 60min", stabilite:"6h"} },
-      "Ceftazidime + Avibactam":  { dosages:"2g+0,5g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 2h"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 4h", stabilite:"24h"} },
-      "Ceftolozane + Tazobactam": { dosages:"1g+0,5g", solvant:"Eau PPI", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 4h", stabilite:"24h"} },
-      "Cefidérocol":              { dosages:"1g", solvant:"NaCl 0,9%", charge:{schema:"2g dans 50mL IVL sur 3h"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"6h"} },
-      "Imipénème":                { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 500mL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"1g", volume:"250mL", perfusion:"IVL 60min", stabilite:"< 3h"} },
-      "Méropénème":               { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"4h"} },
-      "Ertapénème":               { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 100mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"1g", volume:"50mL", perfusion:"IVL 30min", stabilite:"6h"} },
-      "Imipénème + Relebactam":   { dosages:"0,5g+0,25g", solvant:"Glucosé 5%", charge:{schema:"2g dans 500mL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"1g +0,5g", volume:"250mL", perfusion:"IVL 60min", stabilite:"< 3h"} },
-      "Méropénème + Vaborbactam": { dosages:"1g/1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"6 à 8h", doses:"2g +2g", volume:"50mL", perfusion:"IVSE 3h", stabilite:"4h"} },
-      "Aztréonam":                { dosages:"1g", solvant:"Glucosé 5%", charge:{schema:"2g dans 100mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"4g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} },
-      "Témocilline":              { dosages:"1g ou 2g", solvant:"Glucosé 5%", charge:{schema:"2g dans 50mL sur 30min"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"3g", volume:"50mL", perfusion:"IVSE 12h", stabilite:"24h"} }
-    },
-
-    // ========= Aminosides =========
-    aminoside: {
-      "Amikacine":   { dosages:"500mg", solvant:"Glucosé 5%", charge:{schema:"25-30mg/kg dans 250mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 2,5 mg/L", doses:"Adapter selon C. pic", volume:"250mL", perfusion:"IVL 30min", stabilite:"10-14h"} },
-      "Gentamicine": { dosages:"80mg", solvant:"Glucosé 5%", charge:{schema:"8-10mg/kg dans 100mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 0,5 mg/L", doses:"Adapter selon C. pic", volume:"100mL", perfusion:"IVL 30min", stabilite:"10-14h"} },
-      "Tobramycine": { dosages:"75mg", solvant:"Glucosé 5%", charge:{schema:"8-10mg/kg dans 100mL IVL 30min"}, entretien:{rythme:"Perfusion intermittente (si entretien indiqué)", intervalle:"Lorsque C. résiduelle < 0,5 mg/L", doses:"Adapter selon C. pic", volume:"100mL", perfusion:"IVL 30min", stabilite:"10-14h"} }
-    },
-
-    // ========= Fluoroquinolones =========
-    fluoroquinolone: {
-      "Ofloxacine":     { dosages:"200mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 40mL", charge:{schema:"400mg IVL (80mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"400mg", volume:"80mL", perfusion:"60min", stabilite:"24h"} },
-      "Ciprofloxacine": { dosages:"200/400mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100/200mL", charge:{schema:"400mg IVL (200mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"400mg", volume:"200mL", perfusion:"60min", stabilite:"> 24h"} },
-      "Lévofloxacine":  { dosages:"500mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100mL", charge:{schema:"500mg IVL (100mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"500mg", volume:"100mL", perfusion:"60min", stabilite:"> 24h"} },
-      "Moxifloxacine":  { dosages:"400mg pochon ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 250mL", charge:{schema:"400mg IVL (250mL sur 1h) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"24h", doses:"400mg", volume:"250mL", perfusion:"60min", stabilite:"24h"} }
-    },
-
-    // ========= Anti-Gram+ =========
-    antigram: {
-      "Vancomycine":  { dosages:"500mg et 1g", solvant:"Glucosé 5%", charge:{schema:"30mg/kg dans 50mL IVL sur 1h"}, entretien:{rythme:"Perfusion continue", intervalle:"Immédiatement", doses:"20-30mg/kg (Objectif C. continue = 20-25mg/L)", volume:"50mL", perfusion:"IVSE 24h sur VVC/Midline", stabilite:"24h"} },
-      "Teicoplanine": { dosages:"100/200/400mg", solvant:"Glucosé 5%", charge:{schema:"6-12mg/kg/12h dans 50mL pour 3-5 inj IVL sur 30min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h pour les 3-5 premières injections, puis 24h", doses:"6-12mg/kg/24h (Objectif C. continue = 20-25mg/L)", volume:"50mL", perfusion:"IVL 30min sur VVC/Midline", stabilite:"< 24h"} },
-      "Linézolide":   { dosages:"600mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 300mL", charge:{schema:"600mg IVL (300mL sur 30-120min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"12h", doses:"600mg", volume:"300mL", perfusion:"IVL 30-120min", stabilite:"faible, utiliser immédiatement"} },
-      "Daptomycine":  { dosages:"500mg", solvant:"NaCl 0,9%", charge:{schema:"10mg/kg/24h dans 50mL IVL sur 30min "}, entretien:{rythme:"Perfusion intermittente", intervalle:"24g", doses:"10mg/kg", volume:"50mL", perfusion:"30min", stabilite:"faible, utiliser immédiatement"} },
-      "Clindamycine": { dosages:"600/900mg ampoules, 150/300mg comprimés (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"600 à 900mg IVL (100mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"600 à 900mg", volume:"100mL", perfusion:"60min", stabilite:"24h"} }
-    },
-
-    // ========= Autres =========
-    autres: {
-      "Colistine":                   { dosages:"1 MUI ampoule", solvant:"Glucosé 5%", charge:{schema:"6 MUI dans 50mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"3 MUI", volume:"50mL", perfusion:"60min", stabilite:"24h"} },
-      "Cotrimoxazole (pneumocystose)":{ dosages:"400+80mg ampoule, 400+80/800+160mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"800-1200mg IVL (250-500mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"6 à 8h", doses:"800-1200mg", volume:"250-500mL", perfusion:"60min", stabilite:"6h"} },
-      "Cotrimoxazole (autre)":       { dosages:"400+80mg ampoule, 400+80/800+160mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"800mg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h", doses:"800mg", volume:"250mL", perfusion:"60min", stabilite:"6h"} },
-      "Doxycycline":                 { dosages:"100mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Glucosé 5%", charge:{schema:"200mg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"200mg", volume:"250mL", perfusion:"60min", stabilite:"24h"} },
-      "Fidaxomicine":                { dosages:"200mg comprimé", solvant:"-", charge:{schema:"200mg PO"}, entretien:{rythme:"Per OS", intervalle:"12h", doses:"200mg", volume:"-", perfusion:"-", stabilite:"-"} },
-      "Métronidazole":               { dosages:"500mg ampoule ou comprimé (Biodisponibilité 100%)", solvant:"Préconditionné 100mL", charge:{schema:"500mg IVL (100mL sur 30min) ou PO"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"500mg", volume:"100mL", perfusion:"30min", stabilite:"24h"} },
-      "Rifampicine":                 { dosages:"600mg ampoule ou 300mg comprimé (Biodisponibilité 90%)", solvant:"Glucosé 5%", charge:{schema:"10mg/kg IVL (250mL sur 60min) ou PO"}, entretien:{rythme:"Perfusion intermittente ou PO", intervalle:"8h à 12h (24h pour BK)", doses:"10mg/kg", volume:"250mL", perfusion:"60min", stabilite:"6h"} },
-      "Spiramycine":                 { dosages:"1,5 MUI ampoule, éviter la voie PO", solvant:"Glucosé 5%", charge:{schema:"3 MUI dans 100mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"8h", doses:"1,5 à 3 MUI", volume:"100mL", perfusion:"60mL", stabilite:"12h"} },
-      "Tigécycline":                 { dosages:"50mg ampoule", solvant:"Glucosé 5%", charge:{schema:"200mg dans 250mL IVL sur 60min"}, entretien:{rythme:"Perfusion intermittente", intervalle:"12h", doses:"100mg", volume:"100mL", perfusion:"60min", stabilite:"6h"} }
-    }
-  };
-
-  // ====== Dynamique du formulaire ======
-  const selClasse = document.getElementById("classeModa");
-  const selMolecule = document.getElementById("moleculeModa");
-
-  selClasse.addEventListener("change", () => {
-    const c = selClasse.value;
-    if (!c || !MODALITES[c] || Object.keys(MODALITES[c]).length === 0) {
-      selMolecule.innerHTML = `<option value="">— Choisir une classe d’abord —</option>`;
-      return;
-    }
-    const options = Object.keys(MODALITES[c]).map(m => `<option value="${m}">${m}</option>`).join("");
-    selMolecule.innerHTML = `<option value="">— Sélectionner —</option>` + options;
-  });
-
-  // ====== Affichage du résultat ======
-  document.getElementById("btnModa").addEventListener("click", () => {
-    const c = selClasse.value, m = selMolecule.value;
-    const out = document.getElementById("resModa");
-
-    if (!c || !m || !MODALITES[c] || !MODALITES[c][m]) {
-      out.textContent = "⚠️ Merci de sélectionner une classe et une molécule.";
-      return;
-    }
-
-    const F = MODALITES[c][m];
-
-  out.innerHTML = [
-    `<strong>${m}</strong>`,
-    `<em>Dosages disponibles :</em> ${F.dosages || "—"}`,
-    `<em>Solvant préférentiel :</em> ${F.solvant || "—"}`,
-    `<em>Dose de charge :</em> ${(F.charge && F.charge.schema) || "—"}`,
-    `<em>Dose d’entretien :</em>`,
-    [
-      `- <u>Rythme d’administration</u> : ${(F.entretien && F.entretien.rythme) || "—"}`,
-      `- <u>Intervalle après dose de charge</u> : ${(F.entretien && F.entretien.intervalle) || "—"}`,
-      `- <u>Doses habituelles</u> : ${(F.entretien && F.entretien.doses) || "—"}`,
-      `- <u>Volume de dilution</u> : ${(F.entretien && F.entretien.volume) || "—"}`,
-      `- <u>Durée de perfusion</u> : ${(F.entretien && F.entretien.perfusion) || "—"}`,
-      `- <u>Durée de stabilité</u> : ${(F.entretien && F.entretien.stabilite) || "—"}`
-    ].join("<br>")
-  ].join("<br>");
-
-  // ➕ crédits en bas de l’encadré
-  out.innerHTML += `
-    <div class="credits">
-      D'après le travail de : Dr Candice FONTAINE et Dr Antoine BRIZARD<br>
-      (Bases de données ANSM, RCP européennes et Dexther)
-    </div>`;
-}); 
-} 
-
 
 function decideDuree(infection, germe){
   if (infection==="Pneumonies" && germe==="Autres") return "5–7 jours (à affiner selon documentation).";
