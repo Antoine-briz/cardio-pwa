@@ -8823,7 +8823,7 @@ function renderProbaSepsisForm(){
   }
 }
 
-function renderProbaMediastinite() {
+function renderProbaMediastiniteForm() {
   const $app = document.getElementById('app');
 
   $app.innerHTML = `
@@ -8900,7 +8900,7 @@ if ($chkAllerg.checked) {
   });
 }
 
-function renderProbaScarpa() {
+function renderProbaScarpaForm() {
   const $app = document.getElementById('app');
 
   $app.innerHTML = `
