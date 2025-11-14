@@ -4768,7 +4768,7 @@ function renderReanSaignementsPostOp() {
 function renderReanFAPostOp() {
   const encadres = [
     {
-      titre: "Traitement préventif",
+      titre: "Traitement préventif de la FAPO",
       html: `
         <p><strong>Contrôle des facteurs favorisants :</strong></p>
         <ul>
@@ -4790,7 +4790,7 @@ function renderReanFAPostOp() {
       `,
     },
     {
-      titre: "Traitement curatif",
+      titre: "Traitement curatif de la FAPO",
       html: `
         <p><strong>Traitement curatif de la FAPO :</strong></p>
         <ul>
