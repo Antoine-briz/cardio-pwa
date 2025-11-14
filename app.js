@@ -30,7 +30,8 @@ const routes = {
   "#/reanimation/transplantation": renderReanTransplantMenu,
   "#/reanimation/assistances": renderReanAssistancesMenu,
 
-// Antibiothérapies
+  // Antibiothérapie probabiliste (menus Proba)
+  "#/proba": renderProbaMenu,
 "#/proba/pneumonies": renderProbaPneumonieForm,
 "#/proba/iu": renderProbaIUForm,
 "#/proba/abdo": renderProbaAbdoForm,
