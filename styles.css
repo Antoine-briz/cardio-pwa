@@ -876,3 +876,13 @@ table.simple th, table.pheno th {
   margin-left: 10px;
 }
 
+.img-link {
+  color: #0070C0;      /* bleu médical */
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.img-link:hover {
+  opacity: 0.7;
+}
+
