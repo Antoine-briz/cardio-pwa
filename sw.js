@@ -35,6 +35,10 @@ const PRECACHE = [
   "./img/erv.png",
   "./img/dialyse.png",
   "./img/modalite.png",
+  "./img/titre.png",
+  "./img/anesthesie.png",
+  "./img/reanimation.png",
+  "./img/cec.png",
   // Retrait de pdf.js CDN car CORS/Policy
 ];
 
