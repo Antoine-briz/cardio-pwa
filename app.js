@@ -5011,9 +5011,39 @@ function renderReanEerPostOp() {
         </ul>
         <p><strong>Anticoagulation régionale au citrate :</strong></p>
         <ul>
-          <li>Contre-indications à vérifier (hépatopathie sévère, troubles du métabolisme du citrate).</li>
+          <li>Vérifier les contre-indications (hépatopathie sévère, troubles du métabolisme du citrate).</li>
           <li>Avant initiation : CaCl 2 g si Ca ionisé &lt; 1,1 mmol/L.</li>
         </ul>
+      `,
+    },
+    {
+      titre: "Prescription CVVH Prismaflex (calculateur)",
+      html: `
+        <div class="form">
+          <div class="row">
+            <label>Sexe
+              <select id="cvvh-sexe">
+                <option value="H">Homme</option>
+                <option value="F">Femme</option>
+              </select>
+            </label>
+            <label>Poids réel (kg)
+              <input type="number" id="cvvh-poids" min="35" max="200" step="1" />
+            </label>
+            <label>Taille (cm)
+              <input type="number" id="cvvh-taille" min="140" max="210" step="1" />
+            </label>
+          </div>
+        </div>
+        <div id="cvvh-resultats"></div>
+        <p style="margin-top:8px;font-size:0.9em;opacity:0.8;">
+          Le calculateur utilise un <strong>poids corrigé</strong> :
+          poids idéal (formule de Devine) puis poids ajusté si obésité,
+          puis applique les paliers de débit sang / réinjection du protocole
+          (40–50 kg : 110/1000, 50–60 kg : 120/1000, 60–70 kg : 130/1000,
+          70–80 kg : 140/1300, 80–90 kg : 150/1500, 90–100 kg : 160/1700,
+          100–110 kg : 170/1800, 110–120 kg : 180/2000, &gt; 120 kg : 190/2200).
+        </p>
       `,
     },
   ];
@@ -5023,7 +5053,107 @@ function renderReanEerPostOp() {
     sousTitre: "EER post-opératoire",
     encadres,
   });
+
+  setupCvvhPrismaflexLogic();
 }
+
+function setupCvvhPrismaflexLogic() {
+  const sexeEl = document.getElementById("cvvh-sexe");
+  const poidsEl = document.getElementById("cvvh-poids");
+  const tailleEl = document.getElementById("cvvh-taille");
+  const resultDiv = document.getElementById("cvvh-resultats");
+
+  function getNumber(el) {
+    if (!el) return null;
+    const v = parseFloat((el.value || "").replace(",", "."));
+    return isNaN(v) ? null : v;
+  }
+
+  // Poids idéal (Devine, version métrique)
+  // Homme : 50 + 0,9 × (taille(cm) – 152)
+  // Femme : 45,5 + 0,9 × (taille(cm) – 152)
+  // Poids corrigé : si poids réel > poids idéal -> PI + 0,4 × (PR – PI), sinon PR.
+  function calcPoidsCorrige(sexe, poidsReel, taille) {
+    if (!sexe || !poidsReel || !taille) return null;
+    const deltaT = Math.max(0, taille - 152);
+    const poidsIdeal =
+      sexe === "H"
+        ? 50 + 0.9 * deltaT
+        : 45.5 + 0.9 * deltaT;
+
+    if (poidsReel <= poidsIdeal) return poidsReel;
+    return poidsIdeal + 0.4 * (poidsReel - poidsIdeal);
+  }
+
+  function getDebitsFromPoids(pCorrige) {
+    if (!pCorrige) return null;
+
+    const p = pCorrige;
+
+    // Paliers du protocole
+    if (p >= 40 && p < 50) return { qs: 110, reinj: 1000 };
+    if (p >= 50 && p < 60) return { qs: 120, reinj: 1000 };
+    if (p >= 60 && p < 70) return { qs: 130, reinj: 1000 };
+    if (p >= 70 && p < 80) return { qs: 140, reinj: 1300 };
+    if (p >= 80 && p < 90) return { qs: 150, reinj: 1500 };
+    if (p >= 90 && p < 100) return { qs: 160, reinj: 1700 };
+    if (p >= 100 && p < 110) return { qs: 170, reinj: 1800 };
+    if (p >= 110 && p < 120) return { qs: 180, reinj: 2000 };
+    if (p >= 120) return { qs: 190, reinj: 2200 };
+
+    // < 40 kg : en dehors de la plage définie
+    return null;
+  }
+
+  function update() {
+    const sexe = sexeEl ? sexeEl.value : "H";
+    const poidsReel = getNumber(poidsEl);
+    const taille = getNumber(tailleEl);
+
+    if (!sexe || !poidsReel || !taille) {
+      if (resultDiv) {
+        resultDiv.innerHTML = "<p>Renseigner le sexe, le poids réel et la taille.</p>";
+      }
+      return;
+    }
+
+    const pCorrige = calcPoidsCorrige(sexe, poidsReel, taille);
+    const debits = getDebitsFromPoids(pCorrige);
+
+    if (!debits) {
+      if (resultDiv) {
+        resultDiv.innerHTML = `
+          <p>Poids corrigé estimé : ${pCorrige.toFixed(1)} kg.</p>
+          <p>Aucun palier défini pour &lt; 40 kg dans ce protocole.
+             Merci d'adapter manuellement.</p>
+        `;
+      }
+      return;
+    }
+
+    if (resultDiv) {
+      resultDiv.innerHTML = `
+        <p><strong>Résultats CVVH Prismaflex :</strong></p>
+        <ul>
+          <li>Poids corrigé estimé : <strong>${pCorrige.toFixed(1)} kg</strong></li>
+          <li>Débit sang : <strong>${debits.qs} mL/min</strong></li>
+          <li>Débit réinjection : <strong>${debits.reinj} mL/h</strong></li>
+          <li>Pré/Post : <strong>Post</strong></li>
+          <li>Dose citrate : <strong>2,8 mmol/L</strong></li>
+          <li>Complément Calcium : <strong>110 %</strong></li>
+          <li>Perte patient : <strong>0–250 mL/h</strong> selon clinique</li>
+        </ul>
+      `;
+    }
+  }
+
+  [sexeEl, poidsEl, tailleEl].forEach(el => {
+    if (el) el.addEventListener("input", update);
+  });
+
+  update();
+}
+
 
 // --- Échanges plasmatiques (calculateur + paramétrage)
 
