@@ -4384,7 +4384,7 @@ function renderReanMenu() {
   $app.innerHTML = `
     <section>
       <div class="hero">
-        <img src="img/titre.png" alt="Réanimation" />
+        <img src="img/titre.PNG" alt="Réanimation" />
         <h2>Réanimation</h2>
       </div>
 
