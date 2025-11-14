@@ -6,6 +6,9 @@
 
 const $app = document.getElementById("app");
 
+function h(cls, html) {
+  return `<div class="${cls}">${html}</div>`;
+}
 const routes = {
   "#/": renderHome,
 
