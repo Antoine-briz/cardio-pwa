@@ -4729,17 +4729,17 @@ function renderReanSaignementsPostOp() {
       `,
     },
     {
-      titre: "Algorithme hémostase (Quantra)",
+      titre: "Hémostase médicale basée sur le Quantra",
       html: `
         <p><strong>Algorithme selon Quantra :</strong></p>
         <p>Utilisation des différents tests (CTR, fibrinogène, plaquettes…) pour guider :</p>
         <ul>
-          <li>Protamine 30 UI/kg si ACT élevé.</li>
-          <li>Cryo / concentré de fibrinogène si fibrinogène bas.</li>
-          <li>Transfusion de plaquettes si thrombopénie ou fonction altérée.</li>
-          <li>PPSB 20–25 UI/kg si déficit en facteurs vitamine K dépendants suspecté.</li>
+          <li>CTR > 1,4: Protamine 30 UI/kg</li>
+          <li>FCS < 1,9 hPa (fibrinogène < 2g/L): fibrinogène 20-50mg/kg</li>
+          <li>PCS < 14,2 hPa (Pl < 100 G/L) ou  < 11,2 hPa (Pl < 50 G/L): 1 CPA 1 UI/8-10kg</li>
+          <li>CT > 189s avec CTR < 1,4: PFC pour expansion volémique, sinon PPSB 20-25 UI/kg</li>
         </ul>
-        <p>Si tests normaux et saignement persistant : discuter reprise.</p>
+        <p>Si tests normaux et saignement persistant : discuter reprise chirurgicale. En dernier recours: Novoseven 90µg/kg.</p>
       `,
     },
     {
