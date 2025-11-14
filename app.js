@@ -4731,7 +4731,6 @@ function renderReanSaignementsPostOp() {
     {
       titre: "Hémostase médicale basée sur le Quantra",
       html: `
-        <p><strong>Algorithme selon Quantra :</strong></p>
         <p>Utilisation des différents tests (CTR, fibrinogène, plaquettes…) pour guider :</p>
         <ul>
           <li>CTR > 1,4: Protamine 30 UI/kg</li>
