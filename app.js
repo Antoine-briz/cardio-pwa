@@ -9,6 +9,16 @@ const $app = document.getElementById("app");
 function h(cls, html) {
   return `<div class="${cls}">${html}</div>`;
 }
+
+function sectionHeader(title, imageFile) {
+  return `
+    <div class="hero">
+      <img src="img/${imageFile}" alt="${title}">
+      <h2>${title}</h2>
+    </div>
+  `;
+}
+
 const routes = {
   "#/": renderHome,
 
@@ -1965,26 +1975,27 @@ $btnRun.addEventListener("click", () => {
 function renderInterventionPage({ titre, sousTitre, encadres }) {
   $app.innerHTML = `
     <section>
-      <h2>${titre}</h2>
-      ${sousTitre ? `<h3>${sousTitre}</h3>` : ""}
+      <div class="hero">
+        ${image ? `<img src="img/${image}" alt="${titre}">` : ""}
+        <h2>${titre}</h2>
+        ${sousTitre ? `<h3>${sousTitre}</h3>` : ""}
+      </div>
 
       ${encadres
         .map(
-          (e, idx) => `
-        <article class="accordion" data-idx="${idx}">
-          <header class="accordion-header">
-            <span>${e.titre}</span>
-            <span class="accordion-toggle-icon">▼</span>
-          </header>
-          <div class="accordion-body">
-            ${e.html}
-          </div>
-        </article>
-      `
+          (box) => `
+          <details class="card">
+            <summary><strong>${box.titre}</strong></summary>
+            <div class="card-body">
+              ${box.html}
+            </div>
+          </details>
+        `
         )
         .join("")}
     </section>
   `;
+}
 
   document
     .querySelectorAll(".accordion-header")
