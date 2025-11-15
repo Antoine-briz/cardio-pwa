@@ -4448,18 +4448,23 @@ function renderReanMenu() {
 function renderReanFormulesMenu() {
   $app.innerHTML = `
     <section>
-      <h2>Formules</h2>
+
+      ${sectionHeader("Formules", "formules.png")}
+
       <div class="grid">
         <button class="btn" onclick="renderReanFormulesVentilation()">
           Ventilation
         </button>
+
         <button class="btn" onclick="renderReanFormulesCardio()">
           Cardio-vasculaire
         </button>
+
         <button class="btn" onclick="renderReanFormulesMetabolique()">
           Métabolique
         </button>
       </div>
+
     </section>
   `;
 }
@@ -4484,6 +4489,7 @@ function renderReanFormulesVentilation() {
 
   renderInterventionPage({
     titre: "Formules",
+    image: "formules.png",
     sousTitre: "Ventilation",
     encadres,
   });
@@ -4508,6 +4514,7 @@ function renderReanFormulesCardio() {
 
   renderInterventionPage({
     titre: "Formules",
+    image: "formules.png",
     sousTitre: "Cardio-vasculaire",
     encadres,
   });
@@ -4533,6 +4540,7 @@ function renderReanFormulesMetabolique() {
 
   renderInterventionPage({
     titre: "Formules",
+    image: "formules.png",
     sousTitre: "Métabolique",
     encadres,
   });
@@ -4613,6 +4621,10 @@ function renderReanPrescriptionsPostOp() {
     },
   ];
 
+$app.innerHTML = `
+    ${sectionHeader("Prescriptions post-opératoires (hors transplant. et assistances)", "prescription.png")}
+  `;
+  
   renderInterventionPage({
     titre: "Prescriptions post-opératoires (hors transplant. et assistances)",
     sousTitre: "",
