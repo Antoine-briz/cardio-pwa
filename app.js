@@ -3742,7 +3742,7 @@ function renderInterventionRadioVascFAV() {
       titre: "Monitorage",
       html: `
         <div class="info-content">
-          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2, BIS, TOF</div>
+          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2 par capnomasque</div>
           <div style="margin-top:.25rem;">VVP 18G avec prolongateur et octopus</div>
         </div>
       `
@@ -3751,9 +3751,10 @@ function renderInterventionRadioVascFAV() {
       titre: "Anesthésie",
       html: `
         <div class="info-content">
-          <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT</div>
-          <div>AIVOC Propofol/Rémifentanil</div>
-          <div>Décubitus dorsal</div>
+          <div><strong>Protocole d’anesthésie :</strong></div>
+          <div>Sédation : AIVOC de Rémifentanil</div>
+          <div>OU ALR pure: bloc axillaire si FAV de l’avant bras, bloc supra claviculaire si FAV du bras</div>
+          <div>Position: Décubitus dorsal</div>
           <div style="margin-top:.5rem;"><strong>Analgésie post-opératoire :</strong> Paracétamol, Acupan</div>
         </div>
       `
@@ -3837,7 +3838,7 @@ function renderInterventionRadioVascMI() {
       titre: "Monitorage",
       html: `
         <div class="info-content">
-          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2, BIS, TOF</div>
+          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2 par capnomasque</div>
           <div style="margin-top:.25rem;">VVP 18G avec prolongateur et octopus</div>
         </div>
       `
@@ -3846,9 +3847,9 @@ function renderInterventionRadioVascMI() {
       titre: "Anesthésie",
       html: `
         <div class="info-content">
-          <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT</div>
-          <div>AIVOC Propofol/Rémifentanil</div>
-          <div>Décubitus dorsal</div>
+          <div><strong>Protocole d’anesthésie :</strong></div>
+          <div>Sédation : AIVOC de Rémifentanil</div>
+          <div>Position: Décubitus dorsal</div>
           <div style="margin-top:.5rem;"><strong>Analgésie post-opératoire :</strong> Paracétamol, Acupan</div>
         </div>
       `
@@ -3891,6 +3892,7 @@ function renderInterventionRadioVascMI() {
 // -----------------------
 // 3) Embolisation pelvienne
 // -----------------------
+
 function renderInterventionRadioVascEmbol() {
   const encadres = [
     {
@@ -3911,28 +3913,28 @@ function renderInterventionRadioVascEmbol() {
     },
     {
       titre: "Hémostase / risque hémorragique",
-  html: `
-    <div class="info-content">
-      <div>Procédure possible si:</div>
-      <ul>
-        <li>Plaquettes &gt; 50 G/L</li>
-        <li>TP &gt; 50%</li>
-      </ul>
+      html: `
+        <div class="info-content">
+          <div>Procédure possible si:</div>
+          <ul>
+            <li>Plaquettes &gt; 50 G/L</li>
+            <li>TP &gt; 50%</li>
+          </ul>
 
-      <div style="margin-top:.5rem;">Gestion des traitements:</div>
-      <ul>
-        <li>Poursuite Kardégic</li>
-        <li>Arrêt anti-P2Y12 (sauf geste veineux)</li>
-        <li>Arrêt anticoagulants (sauf geste veineux)</li>
-      </ul>
-    </div>
-  `
+          <div style="margin-top:.5rem;">Gestion des traitements:</div>
+          <ul>
+            <li>Poursuite Kardégic</li>
+            <li>Arrêt anti-P2Y12 (sauf geste veineux)</li>
+            <li>Arrêt anticoagulants (sauf geste veineux)</li>
+          </ul>
+        </div>
+      `
     },
     {
       titre: "Monitorage",
       html: `
         <div class="info-content">
-          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2, BIS, TOF</div>
+          <div>Scope ECG 5 branches, SpO2, PNI, EtCO2 par capnomasque</div>
           <div style="margin-top:.25rem;">VVP 18G avec prolongateur et octopus</div>
         </div>
       `
@@ -3941,10 +3943,14 @@ function renderInterventionRadioVascEmbol() {
       titre: "Anesthésie",
       html: `
         <div class="info-content">
-          <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT</div>
-          <div>AIVOC Propofol/Rémifentanil</div>
-          <div>Décubitus dorsal</div>
-          <div style="margin-top:.5rem;"><strong>Analgésie post-opératoire :</strong> Paracétamol, Acupan</div>
+          <div><strong>Protocole d’anesthésie :</strong></div>
+          <div>Sédation : AIVOC de Rémifentanil</div>
+          <div>Position: Décubitus dorsal</div>
+
+          <div style="margin-top:.5rem;">
+            <strong>Analgésie post-opératoire :</strong>
+            <span id="emb-analgesie">Paracétamol, Acupan</span>
+          </div>
         </div>
       `
     },
@@ -3959,12 +3965,29 @@ function renderInterventionRadioVascEmbol() {
   });
 
   expandPatientCharacteristics();
-  
+
+  // ✅ Ajout PCA morphine selon le type
+  function updateAnalgesie(type) {
+    const span = document.getElementById("emb-analgesie");
+    if (!span) return;
+
+    span.textContent =
+      type === "Embolisation artérielle"
+        ? "Paracétamol, Acupan, PCA Morphine"
+        : "Paracétamol, Acupan";
+  }
+
   function compute() {
-    const type = document.querySelector("input[name='embType']:checked")?.value || "Embolisation artérielle";
+    const type =
+      document.querySelector("input[name='embType']:checked")?.value ||
+      "Embolisation artérielle";
+
     const extra = document.getElementById("embExtra");
     const showExtra = (type === "Embolisation artérielle");
-    extra.style.display = showExtra ? "block" : "none";
+    if (extra) extra.style.display = showExtra ? "block" : "none";
+
+    // ✅ met à jour l'analgésie
+    updateAnalgesie(type);
 
     const imc = document.getElementById("embIMC")?.checked;
     const allergie = document.getElementById("embAllergie")?.checked;
@@ -3975,13 +3998,18 @@ function renderInterventionRadioVascEmbol() {
       if (imc) txt = "Céfazoline 4g puis 2g toutes les 4h IVSE.";
       if (allergie) txt = "Vancomycine 30mg/kg IVL une injection 30 min avant incision.";
     }
-    document.getElementById("embABX").innerHTML = txt;
+
+    const abx = document.getElementById("embABX");
+    if (abx) abx.innerHTML = txt;
   }
 
-  document.querySelectorAll("input[name='embType'], #embIMC, #embAllergie")
-    .forEach(el => el.addEventListener("change", compute));
+  document
+    .querySelectorAll("input[name='embType'], #embIMC, #embAllergie")
+    .forEach(el => el && el.addEventListener("change", compute));
+
   compute();
 }
+
 
 // -------------------------
 // 4) Ablations intra-abdominales
@@ -4084,7 +4112,7 @@ expandPatientCharacteristics();
       <a href="javascript:void(0)"
          class="inline-img-link"
          onclick="openPopup('./img/gestionunipulm.png')">
-        gestion de la ventilation uni-pulmonaire
+        gestion de la ventilation uni-pulmonaire (clicable)
       </a>
     </div>
 
@@ -4133,7 +4161,6 @@ if (pos === "Décubitus ventral") {
     </div>
   `;
 }
-
 
 document.getElementById("abAn").innerHTML = an;
 
@@ -4261,7 +4288,7 @@ function renderInterventionRadioVascTIPS() {
     // ---- ANESTHÉSIE ----
     if (gravite === "choc") {
       anesth.innerHTML = `
-        <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT</div>
+        <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT en séquence rapide (estomac plein)</div>
         <div>Induction prudente (Etomidate ou équivalent)</div>
         <div>AIVOC Propofol / Rémifentanil</div>
         <div>Décubitus dorsal maintenu</div>
@@ -4271,7 +4298,7 @@ function renderInterventionRadioVascTIPS() {
       `;
     } else {
       anesth.innerHTML = `
-        <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT</div>
+        <div><strong>Protocole d’anesthésie :</strong> Anesthésie générale avec IOT (séquence rapide si contexte hémorragique)</div>
         <div>AIVOC Propofol / Rémifentanil</div>
         <div>Décubitus dorsal maintenu</div>
         <div style="margin-top:.5rem;">
@@ -4458,7 +4485,6 @@ expandPatientCharacteristics();
   document.querySelectorAll("#nephIMC, #nephAllergie").forEach(el => el.addEventListener("change", compute));
   compute();
 }
-
 
 // =====================================================================
 //  ANESTHÉSIE – ANTIBIOPROPHYLAXIE
