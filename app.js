@@ -7149,7 +7149,7 @@ function etoFormHtmlCompactPlastieAortique(prefix) {
             <td class="eto-imgcol">
               ${etoImgLink("Morphologie tricuspide", "eto_tric_morpho.png")}
                   ${etoImgLink("Morphologie ETO tricuspide", "eto_tric_morphoETO.png")}
-                  ${etoImgLink("Quantifier IT", "eto_IT_serevite.png")}
+                  ${etoImgLink("Quantifier IT", "eto_IT_severite.png")}
                   ${etoImgLink("PAPs", "eto_htap_paps_it.png")}
             </td>
           </tr>
