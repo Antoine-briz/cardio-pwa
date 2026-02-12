@@ -6517,3 +6517,19 @@ body.theme-light #home-qa-btn{
   border: 1px solid rgba(0,0,0,.20) !important;
   color:#000 !important;
 }
+
+/* =========================================================
+   FIX DROPDOWNS : jamais hors écran (plein écran avec marges)
+========================================================= */
+
+/* Dropdowns plein écran, ancrés au viewport */
+#home-search-panel.search-panel,
+#home-qa-menu{
+  position: fixed !important;
+  left: 12px !important;
+  right: 12px !important;
+  width: auto !important;
+  transform: none !important;
+  max-width: none !important;
+  z-index: 9999;
+}
