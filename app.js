@@ -22529,7 +22529,7 @@ function initSearchUI(inputId, panelId) {
       .filter(x => x.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 30);
-
+panel.style.top = (input.getBoundingClientRect().bottom + 8) + "px";
     openPanel();
     render(results);
   };
@@ -22594,6 +22594,7 @@ function initHomeQuickAccessMobile() {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    menu.style.top = (btn.getBoundingClientRect().bottom + 8) + "px";
     toggle();
   });
 
