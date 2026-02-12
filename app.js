@@ -22483,6 +22483,10 @@ function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
   const panel = document.getElementById(panelId);
   if (!input || !panel) return;
 
+  // ✅ évite de re-binder si on revient sur la home
+  if (input.dataset.searchReady === "1") return;
+  input.dataset.searchReady = "1";
+
   // sécurité: panel doit contenir une zone résultats
   panel.classList.add("search-panel");
   if (!panel.querySelector(".search-results")) {
@@ -22490,13 +22494,13 @@ function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
   }
   const resultsEl = panel.querySelector(".search-results");
 
-  const stop = (e) => e.stopPropagation();
-  panel.addEventListener("click", stop);
+  // Empêche un clic dans le dropdown d'être interprété comme un clic "outside"
+  panel.addEventListener("click", (e) => e.stopPropagation());
 
   const close = () => panel.classList.remove("open");
 
+  // ✅ MODIF #1 : positionne le dropdown (plein écran) sous l'input
   const positionPanel = () => {
-    // dropdown pleine largeur écran (avec marges), ancré sous l'input
     const r = input.getBoundingClientRect();
     const top = Math.min(r.bottom + 8, window.innerHeight - 80);
     panel.style.left = "8px";
@@ -22516,25 +22520,20 @@ function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
       resultsEl.innerHTML = `<div class="search-empty">Aucun résultat</div>`;
       return;
     }
-    resultsEl.innerHTML = items
-      .map(
-        (x) => `
-        <button type="button" class="search-item" data-route="${x.route}">
-          <div class="search-title">${x.title}</div>
-          <div class="search-route">${x.route}</div>
-        </button>
-      `
-      )
-      .join("");
+    resultsEl.innerHTML = items.map(x => `
+      <button type="button" class="search-item" data-route="${x.route}">
+        <div class="search-title">${x.title}</div>
+        <div class="search-route">${x.route}</div>
+      </button>
+    `).join("");
 
-    resultsEl.querySelectorAll(".search-item").forEach((b) => {
+    resultsEl.querySelectorAll(".search-item").forEach(b => {
       b.addEventListener("click", () => navigate(b.dataset.route));
     });
   };
 
   const run = () => {
-    const q = (input.value || "").trim();
-    const terms = __tok(q);
+    const terms = __tok((input.value || "").trim());
 
     if (!terms.length) {
       close();
@@ -22543,12 +22542,14 @@ function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
     }
 
     const results = __searchIdx
-      .map((p) => ({ route: p.route, title: p.title, score: __score(p.n, terms) }))
-      .filter((x) => x.score > 0)
+      .map(p => ({ route: p.route, title: p.title, score: __score(p.n, terms) }))
+      .filter(x => x.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 30);
 
+    // ✅ MODIF #2 : on positionne UNE SEULE FOIS, puis on ouvre
     positionPanel();
+    panel.style.display = "";      // ✅ MODIF #3 : sécurité si un inline-style traîne
     panel.classList.add("open");
     render(results);
   };
@@ -22557,34 +22558,29 @@ function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
   input.addEventListener("focus", run);
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      close();
-      input.blur();
-    }
+    if (e.key === "Escape") { close(); input.blur(); }
     if (e.key === "Enter") {
       const first = resultsEl.querySelector(".search-item");
       if (first) navigate(first.dataset.route);
     }
   });
 
-  // click dehors => ferme (capture pour ne pas casser les autres clics)
-  document.addEventListener(
-    "click",
-    (e) => {
-      const inSearch = panel.contains(e.target) || input.contains(e.target);
-      if (!inSearch) close();
-    },
-    true
-  );
+  // click dehors => ferme
+  document.addEventListener("click", (e) => {
+    const inSearch = panel.contains(e.target) || input.contains(e.target);
+    if (!inSearch) close();
+  }, true);
 
   // reposition si scroll/resize
   window.addEventListener("resize", () => {
     if (panel.classList.contains("open")) positionPanel();
   });
+
   window.addEventListener("scroll", () => {
     if (panel.classList.contains("open")) positionPanel();
   }, true);
 }
+
 
 
 function ensureHeaderTitleClickableHome() {
@@ -22606,9 +22602,12 @@ function initHomeQuickAccessMobile() {
   const menu = document.getElementById("home-qa-menu");
   if (!btn || !menu) return;
 
+  // ✅ évite de re-binder si on revient sur la home
+  if (btn.dataset.qaReady === "1") return;
+  btn.dataset.qaReady = "1";
+
   menu.classList.add("qa-menu");
 
-  // 8 items demandés
   const items = [
     { label: "Gestion des traitements", action: "ttm" },
     { label: "Antibioprophylaxie", route: "#/anesthesie/antibiopro" },
@@ -22629,6 +22628,7 @@ function initHomeQuickAccessMobile() {
 
   const close = () => menu.classList.remove("is-open");
 
+  // ✅ MODIF #1 : positionner pour un dropdown en "fixed" (plein écran)
   const positionMenu = () => {
     const r = btn.getBoundingClientRect();
     const top = Math.min(r.bottom + 8, window.innerHeight - 80);
@@ -22641,12 +22641,13 @@ function initHomeQuickAccessMobile() {
     e.preventDefault();
     e.stopPropagation();
 
-    const willOpen = !menu.classList.contains("is-open");
-    close();
-    if (willOpen) {
-      positionMenu();
-      menu.classList.add("is-open");
-    }
+    // ✅ MODIF #2 : vrai toggle propre (ouvre/ferme), et position AVANT ouverture
+    const isOpen = menu.classList.contains("is-open");
+    if (isOpen) { close(); return; }
+
+    positionMenu();
+    menu.style.display = "";          // ✅ MODIF #3 : sécurité si un inline-style traîne
+    menu.classList.add("is-open");
   });
 
   menu.addEventListener("click", (e) => {
@@ -22654,40 +22655,35 @@ function initHomeQuickAccessMobile() {
     if (!b) return;
     close();
 
-    // Action spéciale: aller dans Anesthésie > Consultations > ouvrir Gestion des traitements
     if (b.dataset.action === "ttm") {
       if (typeof openSubPage === "function" &&
           typeof renderAnesthConsultTraitements === "function" &&
           typeof renderAnesthConsultations === "function") {
         openSubPage(renderAnesthConsultTraitements, renderAnesthConsultations);
       } else {
-        // fallback: au moins le menu consultations
         window.location.hash = "#/anesthesie/consultations";
       }
       return;
     }
 
-    // Route simple
     if (b.dataset.route) window.location.hash = b.dataset.route;
   });
 
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (!menu.classList.contains("is-open")) return;
-      if (e.target === btn || menu.contains(e.target)) return;
-      close();
-    },
-    true
-  );
+  document.addEventListener("click", (e) => {
+    if (!menu.classList.contains("is-open")) return;
+    if (e.target === btn || menu.contains(e.target)) return;
+    close();
+  }, true);
 
   window.addEventListener("resize", () => {
     if (menu.classList.contains("is-open")) positionMenu();
   });
+
   window.addEventListener("scroll", () => {
     if (menu.classList.contains("is-open")) positionMenu();
   }, true);
 }
+
 
 
 
