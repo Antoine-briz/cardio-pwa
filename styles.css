@@ -6391,13 +6391,13 @@ body.theme-light #home-search-panel.search-panel{
   padding:6px 8px;       /* ↓ moins de padding interne */
   display:flex;
   flex-direction:column;
-  gap:6px;               /* ↓ espace réduit entre les résultats */
+  gap:2px;               /* ↓ espace réduit entre les résultats */
 }
 
 #home-search-panel .search-item{
   width:100%;
   text-align:left;
-  padding:6px 10px;      /* ↓ moins de hauteur */
+  padding:5px 10px;      /* ↓ moins de hauteur */
   border-radius:10px;    /* légèrement réduit */
   border:1px solid rgba(255,255,255,.14);
   background:rgba(255,255,255,.10);
