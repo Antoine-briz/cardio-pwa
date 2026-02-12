@@ -6664,3 +6664,428 @@ body.theme-light #home-qa-menu .qa-item{
   margin-top: 2px !important;       /* <- réduit l’espace interne */
   line-height: 1.1 !important;
 }
+
+
+/* =====================================================
+   Traitement Manager (Ordonnance gestion des traitements)
+   => FORCÉ en clair (même si thème sombre)
+   ===================================================== */
+
+/* Overlay (fond) */
+.ttm-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.55) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+/* Fenêtre principale : toujours blanche */
+.ttm-overlay .ttm-window{
+  width: min(1200px, 96vw);
+  height: min(720px, 92vh);
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+/* Header */
+.ttm-overlay .ttm-header{
+  background: #ffffff !important;
+  color: #111111 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ttm-overlay .ttm-title{
+  font-weight: 800;
+  font-size: 16px;
+  color: #111111 !important;
+}
+
+.ttm-overlay .ttm-close{
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #111111 !important;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+}
+
+/* Barre de contrôles */
+.ttm-overlay .ttm-controls{
+  background: #ffffff !important;
+  color: #111111 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 12px;
+}
+
+.ttm-overlay .ttm-field label{
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111111 !important;
+}
+
+/* Select + date : toujours clairs */
+.ttm-overlay .ttm-field select,
+.ttm-overlay .ttm-field input,
+.ttm-overlay .ttm-field input[type="date"]{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db !important;
+  background: #f9fafb !important;
+  color: #111111 !important;
+  outline: none;
+}
+
+/* Boutons actions */
+.ttm-overlay .ttm-actions{
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+/* Corps : 2 colonnes */
+.ttm-overlay .ttm-body{
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #ffffff !important;
+}
+
+/* Colonnes */
+.ttm-overlay .ttm-col{
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ttm-overlay .ttm-col-title{
+  font-weight: 800;
+  color: #111111 !important;
+  font-size: 14px;
+}
+
+/* Textareas : FORCÉS clairs + texte noir */
+.ttm-overlay textarea.ttm-textarea,
+.ttm-overlay .ttm-textarea{
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  resize: none;
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid #d1d5db !important;
+  background: #f9fafb !important;
+  color: #111111 !important;
+  line-height: 1.35;
+  outline: none;
+}
+
+/* Colonne droite empilée : même hauteur que gauche */
+.ttm-overlay .ttm-right-stack{
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Partie principale (haut) plus grande */
+.ttm-overlay .ttm-right-main{
+  flex: 2;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Partie extra (bas) plus petite */
+.ttm-overlay .ttm-right-extra{
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Mobile */
+@media (max-width: 860px){
+  .ttm-overlay .ttm-controls{
+    grid-template-columns: 1fr;
+  }
+  .ttm-overlay .ttm-actions{
+    justify-content: flex-start;
+  }
+  .ttm-overlay .ttm-body{
+    flex-direction: column;
+  }
+  .ttm-overlay .ttm-window{
+    height: 92vh;
+  }
+}
+
+/* =====================================================
+   Petite fenêtre de questions : FORCÉE en clair aussi
+   ===================================================== */
+.ttm-q-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,.55) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.ttm-q-overlay .ttm-q-box{
+  width: min(560px, 96vw);
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+.ttm-q-overlay .ttm-q-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+}
+
+.ttm-q-overlay .ttm-q-title{
+  font-weight: 800;
+  font-size: 14px;
+  color: #111111 !important;
+}
+
+.ttm-q-overlay .ttm-q-close{
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #111111 !important;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.ttm-q-overlay .ttm-q-body{
+  padding: 14px;
+}
+
+.ttm-q-overlay .ttm-q-question{
+  font-size: 13px;
+  color: #111111 !important;
+  margin-bottom: 12px;
+}
+
+.ttm-q-overlay .ttm-q-choices{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ttm-q-overlay .ttm-q-btn{
+  border: 1px solid #d1d5db !important;
+  background: #f9fafb !important;
+  color: #111111 !important;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Bouton d'ouverture */
+.ttm-open-btn{
+  margin-top: 12px;
+  width: fit-content;
+}
+
+/* =====================================================
+   TTM — Typo + tailles de titres (scopé uniquement TTM)
+   À mettre TOUT EN BAS du style.css
+   ===================================================== */
+
+.ttm-overlay, .ttm-q-overlay{
+  /* Police moderne sans import */
+  --ttm-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Appliquer la police partout dans la fenêtre */
+.ttm-overlay .ttm-window,
+.ttm-overlay .ttm-window *{
+  font-family: var(--ttm-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ttm-q-overlay .ttm-q-box,
+.ttm-q-overlay .ttm-q-box *{
+  font-family: var(--ttm-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Titre principal (en haut) */
+.ttm-overlay .ttm-title{
+  font-size: 20px;     /* avant ~16 */
+  font-weight: 850;
+  letter-spacing: -0.2px;
+}
+
+/* Labels “Type d’intervention / Date …” */
+.ttm-overlay .ttm-field label{
+  font-size: 14px;     /* avant 12-13 */
+  font-weight: 750;
+}
+
+/* Titres au-dessus des textareas */
+.ttm-overlay .ttm-col-title{
+  font-size: 15px;     /* avant 13-14 */
+  font-weight: 850;
+  letter-spacing: -0.15px;
+}
+
+/* Textareas : police plus lisible */
+.ttm-overlay .ttm-textarea{
+  font-size: 14px;     /* avant 13 */
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Boutons : un peu plus “UI moderne” */
+.ttm-overlay .ttm-run,
+.ttm-overlay .ttm-clear,
+.ttm-overlay .ttm-close{
+  font-weight: 750;
+  letter-spacing: -0.1px;
+}
+
+/* Petite fenêtre de questions */
+.ttm-q-overlay .ttm-q-title{
+  font-size: 16px;     /* avant 14 */
+  font-weight: 850;
+  letter-spacing: -0.2px;
+}
+
+.ttm-q-overlay .ttm-q-question{
+  font-size: 14px;     /* avant 13 */
+  line-height: 1.45;
+  font-weight: 520;
+}
+
+.ttm-q-overlay .ttm-q-btn{
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* =====================================================
+   Bouton "Ordonnance gestion des traitements"
+   Centré sous le titre
+   ===================================================== */
+
+.ttm-open-wrapper{
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.ttm-open-btn{
+  font-size: 15px;
+  padding: 10px 18px;
+}
+
+/* =====================================================
+   TTM — Ajustements smartphone (sans changer le rendu desktop)
+   ===================================================== */
+
+/* Petit smartphone */
+@media (max-width: 520px){
+
+  /* overlay : pas de marge, la fenêtre prend tout */
+  .ttm-overlay{
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  /* fenêtre : plein écran */
+  .ttm-overlay .ttm-window{
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  /* header/controls un peu plus compacts */
+  .ttm-overlay .ttm-header{
+    padding: 12px 12px;
+  }
+
+  .ttm-overlay .ttm-controls{
+    padding: 12px 12px;
+    gap: 10px;
+    grid-template-columns: 1fr; /* 1 colonne sur mobile */
+  }
+
+  /* boutons actions : passe en wrap si besoin */
+  .ttm-overlay .ttm-actions{
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* body : 1 colonne, moins de padding */
+  .ttm-overlay .ttm-body{
+    flex-direction: column;
+    padding: 12px 12px;
+    gap: 12px;
+  }
+
+  /* textareas : un peu moins de padding pour gagner en hauteur */
+  .ttm-overlay textarea.ttm-textarea,
+  .ttm-overlay .ttm-textarea{
+    padding: 10px 10px;
+    border-radius: 14px;
+  }
+
+  /* titres un peu plus compacts */
+  .ttm-overlay .ttm-title{ font-size: 18px; }
+  .ttm-overlay .ttm-col-title{ font-size: 14px; }
+}
+
+/* iPhone “petit” paysage / hauteur faible */
+@media (max-height: 520px){
+  .ttm-overlay{ padding: 0; }
+  .ttm-overlay .ttm-window{
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
