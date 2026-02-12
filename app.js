@@ -22107,6 +22107,7 @@ const routes = {
   // Anesthésie
   "#/anesthesie": renderAnesthMenu,
   "#/anesthesie/consultations": renderAnesthConsultations,
+  "#/anesthesie/consultations/traitements": renderAnesthConsultTraitements,
   "#/anesthesie/antibiopro": renderAntibioproForm,
 
   "#/anesthesie/chir-cec": renderAnesthChirCecMenu,
@@ -22448,6 +22449,8 @@ function initSearchUI(inputId, panelId) {
   const input = document.getElementById(inputId);
   const panel = document.getElementById(panelId);
   if (!input || !panel) return;
+  if (input.dataset.searchReady === "1") return;
+  input.dataset.searchReady = "1";
 
   // sécurité : évite de fermer quand on clique sur les résultats
   panel.addEventListener("click", (e) => e.stopPropagation());
@@ -22534,9 +22537,11 @@ function initHomeQuickAccessMobile() {
   const btn = document.getElementById("home-qa-btn");
   const menu = document.getElementById("home-qa-menu");
   if (!btn || !menu) return;
+  if (btn.dataset.qaReady === "1") return;
+  btn.dataset.qaReady = "1";
 
   const items = [
-    ["Gestion des traitements", "#/anesthesie/consultations"],
+    ["Gestion pré-opératoire des traitements", "#/anesthesie/consultations/traitements"],
     ["Antibioprophylaxie", "#/anesthesie/antibiopro"],
     ["Calcul Vt 6mL/kg", "#/reanimation/formules/ventilation"],
     ["Coupes/mesures ETO", "#/reanimation/eto"],
