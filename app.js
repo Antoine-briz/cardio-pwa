@@ -927,6 +927,7 @@ function renderAnesthConsultations() {
 }
 
 // Page "Gestion pré-opératoire des traitements"
+// Page "Gestion pré-opératoire des traitements"
 function renderAnesthConsultTraitements() {
   const encadres = [
     {
@@ -936,7 +937,7 @@ function renderAnesthConsultTraitements() {
           <!-- Héparine non fractionnée -->
           <details>
             <summary>
-              <span style="color:#000; font-weight:600;">
+              <span class="ttm-section-title">
                 Héparine non fractionnée
               </span>
             </summary>
@@ -949,7 +950,7 @@ function renderAnesthConsultTraitements() {
           <!-- Héparines de bas poids moléculaire -->
           <details>
             <summary>
-              <span style="color:#000; font-weight:600;">
+              <span class="ttm-section-title">
                 Héparines de bas poids moléculaire
               </span>
             </summary>
@@ -962,7 +963,7 @@ function renderAnesthConsultTraitements() {
           <!-- Anticoagulants oraux directs -->
           <details>
             <summary>
-              <span style="color:#000; font-weight:600;">
+              <span class="ttm-section-title">
                 Anticoagulants oraux directs
               </span>
             </summary>
@@ -984,7 +985,7 @@ function renderAnesthConsultTraitements() {
           <!-- Anti-vitamines K -->
           <details>
             <summary>
-              <span style="color:#000; font-weight:600;">
+              <span class="ttm-section-title">
                 Anti-vitamines K
               </span>
             </summary>
@@ -1109,7 +1110,7 @@ function renderAnesthConsultTraitements() {
             </li>
             <li>
               Agonistes GLP1 (Semaglutide, Dulaglutide, Liraglutide)&nbsp;:
-              Arrêt J-6 car inhibiteur de la vidange gastrique (considérer estomac plein sinon)
+              Arrêt J-6, inhibe la vidange gastrique (considérer estomac plein)
             </li>
             <li>
               Inhibiteurs SGLT2 (gliflozines&nbsp;: dapagliflozine, empagliflozine…)&nbsp;:
@@ -1171,7 +1172,6 @@ function renderAnesthConsultTraitements() {
     image: "consultation.png",
     encadres,
   });
-}
 
 // ✅ Ajoute le bouton “Ordonnance gestion des traitements” centré sous le titre
 setTimeout(() => {
