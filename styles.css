@@ -6457,121 +6457,67 @@ body.theme-light #home-qa-menu .qa-item:hover{
 }
 
 /* =========================================================
-   AJUSTEMENTS HOME TOOLS (espacement + bleu marine + dropdown pleine largeur)
-========================================================= */
-
-/* 1) Plus d’espace sous la rangée (avant la carte Anesthésie) */
-.home-tools-row{
-  margin-bottom: 16px;     /* ↑ augmente l’espace (mets 20–24px si tu veux plus) */
-}
-
-/* 2) Couleur bleu marine (input + bouton) */
-#home-search{
-  background: rgba(8, 33, 74, .55);              /* bleu marine transparent */
-  border: 1px solid rgba(255,255,255,.20);
-  color: #fff;
-}
-#home-search::placeholder{ color: rgba(255,255,255,.75); opacity: 1; }
-
-#home-qa-btn{
-  background: rgba(8, 33, 74, .92);              /* bleu marine plus opaque */
-  border: 1px solid rgba(255,255,255,.22);
-  color:#fff;
-}
-
-/* (option) hover */
-#home-qa-btn:hover{ background: rgba(8, 33, 74, 1); }
-
-/* 3) Dropdown pleine largeur écran (recherche + QA) */
-.home-search-wrap, .home-qa-wrap{ position: relative; }
-
-/* On “sort” le dropdown du wrap et on l’étire sur tout l’écran */
-#home-search-panel.search-panel,
-#home-qa-menu{
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: calc(100vw - 24px) !important;   /* pleine largeur avec marge */
-  max-width: 520px;                       /* option : limite sur grands écrans */
-}
-
-/* même marge en haut */
-#home-search-panel.search-panel{ top: calc(100% + 10px) !important; }
-#home-qa-menu{ top: calc(100% + 10px) !important; }
-
-/* On garde le style existant du dropdown */
-#home-search-panel.search-panel,
-#home-qa-menu{
-  border-radius: 14px;
-}
-
-/* Thème clair : conserve ta lisibilité */
-body.theme-light #home-search{
-  background: rgba(8, 33, 74, .10) !important;   /* bleu très léger en clair */
-  border: 1px solid rgba(0,0,0,.35) !important;
-  color:#000 !important;
-}
-body.theme-light #home-search::placeholder{ color:#000 !important; }
-
-body.theme-light #home-qa-btn{
-  background: rgba(8, 33, 74, .12) !important;
-  border: 1px solid rgba(0,0,0,.20) !important;
-  color:#000 !important;
-}
-
-/* =========================================================
-   FIX DROPDOWNS : jamais hors écran (plein écran avec marges)
-========================================================= */
-
-/* Dropdowns plein écran, ancrés au viewport */
-#home-search-panel.search-panel,
-#home-qa-menu{
-  position: fixed !important;
-  left: 12px !important;
-  right: 12px !important;
-  width: auto !important;
-  transform: none !important;
-  max-width: none !important;
-  z-index: 9999;
-}
-
-/* =========================
    HOME — SEARCH + QUICK ACCESS (mobile)
-========================= */
+   - input + bouton même taille / même place
+   - bleu marine
+   - dropdowns pleine largeur écran (marges), jamais hors écran
+   - dropdowns cachés par défaut (s'affichent via .open / .is-open)
+========================================================= */
 
+/* Rangée outils : un peu plus d'espace avant les cartes */
 .home-tools-row{
   display:flex;
-  gap:14px;                 /* + d'espace entre les 2 éléments */
-  padding: 12px 14px 18px;
-  margin-bottom: 18px;      /* + d'espace avant les cartes Anesthésie */
   align-items:center;
+  gap:14px;                 /* espace entre recherche et accès rapide */
+  padding:12px 14px 10px;
+  margin-bottom:18px;       /* espace avant la carte Anesthésie */
 }
 
+/* Wrappers */
 .home-search-wrap,
 .home-qa-wrap{
+  position:relative;
   flex:1;
+  min-width:0;
 }
 
-/* input recherche = même taille que bouton */
-#home-search{
+/* Input & bouton : même taille */
+#home-search,
+#home-qa-btn{
   width:100%;
   height:44px;
   border-radius:999px;
-  padding: 0 16px;
-  outline:none;
+  padding:0 16px;
+  font-size:15px;
+}
 
-  background: rgba(11,60,109,0.35);       /* bleu marine translucide */
+/* Recherche : bleu marine translucide */
+#home-search{
+  outline:none;
+  background: rgba(8, 33, 74, 0.55);
   border: 1px solid rgba(255,255,255,0.22);
   color:#fff;
 }
-
-/* placeholder */
 #home-search::placeholder{
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.80);
+  opacity:1;
 }
 
-/* thème clair: texte NOIR + contour visible */
+/* Accès rapide : bleu marine plus opaque */
+#home-qa-btn{
+  background: rgba(8, 33, 74, 0.92);
+  border: 1px solid rgba(255,255,255,0.22);
+  color:#fff;
+  font-weight:800;
+  white-space:nowrap;
+}
+#home-qa-btn:hover{
+  background: rgba(8, 33, 74, 1);
+}
+
+/* Thème clair : input + bouton lisibles */
 body.theme-light #home-search{
-  background: rgba(11,60,109,0.14);
+  background: rgba(8, 33, 74, 0.12);
   border: 1px solid rgba(0,0,0,0.30);
   color:#000;
 }
@@ -6579,99 +6525,99 @@ body.theme-light #home-search::placeholder{
   color: rgba(0,0,0,0.65);
 }
 
-/* bouton accès rapide = même hauteur/forme */
-#home-qa-btn.qa-btn{
-  width:100%;
-  height:44px;
-  border-radius:999px;
-  background:#0B3C6D;       /* bleu marine */
-  border:none;
-  color:#fff;
-  font-weight:800;
+body.theme-light #home-qa-btn{
+  background: rgba(8, 33, 74, 0.14);
+  border: 1px solid rgba(0,0,0,0.22);
+  color:#000;
 }
 
-/* =========================
-   DROPDOWNS (pleine largeur écran)
-========================= */
+/* =========================================================
+   DROPDOWNS (Recherche + QA) — plein écran (marges) en fixed
+   IMPORTANT: top est géré par JS (style.top = ...)
+========================================================= */
 
-/* caché par défaut */
-.search-panel,
-.qa-menu{
-  display:none;
-
-  position: fixed;          /* ancré à la fenêtre (pas au bouton) */
+#home-search-panel.search-panel,
+#home-qa-menu{
+  display:none;                 /* caché par défaut */
+  position: fixed;
   left: 8px;
   right: 8px;
-  top: 0;                   /* sera set via JS */
+  top: 0;                       /* sera positionné par JS */
   z-index: 9999;
 
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(20,20,20,.92);
-  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(20,20,20,.92);
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
   backdrop-filter: blur(10px);
-  max-height: 55vh;
+
+  max-height:55vh;
 }
 
-.search-panel.open{ display:block; }
-.qa-menu.is-open{ display:block; }
+/* états ouverts */
+#home-search-panel.search-panel.open{ display:block; }
+#home-qa-menu.is-open{ display:block; }
 
-body.theme-light .search-panel,
-body.theme-light .qa-menu{
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(0,0,0,.12);
-  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+/* thème clair dropdown */
+body.theme-light #home-search-panel.search-panel,
+body.theme-light #home-qa-menu{
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(0,0,0,.12);
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
 }
 
-/* contenu */
-.search-results{
+/* ----- Résultats recherche ----- */
+#home-search-panel .search-results{
   overflow:auto;
-  padding: 10px;
+  padding:10px;
   display:flex;
   flex-direction:column;
   gap:10px;
 }
 
-/* items recherche (fond NON transparent pour être lisible) */
-.search-item{
+#home-search-panel .search-item{
   width:100%;
   text-align:left;
   padding:10px 12px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.10);
-  color: inherit;
+  background:rgba(255,255,255,.10);
+  color:inherit;
 }
-body.theme-light .search-item{
+body.theme-light #home-search-panel .search-item{
   border:1px solid rgba(0,0,0,.10);
-  background: rgba(0,0,0,.04);
+  background:rgba(0,0,0,.04);
   color:#000;
 }
 
-.search-title{ font-weight:800; }
-.search-route{ margin-top:4px; font-size:.85em; opacity:.75; word-break:break-all; }
-.search-empty{ padding:10px 4px; opacity:.85; }
+#home-search-panel .search-title{ font-weight:800; }
+#home-search-panel .search-route{ margin-top:4px; font-size:.85em; opacity:.75; word-break:break-all; }
+body.theme-light #home-search-panel .search-route{ color:#222; opacity:.9; }
 
-/* menu accès rapide */
-.qa-menu{
-  padding: 10px;
+#home-search-panel .search-empty{ padding:10px 4px; opacity:.85; }
+body.theme-light #home-search-panel .search-empty{ color:#000; }
+
+/* ----- Menu accès rapide ----- */
+#home-qa-menu{
+  padding:10px;
   overflow:auto;
 }
-.qa-item{
+
+#home-qa-menu .qa-item{
   width:100%;
   text-align:left;
   padding:10px 12px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.10);
-  color: inherit;
+  background:rgba(255,255,255,.10);
+  color:inherit;
   margin-bottom:10px;
 }
-.qa-item:last-child{ margin-bottom:0; }
+#home-qa-menu .qa-item:last-child{ margin-bottom:0; }
 
-body.theme-light .qa-item{
+body.theme-light #home-qa-menu .qa-item{
   border:1px solid rgba(0,0,0,.10);
-  background: rgba(0,0,0,.04);
+  background:rgba(0,0,0,.04);
   color:#000;
 }
