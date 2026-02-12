@@ -1173,6 +1173,883 @@ function renderAnesthConsultTraitements() {
   });
 }
 
+// ✅ Ajoute le bouton “Ordonnance gestion des traitements” centré sous le titre
+setTimeout(() => {
+  const hero =
+    document.querySelector(".intervention-main .hero") ||
+    document.querySelector(".hero");
+
+  if (!hero) return;
+  if (document.getElementById("ttm-open-btn")) return;
+
+  const btnWrapper = document.createElement("div");
+  btnWrapper.className = "ttm-open-wrapper";
+
+  const btn = document.createElement("button");
+  btn.id = "ttm-open-btn";
+  btn.className = "btn ttm-open-btn";
+  btn.type = "button";
+  btn.textContent = "Ordonnance gestion des traitements";
+  btn.addEventListener("click", () => openTreatmentManager());
+
+  btnWrapper.appendChild(btn);
+  hero.appendChild(btnWrapper);
+}, 0);
+}
+
+// =====================================================
+// Traitement Manager (Ordonnance gestion des traitements)
+// =====================================================
+let __ttmState = {
+  surgery: "Chirurgie cardiaque",
+  date: "", // YYYY-MM-DD
+  index: null
+};
+
+let __ttmExtra = {
+  fasting: [],
+  ide: [],
+  labs: []
+};
+
+function ttmResetExtraRx(dateSurgery) {
+  __ttmExtra = { fasting: [], ide: [], labs: [] };
+
+  // Règles de jeûne (toujours)
+  const d = new Date(dateSurgery + "T00:00:00");
+  const ds = ttmFmtDateFR(d);
+
+  __ttmExtra.fasting.push(`Arrêt de l'alimentation le ${ds} à minuit (au moins 6h avant l'intervention).`);
+  __ttmExtra.fasting.push(`Arrêt des boissons (eau/café) au moins 2h avant l'intervention.`);
+}
+
+function ttmAddExtraRx(section, line) {
+  if (!line) return;
+  if (!__ttmExtra[section]) return;
+  if (__ttmExtra[section].includes(line)) return;
+  __ttmExtra[section].push(line);
+}
+
+function ttmRenderExtraRx() {
+  const el = document.getElementById("ttm-extra");
+  if (!el) return;
+
+  const parts = [];
+
+  // 1) Toujours afficher le jeûne
+  parts.push(`**Règles de jeûne:**`);
+  parts.push(...(__ttmExtra.fasting || []));
+
+  // 2) IDE seulement si relai AVK (donc si on a des lignes)
+  if ((__ttmExtra.ide || []).length > 0) {
+    parts.push(""); // ligne vide
+    parts.push(`**IDE au domicile:**`);
+    parts.push(...__ttmExtra.ide);
+  }
+
+  // 3) Bilan biologique seulement si relai AVK
+  if ((__ttmExtra.labs || []).length > 0) {
+    parts.push(""); // ligne vide
+    parts.push(`**Bilan biologique:**`);
+    parts.push(...__ttmExtra.labs);
+  }
+
+  el.value = parts.join("\n");
+}
+
+let __ttmEl = null;
+
+// --- util: normalize text
+function ttmNormalize(s) {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[®™]/g, "")
+    .replace(/[^a-z0-9\s\-\+]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function ttmParseDelayToOffset(delayStr) {
+  const s0 = String(delayStr || "").trim();
+  const s = s0
+    .toUpperCase()
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // J0 (ex: "J0", "J0 matin", "Ne pas prendre le matin de l’intervention (J0 matin)")
+  if (s.includes("J0")) return { unit: "j0", value: 0, raw: delayStr };
+
+  // "Arrêt 3-4 jours" => on prend le plus grand (sécurité)
+  let m = s.match(/(\d+)\s*-\s*(\d+)\s*JOUR/);
+  if (m) return { unit: "days", value: Math.max(parseInt(m[1], 10), parseInt(m[2], 10)), raw: delayStr };
+
+  // "Arrêt 5 jours"
+  m = s.match(/(\d+)\s*JOUR/);
+  if (m) return { unit: "days", value: parseInt(m[1], 10), raw: delayStr };
+
+  // "J-5"
+  m = s.match(/J\s*-\s*(\d+)/);
+  if (m) return { unit: "days", value: parseInt(m[1], 10), raw: delayStr };
+
+  // "H-2 à H-4" / "H-24 à 36"
+  m = s.match(/H\s*-\s*(\d+)(?:\s*A\s*(?:H\s*-\s*)?(\d+))?/);
+  if (m) {
+    const a = parseInt(m[1], 10);
+    const b = m[2] ? parseInt(m[2], 10) : null;
+    const maxH = b ? Math.max(a, b) : a;
+    return { unit: "hours", value: maxH, raw: delayStr };
+  }
+
+  // fallback
+  return { unit: "unknown", value: null, raw: delayStr };
+}
+
+
+function ttmFmtDateFR(d) {
+  // d: Date
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function ttmShiftDate(dateStr, days) {
+  // dateStr: YYYY-MM-DD
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() - days);
+  return d;
+}
+
+function ttmDetectInLine(line, rulesIndex) {
+  // returns best match {key, entry} or null
+  const n = ttmNormalize(line);
+  if (!n) return null;
+
+  let hit = null;
+  let bestLen = 0;
+
+  for (const key of Object.keys(rulesIndex)) {
+    if (!key) continue;
+    if (n.includes(key) && key.length > bestLen) {
+      bestLen = key.length;
+      hit = rulesIndex[key];
+    }
+  }
+  return hit;
+}
+
+// --- Base médicaments à arrêter (SFAR) — COMPLET
+const TTM_STOP_TABLE = [
+
+  // =====================================================
+  // ANTICOAGULANTS
+  // =====================================================
+
+  // HNF
+  { group: "anticoag", subclass: "HNF", dci: "Heparine sodique", brands: ["Calciparine"], delay: "H-8" },
+  { group: "anticoag", subclass: "HNF", dci: "Heparine sodique IV", brands: ["Heparine sodique", "IVSE"], delay: "H-4" },
+
+  // HBPM
+  { group: "anticoag", subclass: "HBPM", dci: "Enoxaparine", brands: ["Lovenox"], delay: "H-24" },
+  { group: "anticoag", subclass: "HBPM", dci: "Tinzaparine", brands: ["Innohep"], delay: "H-36" },
+  { group: "anticoag", subclass: "HBPM", dci: "Nadroparine", brands: ["Fraxiparine"], delay: "H-24" },
+  { group: "anticoag", subclass: "HBPM", dci: "Dalteparine", brands: ["Fragmine"], delay: "H-36" },
+
+  // Fondaparinux
+  { group: "anticoag", subclass: "fondaparinux", dci: "Fondaparinux", brands: ["Arixtra"], delay: "J-4" },
+
+  // AOD
+  { group: "anticoag", subclass: "AOD", dci: "Dabigatran", brands: ["Pradaxa"], delay: "J-4" },
+  { group: "anticoag", subclass: "AOD", dci: "Rivaroxaban", brands: ["Xarelto"], delay: "J-2" },
+  { group: "anticoag", subclass: "AOD", dci: "Apixaban", brands: ["Eliquis"], delay: "J-2" },
+  { group: "anticoag", subclass: "AOD", dci: "Edoxaban", brands: ["Lixiana"], delay: "J-2" },
+
+  // AVK
+  { group: "anticoag", subclass: "AVK", dci: "Fluindione", brands: ["Previscan"], delay: "J-5" },
+  { group: "anticoag", subclass: "AVK", dci: "Warfarine", brands: ["Coumadine"], delay: "J-5" },
+  { group: "anticoag", subclass: "AVK", dci: "Acenocoumarol", brands: ["Sintrom"], delay: "J-3" },
+
+  // Anticoagulants IV spécifiques
+  { group: "anticoag", subclass: "IV", dci: "Bivalirudine", brands: ["Angiox"], delay: "H-4" },
+  { group: "anticoag", subclass: "IV", dci: "Argatroban", brands: ["Argatra"], delay: "H-4" },
+
+  // =====================================================
+  // ANTI-AGRÉGANTS PLAQUETTAIRES
+  // =====================================================
+
+  { group: "aap", subclass: "ASA", dci: "Acide acetylsalicylique", brands: ["Kardegic", "Aspirine", "Aspirine UPSA"], delay: "J-3" },
+
+  { group: "aap", subclass: "P2Y12", dci: "Clopidogrel", brands: ["Plavix"], delay: "J-5" },
+  { group: "aap", subclass: "P2Y12", dci: "Ticagrelor", brands: ["Brilique"], delay: "J-5" },
+  { group: "aap", subclass: "P2Y12", dci: "Prasugrel", brands: ["Efient"], delay: "J-7" },
+
+  // Anti-GPIIb/IIIa
+  { group: "aap", subclass: "GPIIbIIIa", dci: "Eptifibatide", brands: ["Integrilin"], delay: "H-4" },
+  { group: "aap", subclass: "GPIIbIIIa", dci: "Tirofiban", brands: ["Agrastat"], delay: "H-4" },
+  { group: "aap", subclass: "GPIIbIIIa", dci: "Abciximab", brands: ["ReoPro"], delay: "H-12" },
+
+  // Cangrelor IV
+  { group: "aap", subclass: "P2Y12-IV", dci: "Cangrelor", brands: ["Kengrexal"], delay: "H-2" },
+
+  // =====================================================
+  // IEC / ARA II / ARNI
+  // =====================================================
+
+  // IEC
+  { group: "hta", subclass: "IEC", dci: "Enalapril", brands: ["Renitec", "Co-Renitec"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Perindopril", brands: ["Coversyl", "Preterax", "Bipreterax", "Coveram"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Ramipril", brands: ["Tritace", "Tritazide"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Lisinopril", brands: ["Zestril", "Zestoretic"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Captopril", brands: ["Lopril"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Quinapril", brands: ["Accupro", "Accuretic"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Fosinopril", brands: ["Fosinotec"], delay: "J-2" },
+  { group: "hta", subclass: "IEC", dci: "Trandolapril", brands: ["Odrik", "Tarka"], delay: "J-2" },
+
+  // ARA II
+  { group: "hta", subclass: "ARA2", dci: "Losartan", brands: ["Cozaar", "Hyzaar"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Valsartan", brands: ["Tareg", "CoDiovan", "Exforge", "Exforge HCT"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Irbesartan", brands: ["Aprovel", "CoAprovel"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Candesartan", brands: ["Atacand", "Atacand Plus"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Olmesartan", brands: ["Olmetec", "Sevikar"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Telmisartan", brands: ["Micardis", "Twynsta"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Eprosartan", brands: ["Teveten"], delay: "J-2" },
+  { group: "hta", subclass: "ARA2", dci: "Azilsartan", brands: ["Edarbi", "Edarbyclor"], delay: "J-2" },
+
+  // ARNI
+  { group: "hta", subclass: "ARNI", dci: "Sacubitril + Valsartan", brands: ["Entresto"], delay: "J-2" },
+
+  // =====================================================
+  // DIURÉTIQUES
+  // =====================================================
+
+  { group: "diuretique", subclass: "anse", dci: "Furosemide", brands: ["Lasilix"], delay: "J-1" },
+  { group: "diuretique", subclass: "anse", dci: "Bumetanide", brands: ["Bumex"], delay: "J-1" },
+  { group: "diuretique", subclass: "anse", dci: "Torasemide", brands: ["Diuver"], delay: "J-1" },
+
+  { group: "diuretique", subclass: "thiazidique", dci: "Hydrochlorothiazide", brands: ["Esidrex"], delay: "J-1" },
+  { group: "diuretique", subclass: "thiazidique", dci: "Indapamide", brands: ["Fludex"], delay: "J-1" },
+  { group: "diuretique", subclass: "thiazidique", dci: "Chlortalidone", brands: ["Hygroton"], delay: "J-1" },
+
+  { group: "diuretique", subclass: "epargneurK", dci: "Spironolactone", brands: ["Aldactone"], delay: "J-1" },
+  { group: "diuretique", subclass: "epargneurK", dci: "Eplerenone", brands: ["Inspra"], delay: "J-1" },
+  { group: "diuretique", subclass: "epargneurK", dci: "Amiloride", brands: ["Moduretic"], delay: "J-1" },
+  { group: "diuretique", subclass: "epargneurK", dci: "Triamterene", brands: ["Dyrenium"], delay: "J-1" },
+
+  // =====================================================
+  // ANTIDIABÉTIQUES ORAUX
+  // =====================================================
+
+  { group: "diabete", subclass: "biguanide", dci: "Metformine", brands: ["Glucophage", "Stagid"], delay: "J0" },
+
+  { group: "diabete", subclass: "sulfamide", dci: "Gliclazide", brands: ["Diamicron"], delay: "J0" },
+  { group: "diabete", subclass: "sulfamide", dci: "Glimepiride", brands: ["Amarel"], delay: "J0" },
+  { group: "diabete", subclass: "sulfamide", dci: "Glibenclamide", brands: ["Daonil"], delay: "J0" },
+
+  { group: "diabete", subclass: "glinide", dci: "Repaglinide", brands: ["Novonorm"], delay: "J0" },
+  { group: "diabete", subclass: "glinide", dci: "Nateglinide", brands: ["Starlix"], delay: "J0" },
+
+  { group: "diabete", subclass: "alphaglucosidase", dci: "Acarbose", brands: ["Glucor"], delay: "J0" },
+
+  { group: "diabete", subclass: "dpp4", dci: "Sitagliptine", brands: ["Januvia"], delay: "J0" },
+  { group: "diabete", subclass: "dpp4", dci: "Vildagliptine", brands: ["Galvus"], delay: "J0" },
+  { group: "diabete", subclass: "dpp4", dci: "Linagliptine", brands: ["Trajenta"], delay: "J0" },
+  { group: "diabete", subclass: "dpp4", dci: "Saxagliptine", brands: ["Onglyza"], delay: "J0" },
+  { group: "diabete", subclass: "dpp4", dci: "Alogliptine", brands: ["Vipidia"], delay: "J0" },
+
+  { group: "diabete", subclass: "sglt2", dci: "Dapagliflozine", brands: ["Forxiga"], delay: "J-3" },
+  { group: "diabete", subclass: "sglt2", dci: "Empagliflozine", brands: ["Jardiance"], delay: "J-3" },
+  { group: "diabete", subclass: "sglt2", dci: "Canagliflozine", brands: ["Invokana"], delay: "J-3" },
+  { group: "diabete", subclass: "sglt2", dci: "Ertugliflozine", brands: ["Steglatro"], delay: "J-3" },
+
+  { group: "diabete", subclass: "glp1", dci: "Liraglutide", brands: ["Victoza"], delay: "J-6" },
+  { group: "diabete", subclass: "glp1", dci: "Semaglutide", brands: ["Ozempic", "Rybelsus"], delay: "J-6" },
+  { group: "diabete", subclass: "glp1", dci: "Dulaglutide", brands: ["Trulicity"], delay: "J-6" },
+  { group: "diabete", subclass: "glp1", dci: "Exenatide", brands: ["Byetta"], delay: "J-6" },
+
+  { group: "diabete", subclass: "tzd", dci: "Pioglitazone", brands: ["Actos"], delay: "J0-matin" },
+];
+
+
+function ttmBuildIndex() {
+  const idx = {};
+  for (const e of TTM_STOP_TABLE) {
+    const keys = [];
+    keys.push(ttmNormalize(e.dci));
+    (e.brands || []).forEach(b => keys.push(ttmNormalize(b)));
+
+    // ajoute aussi variantes "courtes"
+    for (const k of keys) {
+      if (!k) continue;
+      idx[k] = e;
+    }
+  }
+  return idx;
+}
+
+function ttmStripDose(line) {
+  // Garde le nom, enlève posologies/dosages fréquents
+  // Ex: "Eliquis 5mg x2/j" => "Eliquis"
+  // Ex: "Metformine 850 mg 1-0-1" => "Metformine"
+  // Ex: "Xarelto 20mg le soir" => "Xarelto"
+  let s = String(line || "").trim();
+
+  // coupe à partir d'un dosage (mg, g, UI, µg, mcg, mL, %, cp, comprimé, gélule, sachet, etc.)
+  s = s.replace(/\b(\d+([.,]\d+)?\s*(mg|g|ui|u\.i\.|µg|mcg|ml|%))\b.*$/i, "").trim();
+
+  // coupe à partir de patterns de posologie : x2/j, 2 fois, 1-0-1, matin/midi/soir, cp, comprimés
+  s = s.replace(/\b(x\s*\d+(\s*\/\s*j)?|(\d+\s*-\s*\d+\s*-\s*\d+)|\d+\s*(cp|cpr|comprime|comprimés|gelule|gélule|sachet)s?|\bmatin\b|\bmidi\b|\bsoir\b|\bcoucher\b).*/i, "").trim();
+
+  // coupe à partir de parenthèses si elles contiennent dose
+  s = s.replace(/\(([^)]*(mg|g|ui|µg|mcg|ml|%)\s*[^)]*)\).*$/i, "").trim();
+
+  // nettoie double espaces
+  s = s.replace(/\s{2,}/g, " ").trim();
+  return s || String(line || "").trim();
+}
+
+function ttmHasAnyASA(lines) {
+  // Kardégic / aspirine dans le traitement
+  const n = lines.map(ttmNormalize).join(" | ");
+  return n.includes("kardegic") || n.includes("aspirine") || n.includes("acide acetylsalicylique");
+}
+
+function ttmIsAVK(entry) {
+  return entry?.group === "anticoag" && entry?.subclass === "AVK";
+}
+function ttmIsAnticoag(entry) {
+  return entry?.group === "anticoag";
+}
+function ttmIsAAP(entry) {
+  return entry?.group === "aap";
+}
+
+function ttmSurgeryLabelToKey(label) {
+  // UI => key interne
+  switch (label) {
+    case "Chirurgie cardiaque": return "cardiaque";
+    case "Chirurgie vasculaire": return "vasculaire";
+    case "Cardiologie interventionnelle": return "ci";
+    case "Rythmologie": return "rythmo";
+    case "Radio-vasculaire": return "radiovasc";
+    default: return "vasculaire";
+  }
+}
+
+// ---------- Modal questions (petite fenêtre)
+function ttmAskModal({ title, question, choices }) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "ttm-q-overlay";
+    overlay.innerHTML = `
+      <div class="ttm-q-box" role="dialog" aria-modal="true">
+        <div class="ttm-q-head">
+          <div class="ttm-q-title">${title}</div>
+          <button class="ttm-q-close" type="button" aria-label="Fermer">✕</button>
+        </div>
+        <div class="ttm-q-body">
+          <div class="ttm-q-question">${question}</div>
+          <div class="ttm-q-choices">
+            ${(choices || []).map((c, i) => `<button type="button" class="ttm-q-btn" data-i="${i}">${c}</button>`).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const close = () => overlay.remove();
+    overlay.querySelector(".ttm-q-close").addEventListener("click", () => { close(); resolve(null); });
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) { close(); resolve(null); } });
+
+    overlay.querySelectorAll(".ttm-q-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = parseInt(btn.dataset.i, 10);
+        const val = (choices || [])[i];
+        close();
+        resolve(val);
+      });
+    });
+
+    document.body.appendChild(overlay);
+  });
+}
+
+// ---------- Calcul “dernière prise”
+function ttmComputeLastIntake(dateSurgery, delayStr) {
+  const off = ttmParseDelayToOffset(delayStr);
+
+  // pas d’arrêt
+  if (!delayStr || delayStr === "—") return { kind: "nochange" };
+
+  // J0 : pas de prise le jour J
+  if (off.unit === "j0") {
+    return { kind: "j0", note: "J0" };
+  }
+
+  if (off.unit === "days") {
+    const d = ttmShiftDate(dateSurgery, off.value);
+    return { kind: "date", date: d, note: `J-${off.value}` };
+  }
+
+  if (off.unit === "hours") {
+    // on traduit en jours “pratiques” (sans heure exacte)
+    const days = Math.ceil(off.value / 24);
+    const d = ttmShiftDate(dateSurgery, days);
+    return { kind: "date", date: d, note: `H-${off.value}` };
+  }
+
+  // Inconnu => on force une phrase neutre mais SANS “protocole”
+  return { kind: "unknown", note: (off.raw || delayStr || "").trim() || "Arrêt à définir" };
+}
+
+function ttmMakeStopSentence({ entry, lineNameOnly, last }) {
+  // Pas d’arrêt
+  if (last.kind === "nochange") {
+    return `${lineNameOnly} → Pas de modification`;
+  }
+
+  // Antidiabétiques “J0”
+  if (last.kind === "j0") {
+    return `${lineNameOnly} → Pas de prise le jour de l’intervention (J0)`;
+  }
+
+  // Injections : règles demandées
+  const isHBPM = entry?.group === "anticoag" && entry?.subclass === "HBPM";
+  const isCalci = (entry?.group === "anticoag" && entry?.subclass === "HNF" && (entry?.brands || []).some(b => ttmNormalize(b).includes("calciparine")));
+
+  if (last.kind === "date") {
+    const ds = ttmFmtDateFR(last.date);
+
+    if (isHBPM) {
+      // demandé : “Lovenox dernière dose le matin”
+      return `${lineNameOnly} → Dernière injection le ${ds} matin (${last.note})`;
+    }
+
+    if (isCalci) {
+      // demandé : “Calciparine dernière dose le soir”
+      return `${lineNameOnly} → Dernière injection le ${ds} soir (${last.note})`;
+    }
+
+    // comprimés “classiques”
+    return `${lineNameOnly} → Dernière prise le ${ds} aux heures habituelles (${last.note})`;
+  }
+
+  // Unknown : on ne dit jamais “protocole”
+  return `${lineNameOnly} → Arrêt à définir (${last.note || "information insuffisante"})`;
+}
+
+
+function ttmIsHBPM(entry) {
+  return entry?.group === "anticoag" && entry?.subclass === "HBPM";
+}
+function ttmIsHNFCalciparine(entry) {
+  // Calciparine = héparine sodique SC (HNF) dans ton tableau
+  const b = (entry?.brands || []).map(ttmNormalize).join(" ");
+  const d = ttmNormalize(entry?.dci || "");
+  return entry?.group === "anticoag"
+    && entry?.subclass === "HNF"
+    && (b.includes("calciparine") || d.includes("heparine"));
+}
+function ttmLastDoseTimeLabel(entry) {
+  // règle demandée par toi
+  if (ttmIsHBPM(entry)) return "matin";
+  if (ttmIsHNFCalciparine(entry)) return "soir";
+  return "aux heures habituelles";
+}
+
+
+// ---------- Logique spécifique anticoag/AAP selon chirurgie
+async function ttmResolveSpecialLogic({ surgeryKey, entry, rawLine, hasASA }) {
+  // IMPORTANT : on enlève toujours la posologie côté droite
+  const leftNameOnly = ttmStripDose(rawLine);
+
+  // sécurité
+  if (!entry) return { actionText: `${leftNameOnly} → Pas de modification` };
+
+  const name = entry?.brands?.[0] ? `${entry.brands[0]} (${entry.dci})` : entry.dci;
+
+  // --- Anticoagulants
+  if (ttmIsAnticoag(entry)) {
+    // Cardiaque & vasculaire : arrêt systématique
+    const stopSystematic = (surgeryKey === "cardiaque" || surgeryKey === "vasculaire");
+
+    // CI / rythmologie / radio-vasc : demander arrêt oui/non
+    const askStop = (surgeryKey === "ci" || surgeryKey === "rythmo" || surgeryKey === "radiovasc");
+
+    let doStop = stopSystematic;
+
+    if (askStop) {
+      const ans = await ttmAskModal({
+        title: "Anticoagulants",
+        question: `Pour ${name} : arrêt des anticoagulants ?`,
+        choices: ["Oui", "Non"]
+      });
+      if (ans === null) return { actionText: `${leftNameOnly} → (annulé)` };
+      doStop = (ans === "Oui");
+    }
+
+    if (!doStop) {
+      return { actionText: `${leftNameOnly} → Pas de modification` };
+    }
+
+    const last = ttmComputeLastIntake(__ttmState.date, entry.delay);
+
+    // ===== AVK : question relai + prescription détaillée
+    if (ttmIsAVK(entry)) {
+      const ansRelai = await ttmAskModal({
+        title: "AVK",
+        question: `Pour ${name} : indication de relai ?`,
+        choices: ["Oui", "Non"]
+      });
+      if (ansRelai === null) return { actionText: `${leftNameOnly} → (annulé)` };
+
+      // sans relai
+      if (ansRelai === "Non") {
+        if (last.kind === "date") {
+          return {
+            actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} aux heures habituelles (${last.note})`
+          };
+        }
+        return { actionText: `${leftNameOnly} → Pas de prise le jour de l'intervention (${last.note || entry.delay})` };
+      }
+
+      const mol = await ttmAskModal({
+        title: "Relai AVK",
+        question: `Relai pour ${name} : quelle molécule ?`,
+        choices: ["Enoxaparine", "Calciparine"]
+      });
+      if (mol === null) return { actionText: `${leftNameOnly} → (annulé)` };
+
+      // --- calcul dates
+      let lastDate = (last.kind === "date") ? last.date : null;
+
+      // Previscan/Coumadine => start +48h ; Sintrom => start +24h
+      const lineN = ttmNormalize(rawLine);
+      const isSintrom = lineN.includes("sintrom") || lineN.includes("acenocoumarol");
+
+      let startDate = null;
+      if (lastDate) {
+        startDate = new Date(lastDate);
+        startDate.setDate(startDate.getDate() + (isSintrom ? 1 : 2));
+      }
+
+      const surgeryDate = new Date(__ttmState.date + "T00:00:00");
+
+      // dernières injections
+      const lastInjEnox = new Date(surgeryDate); // J-1
+      lastInjEnox.setDate(lastInjEnox.getDate() - 1);
+
+      const lastInjCalci = new Date(surgeryDate); // J0
+
+      let relayText = "";
+      let ideText = "";
+      const inrText = `Bilan biologique à pratiquer en laboratoire de ville 24 à 48h avant l'intervention: INR.`;
+
+      if (mol === "Enoxaparine") {
+        relayText =
+          `Enoxaparine 100 UI/kg SC deux fois par jour (matin et soir) à partir du ${startDate ? ttmFmtDateFR(startDate) : "…"} ` +
+          `avec dernière injection le ${ttmFmtDateFR(lastInjEnox)} matin (24h avant l'intervention).`;
+
+        ideText =
+          `Faire pratiquer par IDE au domicile les injections de Enoxaparine SC matin et soir du ` +
+          `${startDate ? ttmFmtDateFR(startDate) : "…"} matin au ${ttmFmtDateFR(lastInjEnox)} matin.`;
+      } else {
+        relayText =
+          `Calciparine 500 UI/kg SC répartis en 3 injections par jour (matin, midi, soir) à partir du ${startDate ? ttmFmtDateFR(startDate) : "…"} ` +
+          `avec dernière injection le ${ttmFmtDateFR(lastInjCalci)} matin (8h avant l'intervention).`;
+
+        ideText =
+          `Faire pratiquer par IDE au domicile les injections de Calciparine SC matin, midi et soir du ` +
+          `${startDate ? ttmFmtDateFR(startDate) : "…"} matin au ${ttmFmtDateFR(lastInjCalci)} soir.`;
+      }
+
+      // push extra Rx
+      ttmAddExtraRx("ide", ideText);
+ttmAddExtraRx("labs", inrText);
+
+      if (last.kind === "date") {
+        return {
+          actionText:
+            `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} aux heures habituelles (${last.note}) ; ` +
+            relayText
+        };
+      }
+
+      return {
+        actionText: `${leftNameOnly} → Arrêt selon protocole (${entry.delay}) ; ${relayText}`
+      };
+    } // ✅ FIN AVK
+
+    // ===== non-AVK anticoag
+    if (last.kind === "date") {
+  const when = ttmLastDoseTimeLabel(entry);
+  if (when === "aux heures habituelles") {
+    return { actionText: `${ttmStripDose(leftNameOnly)} → Dernière prise le ${ttmFmtDateFR(last.date)} aux heures habituelles (${last.note})` };
+  }
+  // HBPM / Calciparine : injection matin/soir
+  return { actionText: `${ttmStripDose(leftNameOnly)} → Dernière injection le ${ttmFmtDateFR(last.date)} ${when} (${last.note})` };
+}
+    return { actionText: `${leftNameOnly} → Arrêt selon protocole (${last.note || entry.delay})` };
+  }
+
+  // --- Anti-agrégants
+  if (ttmIsAAP(entry)) {
+    const isASA = entry.subclass === "ASA";
+    const isClopi = ttmNormalize(entry.dci).includes("clopidogrel") || (entry.brands || []).some(b => ttmNormalize(b).includes("plavix"));
+    const isTica = ttmNormalize(entry.dci).includes("ticagrelor") || (entry.brands || []).some(b => ttmNormalize(b).includes("brilique"));
+    const isPrasu = ttmNormalize(entry.dci).includes("prasugrel") || (entry.brands || []).some(b => ttmNormalize(b).includes("efient"));
+
+    // Kardégic : vasculaire => demander arrêt oui/non ; CI/rythmo/radiovasc/cardiaque => poursuite
+    if (isASA) {
+      if (surgeryKey === "vasculaire") {
+        const ans = await ttmAskModal({
+          title: "Aspirine (Kardégic)",
+          question: `Pour ${name} : arrêt ?`,
+          choices: ["Oui", "Non"]
+        });
+        if (ans === null) return { actionText: `${leftNameOnly} → (annulé)` };
+        if (ans === "Non") return { actionText: `${leftNameOnly} → Pas de modification` };
+        return { actionText: `${leftNameOnly} → Arrêt selon décision (à paramétrer si besoin)` };
+      }
+      return { actionText: `${leftNameOnly} → Pas de modification` };
+    }
+
+    // Clopidogrel
+    if (isClopi) {
+      const last = ttmComputeLastIntake(__ttmState.date, entry.delay);
+
+      // Cardiaque : arrêt systématique ; relai Kardégic seulement si pas ASA
+      if (surgeryKey === "cardiaque") {
+        if (!hasASA) {
+          const ans = await ttmAskModal({
+            title: "Clopidogrel (chirurgie cardiaque)",
+            question: `Pour ${name} : relai par Kardégic ?`,
+            choices: ["Oui", "Non"]
+          });
+          if (ans === null) return { actionText: `${leftNameOnly} → (annulé)` };
+
+          if (last.kind === "date") {
+            if (ans === "Oui") {
+              const start = new Date(last.date);
+              start.setDate(start.getDate() + 1);
+              return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note}) ; débuter Kardégic 75 mg/j le ${ttmFmtDateFR(start)}` };
+            }
+            return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+          }
+          return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})${ans === "Oui" ? " ; relai Kardégic 75 mg/j dès le lendemain" : ""}` };
+        }
+
+        // ASA présent : pas de relai
+        if (last.kind === "date") return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+        return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})` };
+      }
+
+      // Vasculaire / CI / rythmologie / radiovasc : demander arrêt
+      const ansStop = await ttmAskModal({
+        title: "Clopidogrel",
+        question: `Pour ${name} : arrêt ?`,
+        choices: ["Oui", "Non"]
+      });
+      if (ansStop === null) return { actionText: `${leftNameOnly} → (annulé)` };
+      if (ansStop === "Non") return { actionText: `${leftNameOnly} → Pas de modification` };
+
+      if (!hasASA) {
+        const ansRel = await ttmAskModal({
+          title: "Relai",
+          question: `Pour ${name} : relai par Kardégic (si pas déjà présent) ?`,
+          choices: ["Oui", "Non"]
+        });
+        if (ansRel === null) return { actionText: `${leftNameOnly} → (annulé)` };
+
+        if (last.kind === "date") {
+          if (ansRel === "Oui") {
+            const start = new Date(last.date);
+            start.setDate(start.getDate() + 1);
+            return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note}) ; débuter Kardégic 75 mg/j le ${ttmFmtDateFR(start)}` };
+          }
+          return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+        }
+        return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})${ansRel === "Oui" ? " ; relai Kardégic 75 mg/j dès le lendemain" : ""}` };
+      }
+
+      if (last.kind === "date") return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+      return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})` };
+    }
+
+    // Ticagrelor / Prasugrel
+    if (isTica || isPrasu) {
+      const last = ttmComputeLastIntake(__ttmState.date, entry.delay);
+
+      // Cardiaque : arrêt systématique, pas de relai
+      if (surgeryKey === "cardiaque") {
+        if (last.kind === "date") return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+        return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})` };
+      }
+
+      // autres : demander relai clopidogrel
+      const ansRel = await ttmAskModal({
+        title: "Relai",
+        question: `Pour ${name} : relai par Clopidogrel ?`,
+        choices: ["Oui", "Non"]
+      });
+      if (ansRel === null) return { actionText: `${leftNameOnly} → (annulé)` };
+
+      if (last.kind === "date") {
+        if (ansRel === "Oui") {
+          const start = new Date(last.date);
+          start.setDate(start.getDate() + 1);
+          return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note}) ; débuter Clopidogrel 75 mg/j le ${ttmFmtDateFR(start)}` };
+        }
+        return { actionText: `${leftNameOnly} → Dernière prise le ${ttmFmtDateFR(last.date)} (${last.note})` };
+      }
+
+      return { actionText: `${leftNameOnly} → Arrêt (${entry.delay})${ansRel === "Oui" ? " ; relai clopidogrel 75 mg/j dès le lendemain" : ""}` };
+    }
+
+    return { actionText: `${leftNameOnly} → (AAP non géré)` };
+  }
+
+  return { actionText: `${leftNameOnly} → Pas de modification` };
+}
+
+  
+async function ttmProcess() {
+  const left = document.getElementById("ttm-left");
+  const right = document.getElementById("ttm-right");
+  const surgerySel = document.getElementById("ttm-surgery");
+  const dateInp = document.getElementById("ttm-date");
+
+  const surgery = surgerySel.value;
+  const surgeryKey = ttmSurgeryLabelToKey(surgery);
+
+  const dateSurgery = dateInp.value;
+  __ttmState.surgery = surgery;
+  __ttmState.date = dateSurgery;
+
+  if (!dateSurgery) {
+    alert("Choisis la date de l’intervention.");
+    return;
+  }
+
+// ✅ (re)initialise l’encadré “Ordonnances supplémentaires”
+  ttmResetExtraRx(dateSurgery);
+  
+  const lines = (left.value || "")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    right.value = "";
+    return;
+  }
+
+  const hasASA = ttmHasAnyASA(lines);
+
+  const out = [];
+  for (const line of lines) {
+    const lineNameOnly = ttmStripDose(line);
+    const hit = ttmDetectInLine(line, __ttmState.index);
+    if (!hit) {
+      out.push(`${lineNameOnly} → Pas de modification`);
+      continue;
+    }
+
+    // spécial anticoag/AAP : questions conditionnelles
+    if (ttmIsAnticoag(hit) || ttmIsAAP(hit)) {
+      const r = await ttmResolveSpecialLogic({ surgeryKey, entry: hit, rawLine: line, hasASA });
+      out.push(r.actionText);
+      continue;
+    }
+
+    // autres : phrase standardisée (sans “protocole”)
+const last = ttmComputeLastIntake(dateSurgery, hit.delay);
+out.push(ttmMakeStopSentence({ entry: hit, lineNameOnly, last }));
+  }
+
+  right.value = out.map(l => `- ${l}`).join("\n");
+  ttmRenderExtraRx();
+}
+
+function openTreatmentManager() {
+  if (!__ttmState.index) __ttmState.index = ttmBuildIndex();
+
+  if (__ttmEl) __ttmEl.remove();
+
+  __ttmEl = document.createElement("div");
+  __ttmEl.className = "ttm-overlay";
+    __ttmEl.innerHTML = `
+    <div class="ttm-window" role="dialog" aria-modal="true">
+      <div class="ttm-header">
+        <div class="ttm-title">Ordonnance — Gestion des traitements</div>
+        <button class="ttm-close" type="button" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="ttm-controls">
+        <div class="ttm-field">
+          <label for="ttm-surgery">Type d’intervention</label>
+          <select id="ttm-surgery">
+            <option>Chirurgie cardiaque</option>
+            <option>Chirurgie vasculaire</option>
+            <option>Cardiologie interventionnelle</option>
+            <option>Rythmologie</option>
+            <option>Radio-vasculaire</option>
+          </select>
+        </div>
+
+        <div class="ttm-field">
+          <label for="ttm-date">Date de l’intervention</label>
+          <input id="ttm-date" type="date" />
+        </div>
+
+        <div class="ttm-field ttm-actions">
+          <button id="ttm-run" class="btn ttm-run" type="button">Adaptation des traitements</button>
+          <button id="ttm-clear" class="btn ttm-clear" type="button">Effacer</button>
+        </div>
+      </div>
+
+      <div class="ttm-body">
+        <div class="ttm-col">
+          <div class="ttm-col-title">Traitement en cours (coller ligne par ligne)</div>
+          <textarea id="ttm-left" class="ttm-textarea" spellcheck="false"></textarea>
+        </div>
+
+        <div class="ttm-col ttm-right-stack">
+          <div class="ttm-right-main">
+            <div class="ttm-col-title">Gestion des traitements</div>
+            <textarea id="ttm-right" class="ttm-textarea" spellcheck="false" readonly></textarea>
+          </div>
+
+          <div class="ttm-right-extra">
+            <div class="ttm-col-title">Ordonnances supplémentaires</div>
+            <textarea id="ttm-extra" class="ttm-textarea" spellcheck="false" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+;
+
+  document.body.appendChild(__ttmEl);
+
+  const close = () => { __ttmEl?.remove(); __ttmEl = null; };
+
+  __ttmEl.querySelector(".ttm-close").addEventListener("click", close);
+  __ttmEl.addEventListener("click", (e) => { if (e.target === __ttmEl) close(); });
+
+  const dateInp = __ttmEl.querySelector("#ttm-date");
+  const today = new Date();
+  // Préremplir avec le mois en cours (date du jour)
+  dateInp.value = today.toISOString().slice(0, 10);
+
+  __ttmEl.querySelector("#ttm-run").addEventListener("click", ttmProcess);
+  __ttmEl.querySelector("#ttm-clear").addEventListener("click", () => {
+    __ttmEl.querySelector("#ttm-left").value = "";
+    __ttmEl.querySelector("#ttm-right").value = "";
+    __ttmEl.querySelector("#ttm-extra").value = "";
+    __ttmExtraLines = [];
+  });
+}
 
 function renderAnesthChirCecMenu() {
   $app.innerHTML = `
