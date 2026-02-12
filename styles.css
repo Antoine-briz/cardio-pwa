@@ -6455,3 +6455,65 @@ body.theme-light #home-qa-menu .qa-item{
 body.theme-light #home-qa-menu .qa-item:hover{
   background: rgba(0,0,0,.06);
 }
+
+/* =========================================================
+   AJUSTEMENTS HOME TOOLS (espacement + bleu marine + dropdown pleine largeur)
+========================================================= */
+
+/* 1) Plus d’espace sous la rangée (avant la carte Anesthésie) */
+.home-tools-row{
+  margin-bottom: 16px;     /* ↑ augmente l’espace (mets 20–24px si tu veux plus) */
+}
+
+/* 2) Couleur bleu marine (input + bouton) */
+#home-search{
+  background: rgba(8, 33, 74, .55);              /* bleu marine transparent */
+  border: 1px solid rgba(255,255,255,.20);
+  color: #fff;
+}
+#home-search::placeholder{ color: rgba(255,255,255,.75); opacity: 1; }
+
+#home-qa-btn{
+  background: rgba(8, 33, 74, .92);              /* bleu marine plus opaque */
+  border: 1px solid rgba(255,255,255,.22);
+  color:#fff;
+}
+
+/* (option) hover */
+#home-qa-btn:hover{ background: rgba(8, 33, 74, 1); }
+
+/* 3) Dropdown pleine largeur écran (recherche + QA) */
+.home-search-wrap, .home-qa-wrap{ position: relative; }
+
+/* On “sort” le dropdown du wrap et on l’étire sur tout l’écran */
+#home-search-panel.search-panel,
+#home-qa-menu{
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 24px) !important;   /* pleine largeur avec marge */
+  max-width: 520px;                       /* option : limite sur grands écrans */
+}
+
+/* même marge en haut */
+#home-search-panel.search-panel{ top: calc(100% + 10px) !important; }
+#home-qa-menu{ top: calc(100% + 10px) !important; }
+
+/* On garde le style existant du dropdown */
+#home-search-panel.search-panel,
+#home-qa-menu{
+  border-radius: 14px;
+}
+
+/* Thème clair : conserve ta lisibilité */
+body.theme-light #home-search{
+  background: rgba(8, 33, 74, .10) !important;   /* bleu très léger en clair */
+  border: 1px solid rgba(0,0,0,.35) !important;
+  color:#000 !important;
+}
+body.theme-light #home-search::placeholder{ color:#000 !important; }
+
+body.theme-light #home-qa-btn{
+  background: rgba(8, 33, 74, .12) !important;
+  border: 1px solid rgba(0,0,0,.20) !important;
+  color:#000 !important;
+}
