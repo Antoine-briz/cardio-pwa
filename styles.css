@@ -6533,3 +6533,145 @@ body.theme-light #home-qa-btn{
   max-width: none !important;
   z-index: 9999;
 }
+
+/* =========================
+   HOME — SEARCH + QUICK ACCESS (mobile)
+========================= */
+
+.home-tools-row{
+  display:flex;
+  gap:14px;                 /* + d'espace entre les 2 éléments */
+  padding: 12px 14px 18px;
+  margin-bottom: 18px;      /* + d'espace avant les cartes Anesthésie */
+  align-items:center;
+}
+
+.home-search-wrap,
+.home-qa-wrap{
+  flex:1;
+}
+
+/* input recherche = même taille que bouton */
+#home-search{
+  width:100%;
+  height:44px;
+  border-radius:999px;
+  padding: 0 16px;
+  outline:none;
+
+  background: rgba(11,60,109,0.35);       /* bleu marine translucide */
+  border: 1px solid rgba(255,255,255,0.22);
+  color:#fff;
+}
+
+/* placeholder */
+#home-search::placeholder{
+  color: rgba(255,255,255,0.85);
+}
+
+/* thème clair: texte NOIR + contour visible */
+body.theme-light #home-search{
+  background: rgba(11,60,109,0.14);
+  border: 1px solid rgba(0,0,0,0.30);
+  color:#000;
+}
+body.theme-light #home-search::placeholder{
+  color: rgba(0,0,0,0.65);
+}
+
+/* bouton accès rapide = même hauteur/forme */
+#home-qa-btn.qa-btn{
+  width:100%;
+  height:44px;
+  border-radius:999px;
+  background:#0B3C6D;       /* bleu marine */
+  border:none;
+  color:#fff;
+  font-weight:800;
+}
+
+/* =========================
+   DROPDOWNS (pleine largeur écran)
+========================= */
+
+/* caché par défaut */
+.search-panel,
+.qa-menu{
+  display:none;
+
+  position: fixed;          /* ancré à la fenêtre (pas au bouton) */
+  left: 8px;
+  right: 8px;
+  top: 0;                   /* sera set via JS */
+  z-index: 9999;
+
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(20,20,20,.92);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+  backdrop-filter: blur(10px);
+  max-height: 55vh;
+}
+
+.search-panel.open{ display:block; }
+.qa-menu.is-open{ display:block; }
+
+body.theme-light .search-panel,
+body.theme-light .qa-menu{
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(0,0,0,.12);
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+}
+
+/* contenu */
+.search-results{
+  overflow:auto;
+  padding: 10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* items recherche (fond NON transparent pour être lisible) */
+.search-item{
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.10);
+  color: inherit;
+}
+body.theme-light .search-item{
+  border:1px solid rgba(0,0,0,.10);
+  background: rgba(0,0,0,.04);
+  color:#000;
+}
+
+.search-title{ font-weight:800; }
+.search-route{ margin-top:4px; font-size:.85em; opacity:.75; word-break:break-all; }
+.search-empty{ padding:10px 4px; opacity:.85; }
+
+/* menu accès rapide */
+.qa-menu{
+  padding: 10px;
+  overflow:auto;
+}
+.qa-item{
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.10);
+  color: inherit;
+  margin-bottom:10px;
+}
+.qa-item:last-child{ margin-bottom:0; }
+
+body.theme-light .qa-item{
+  border:1px solid rgba(0,0,0,.10);
+  background: rgba(0,0,0,.04);
+  color:#000;
+}
