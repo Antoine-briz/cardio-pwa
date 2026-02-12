@@ -197,6 +197,19 @@ function renderHome() {
     <section class="home">
 
       <!-- 1ère ligne : existant -->
+
+<div class="home-tools-row">
+  <div class="home-search-wrap">
+    <input id="home-search" type="search" placeholder="Recherche..." autocomplete="off">
+    <div id="home-search-panel" class="search-panel"></div>
+  </div>
+
+  <div class="home-qa-wrap">
+    <button id="home-qa-btn" type="button" class="btn qa-btn">Accès rapide ▾</button>
+    <div id="home-qa-menu" class="qa-menu"></div>
+  </div>
+</div>
+
       <div class="grid">
         <div class="card" onclick="location.hash = '#/anesthesie'">
           <h3>Protocoles d’anesthésie</h3>
@@ -252,8 +265,11 @@ function renderHome() {
       </div>
     </section>
   `;
+    // ✅ ICI (après insertion dans le DOM)
+  initSearchUI("home-search", "home-search-panel"); // recherche mobile
+  initHomeQuickAccessMobile();                      // accès rapide mobile
+  ensureHeaderTitleClickableHome(); 
 }
-
 
 // =======================================================
 //  ACTUALITÉS (SMARTPHONE) + PURGE BLOC À 12:00
@@ -22078,6 +22094,11 @@ function renderNotFound() {
   `;
 }
 
+const sub = (menu, page) => () => {
+  menu();
+  if (typeof openSubPage === "function") openSubPage(page, menu);
+  else page(); // fallback si jamais openSubPage indisponible
+};
 
 const routes = {
   "#/": renderHome,
@@ -22087,59 +22108,130 @@ const routes = {
   "#/anesthesie": renderAnesthMenu,
   "#/anesthesie/consultations": renderAnesthConsultations,
   "#/anesthesie/antibiopro": renderAntibioproForm,
-  "#/anesthesie/chir-cec": renderAnesthChirCecMenu,
-  "#/anesthesie/cardio-struct": renderAnesthCardioStructMenu,
-  "#/anesthesie/vasculaire": renderAnesthVasculaireMenu,
-  "#/anesthesie/radiovasculaire": renderAnesthRadioVascMenu,
 
-  // Réanimation
+  "#/anesthesie/chir-cec": renderAnesthChirCecMenu,
+  "#/anesthesie/chir-cec/pontages": sub(renderAnesthChirCecMenu, renderInterventionPontages),
+  "#/anesthesie/chir-cec/rva": sub(renderAnesthChirCecMenu, renderInterventionRVA),
+  "#/anesthesie/chir-cec/rvm": sub(renderAnesthChirCecMenu, renderInterventionRVM),
+  "#/anesthesie/chir-cec/rvt": sub(renderAnesthChirCecMenu, renderInterventionRVT),
+  "#/anesthesie/chir-cec/aorte-asc": sub(renderAnesthChirCecMenu, renderInterventionAorteAsc),
+  "#/anesthesie/chir-cec/drainage-pericardique": sub(renderAnesthChirCecMenu, renderInterventionDrainagePericardique),
+  "#/anesthesie/chir-cec/dissection-aortique": sub(renderAnesthChirCecMenu, renderInterventionDissectionAo),
+  "#/anesthesie/chir-cec/transplantation": sub(renderAnesthChirCecMenu, renderInterventionTransplantAnesth),
+  "#/anesthesie/chir-cec/assistances": sub(renderAnesthChirCecMenu, renderInterventionAssistancesCEC),
+
+  "#/anesthesie/cardio-struct": renderAnesthCardioStructMenu,
+  "#/anesthesie/cardio-struct/tavi": sub(renderAnesthCardioStructMenu, renderInterventionTAVI),
+  "#/anesthesie/cardio-struct/mitra-clip": sub(renderAnesthCardioStructMenu, renderInterventionMitraClip),
+  "#/anesthesie/cardio-struct/fop-cia": sub(renderAnesthCardioStructMenu, renderInterventionFOPCIA),
+  "#/anesthesie/cardio-struct/pacemaker-dai": sub(renderAnesthCardioStructMenu, renderInterventionPacemakerDAI),
+  "#/anesthesie/cardio-struct/ablation-droit": sub(renderAnesthCardioStructMenu, renderInterventionAblationDroit),
+  "#/anesthesie/cardio-struct/ablation-gauche": sub(renderAnesthCardioStructMenu, renderInterventionAblationGauche),
+
+  "#/anesthesie/vasculaire": renderAnesthVasculaireMenu,
+  "#/anesthesie/vasculaire/carotide": sub(renderAnesthVasculaireMenu, renderInterventionCarotide),
+  "#/anesthesie/vasculaire/aorte-thoracique": sub(renderAnesthVasculaireMenu, renderInterventionAorteThoracique),
+  "#/anesthesie/vasculaire/aorte-abdominale": sub(renderAnesthVasculaireMenu, renderInterventionAorteAbdominale),
+  "#/anesthesie/vasculaire/membre-inferieur": sub(renderAnesthVasculaireMenu, renderInterventionMembreInferieur),
+  "#/anesthesie/vasculaire/endoprotheses": sub(renderAnesthVasculaireMenu, renderInterventionEndoprotheses),
+  "#/anesthesie/vasculaire/protocoles": sub(renderAnesthVasculaireMenu, renderVasculaireProtocoles),
+
+  "#/anesthesie/radiovasculaire": renderAnesthRadioVascMenu,
+  "#/anesthesie/radiovasculaire/fav": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascFAV),
+  "#/anesthesie/radiovasculaire/membre-inferieur": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascMI),
+  "#/anesthesie/radiovasculaire/embolisation": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascEmbol),
+  "#/anesthesie/radiovasculaire/ablation-abdominale": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascAbdo),
+  "#/anesthesie/radiovasculaire/tips": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascTIPS),
+  "#/anesthesie/radiovasculaire/drainage-biliaire": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascBiliaire),
+  "#/anesthesie/radiovasculaire/nephrostomie": sub(renderAnesthRadioVascMenu, renderInterventionRadioVascNephro),
+
+  // ---------------------------
+  // RÉANIMATION
+  // ---------------------------
   "#/reanimation": renderReanMenu,
+
   "#/reanimation/formules": renderReanFormulesMenu,
-  "/reanimation/formules/ventilation": renderReanFormulesVentilation,
-"/reanimation/formules/hemodynamique": renderReanFormulesCardio,
-"/reanimation/formules/metabolique": renderReanFormulesMetabolique,
+  "#/reanimation/formules/ventilation": sub(renderReanFormulesMenu, renderReanFormulesVentilation),
+  "#/reanimation/formules/hemodynamique": sub(renderReanFormulesMenu, renderReanFormulesCardio),
+  "#/reanimation/formules/metabolique": sub(renderReanFormulesMenu, renderReanFormulesMetabolique),
+  "#/reanimation/formules/neuro": sub(renderReanFormulesMenu, renderReanFormulesNeuro),
+
   "#/reanimation/prescriptions": renderReanPrescriptionsPostOp,
   "#/reanimation/saignements": renderReanSaignementsPostOp,
   "#/reanimation/fa": renderReanFAPostOp,
   "#/reanimation/eto": renderReanEto,
+
   "#/reanimation/antibiotherapie": renderReanAntibiotherapieMenu,
+  "#/reanimation/antibiotherapie/probabiliste": sub(renderReanAntibiotherapieMenu, renderProbaMenu),
+  "#/reanimation/antibiotherapie/bmr-bhre": sub(renderReanAntibiotherapieMenu, renderAdapteeMenu),
+  "#/reanimation/antibiotherapie/durees": sub(renderReanAntibiotherapieMenu, renderDureesForm),
+  "#/reanimation/antibiotherapie/fonction-renale": sub(renderReanAntibiotherapieMenu, renderReinForm),
+  "#/reanimation/antibiotherapie/modalites": sub(renderReanAntibiotherapieMenu, renderModalitesForm),
+
   "#/reanimation/eer": renderReanEerMenu,
+  "#/reanimation/eer/post-op": sub(renderReanEerMenu, renderReanEerPostOp),
+  "#/reanimation/eer/echanges-plasmatiques": sub(renderReanEerMenu, renderReanEchangesPlasmatiques),
+
   "#/reanimation/transplantation": renderReanTransplantMenu,
+  "#/reanimation/transplantation/hemodynamique": sub(renderReanTransplantMenu, renderReanTransplantHemodynamique),
+  "#/reanimation/transplantation/immunosuppression": sub(renderReanTransplantMenu, renderReanTransplantImmuno),
+  "#/reanimation/transplantation/rejet-aigu": sub(renderReanTransplantMenu, renderReanTransplantRejet),
+  "#/reanimation/transplantation/infections": sub(renderReanTransplantMenu, renderReanTransplantInfections),
+  "#/reanimation/transplantation/coronaires": sub(renderReanTransplantMenu, renderReanTransplantCoronaires),
+
   "#/reanimation/assistances": renderReanAssistancesMenu,
+  "#/reanimation/assistances/ecmo-va": sub(renderReanAssistancesMenu, renderReanAssistECMO),
+  "#/reanimation/assistances/bcpia": sub(renderReanAssistancesMenu, renderReanAssistBCPIA),
+  "#/reanimation/assistances/impella": sub(renderReanAssistancesMenu, renderReanAssistImpella),
+  "#/reanimation/assistances/lvad": sub(renderReanAssistancesMenu, renderReanAssistLVAD),
+  "#/reanimation/assistances/cardio-west": sub(renderReanAssistancesMenu, renderReanAssistCardioWest),
 
-  // Antibiothérapie probabiliste (menus Proba)
+  // Antibiothérapie probabiliste (routes existantes)
   "#/proba": renderProbaMenu,
-"#/proba/pneumonies": renderProbaPneumonieForm,
-"#/proba/iu": renderProbaIUForm,
-"#/proba/abdo": renderProbaAbdoForm,
-"#/proba/neuro": renderProbaNeuroForm,
-"#/proba/dermohypo": renderProbaDermohypoForm,
-"#/proba/endocardite": renderProbaEndocarditeForm,
-"#/proba/mediastinite": renderProbaMediastiniteForm,
-"#/proba/scarpa": renderProbaScarpaForm,
-"#/proba/sepsis": renderProbaSepsisForm,
+  "#/proba/pneumonies": renderProbaPneumonieForm,
+  "#/proba/iu": renderProbaIUForm,
+  "#/proba/abdo": renderProbaAbdoForm,
+  "#/proba/neuro": renderProbaNeuroForm,
+  "#/proba/dermohypo": renderProbaDermohypoForm,
+  "#/proba/endocardite": renderProbaEndocarditeForm,
+  "#/proba/mediastinite": renderProbaMediastiniteForm,
+  "#/proba/scarpa": renderProbaScarpaForm,
+  "#/proba/sepsis": renderProbaSepsisForm,
 
-   // Antibiothérapie adaptée
+  // Antibiothérapie adaptée (routes existantes)
   "#/adaptee": renderAdapteeMenu,
   "#/adaptee/sensibles": () => renderBacteriaPage("sensibles", BACTERIA_DATA.sensibles),
-  "#/adaptee/SARM":      () => renderBacteriaPage("SARM",      BACTERIA_DATA.SARM),
-  "#/adaptee/ampC":      () => renderBacteriaPage("ampC",      BACTERIA_DATA.ampC),
-  "#/adaptee/BLSE":      () => renderBacteriaPage("BLSE",      BACTERIA_DATA.BLSE),
-  "#/adaptee/pyo":       () => renderBacteriaPage("pyo",       BACTERIA_DATA.pyo),
-  "#/adaptee/acineto":   () => renderBacteriaPage("acineto",   BACTERIA_DATA.acineto),
-  "#/adaptee/steno":     () => renderBacteriaPage("steno",     BACTERIA_DATA.steno),
-  "#/adaptee/carba":     () => renderBacteriaPage("carba",     BACTERIA_DATA.carba),
-  "#/adaptee/erv":       () => renderBacteriaPage("erv",       BACTERIA_DATA.erv),
- 
+  "#/adaptee/SARM": () => renderBacteriaPage("SARM", BACTERIA_DATA.SARM),
+  "#/adaptee/ampC": () => renderBacteriaPage("ampC", BACTERIA_DATA.ampC),
+  "#/adaptee/BLSE": () => renderBacteriaPage("BLSE", BACTERIA_DATA.BLSE),
+  "#/adaptee/pyo": () => renderBacteriaPage("pyo", BACTERIA_DATA.pyo),
+  "#/adaptee/acineto": () => renderBacteriaPage("acineto", BACTERIA_DATA.acineto),
+  "#/adaptee/steno": () => renderBacteriaPage("steno", BACTERIA_DATA.steno),
+  "#/adaptee/carba": () => renderBacteriaPage("carba", BACTERIA_DATA.carba),
+  "#/adaptee/erv": () => renderBacteriaPage("erv", BACTERIA_DATA.erv),
+
+  // ---------------------------
   // CEC
+  // ---------------------------
   "#/cec": renderCEC,
-"#/cec-protocoles": renderCecProtocoles,
-"#/cec-urgences": renderCecUrgencesMenu,
-"#/cec-procedures": renderCecProcedures,
+  "#/cec-protocoles": renderCecProtocoles,
+  "#/cec-urgences": renderCecUrgencesMenu,
+  "#/cec-urgences/hypotension": sub(renderCecUrgencesMenu, renderCecUrgenceHypotension),
+  "#/cec-urgences/retour-veineux": sub(renderCecUrgencesMenu, renderCecUrgenceRetourVeineux),
+  "#/cec-urgences/resistance-heparine": sub(renderCecUrgencesMenu, renderCecUrgenceResistanceHeparine),
+  "#/cec-urgences/cardioplegie-inefficace": sub(renderCecUrgencesMenu, renderCecUrgenceCardioplegieInefficace),
+  "#/cec-urgences/decanulation-veineuse": sub(renderCecUrgencesMenu, renderCecUrgenceDecanulationVeineuseAccidentelle),
+  "#/cec-urgences/dissection-aortique-canulation": sub(renderCecUrgencesMenu, renderCecUrgenceDissectionAortiqueSurLaCanulation),
+  "#/cec-urgences/changement-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceChangementCircuitCEC),
+  "#/cec-urgences/entree-air-oxygenateur": sub(renderCecUrgencesMenu, renderCecUrgenceEntreeAirOxygenateur),
+  "#/cec-urgences/embolie-gazeuse-massive": sub(renderCecUrgencesMenu, renderCecUrgenceEmbolieGazeuseMassive),
+  "#/cec-urgences/thrombose-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceThromboseDeCircuit),
+  "#/cec-urgences/sevrage-difficile": sub(renderCecUrgencesMenu, renderCecUrgenceSevrageCecDifficile),
+  "#/cec-procedures": renderCecProcedures,
 
   "#/enseignement": renderEnseignement,
   "#/bibliographie": renderBibliographie,
-   "#/biblio-juniors": renderBiblioJuniors,
+  "#/biblio-juniors": renderBiblioJuniors,
 "#/biblio-hebdo": renderBiblioHebdo,
 "#/bibliographie/juniors": renderBiblioJuniors,
 "#/bibliographie/hebdo": renderBiblioHebdo,
@@ -22199,6 +22291,292 @@ function navigate() {
     renderNotFound();
   }
 }
+
+
+// =======================================
+// SEARCH (header) — route + title + keywords
+// =======================================
+
+// 1) Données (issues du Word "mots_cle_routes.docx") : [route, titre, mots-clés]
+const SEARCH_PAGES = [
+  ["#/anesthesie/chir-cec/pontages","Pontages coronaires","Pontage, Pontages, PC, coronaire, coronaires"],
+  ["#/anesthesie/chir-cec/rva","RVA ou plastie aortique","Remplacement, RVA, rva, Rva, aortique, plastie"],
+  ["#/anesthesie/chir-cec/rvm","RVM ou plastie mitrale","Remplacement, RVM, rvm, Rvm, mitrale, plastie"],
+  ["#/anesthesie/chir-cec/rvt","RVT ou plastie tricuspide","Remplacement RVT rvt Rvt tric tricuspide"],
+  ["#/anesthesie/chir-cec/aorte-asc","Chirurgie de l’aorte ascendante (hors dissection)","aorte ascendante aortique Bentall David Tube Tirone TSC"],
+  ["#/anesthesie/chir-cec/drainage-pericardique","Drainage péricardique","Pericardique tamponnade drainage"],
+  ["#/anesthesie/chir-cec/dissection-aortique","Dissection aortique","Dissection Aorte dissection"],
+  ["#/anesthesie/chir-cec/transplantation","Transplantation cardiaque","Greffe transplantation transplant cardio"],
+  ["#/anesthesie/chir-cec/assistances","Assistances circulatoires (implantation / explantation)","Assistance circulatoire ECMO LVAD impella ballon BCPIA"],
+  ["#/anesthesie/cardio-struct/tavi","TAVI","TAVI tavi valve aortique percutané"],
+  ["#/anesthesie/cardio-struct/mitra-clip","Mitra-clip","Mitra clip mitral percutané"],
+  ["#/anesthesie/cardio-struct/fop-cia","Fermeture FOP / CIA","FOP CIA fermeture percutané"],
+  ["#/anesthesie/cardio-struct/pacemaker-dai","Pacemaker & DAI","Pacemaker PM DAI "],
+  ["#/anesthesie/cardio-struct/ablation-droit","Ablations du cœur droit","Ablation coeur droit flutter tachycardie"],
+  ["#/anesthesie/cardio-struct/ablation-gauche","Ablations du cœur gauche","Ablation coeur gauche FA fibrillation ACFA"],
+  ["#/anesthesie/vasculaire/carotide","Chirurgies de la carotide et des TSA","Carotide TSA endarteriectomie"],
+  ["#/anesthesie/vasculaire/aorte-thoracique","Chirurgies de l’aorte thoracique et thoraco-abdominale","Aorte ATA thoracique thoraco abdominale"],
+  ["#/anesthesie/vasculaire/aorte-abdominale","Chirurgies de l’aorte abdominale et artères viscérales","Aorte abdominale viscerale AAA"],
+  ["#/anesthesie/vasculaire/membre-inferieur","Chirurgies du membre inférieur","Membre inferieur pontage femoro poplite MI"],
+  ["#/anesthesie/vasculaire/endoprotheses","Endoprothèses aortiques","EVAR TEVAR endoprothese"],
+  ["#/anesthesie/vasculaire/protocoles","Protocoles spécifiques","protocole vasculaire"],
+  ["#/anesthesie/radiovasculaire/fav","Angioplastie de FAV humérale","FAV fistule humerale angioplastie"],
+  ["#/anesthesie/radiovasculaire/membre-inferieur","Angioplastie des membres inférieurs","Angioplastie membres inférieurs MI ischémie"],
+  ["#/anesthesie/radiovasculaire/embolisation","Embolisation pelvienne","Embolisation pelvienne"],
+  ["#/anesthesie/radiovasculaire/ablation-abdominale","Ablations intra-abdominales","Ablation radiofrequence micro-ondes abdominale intra-abdominale"],
+  ["#/anesthesie/radiovasculaire/tips","TIPS","TIPS tips"],
+  ["#/anesthesie/radiovasculaire/drainage-biliaire","Drainage biliaire percutané","Drainage biliaire cholangite"],
+  ["#/anesthesie/radiovasculaire/nephrostomie","Néphrostomie percutanée","Nephrostomie néphro nephro"],
+
+  ["#/reanimation/formules","Formules","Formules Formule calculs"],
+  ["#/reanimation/formules/ventilation","Formules ventilation"," Formules Formule ventilation Vt V̇E compliance"],
+  ["#/reanimation/formules/hemodynamique","Formules cardio-vasculaire","Formules Formule hemodynamique cardio-vasculaire"],
+  ["#/reanimation/formules/metabolique","Formules métabolique","Formules Formule metabolique calcul"],
+  ["#/reanimation/formules/neuro","Formules neurologie","Formules Formule neurologie neuro PIC PPC"],
+  ["#/reanimation/prescriptions","Prescriptions post-opératoires","post-op prescriptions"],
+  ["#/reanimation/saignements","Saignements post-opératoires","saignement postop transfusion"],
+  ["#/reanimation/fa","FA post-opératoire","FA FAPO ACFA fibrillation post-opératoire"],
+  ["#/reanimation/eto","ETO","ETO echographie transoesophagienne"],
+
+  ["#/reanimation/antibiotherapie","Antibiothérapies","ATB antibiotique antibiotherapie"],
+  ["#/reanimation/antibiotherapie/probabiliste","Antibiothérapie probabiliste (général)","probabiliste proba"],
+  ["#/reanimation/antibiotherapie/bmr-bhre","Traitement des BMR et BHRe","BMR BHRe BLSE carbapenemase"],
+  ["#/reanimation/antibiotherapie/durees","Durée d'antibiothérapie","duree ATB antibiothérapie antibiotique "],
+  ["#/reanimation/antibiotherapie/fonction-renale","Adaptation posologique à la fonction rénale","renal rein adaptation posologie insuffisance"],
+  ["#/reanimation/antibiotherapie/modalites","Modalités d'administration des antibiotiques","modalité administration dilution perfusion antibio antibiothérapie antibiotique"],
+
+  ["#/proba/pneumonies","Pneumonies","PAVM pneumonie"],
+  ["#/proba/iu","Infections urinaires","infection urinaire IU pyelo cystite"],
+  ["#/proba/abdo","Infections intra-abdominales","infection abdominale intra-abdominale abdo angiocholyte cholecystite colite appendicite peritonite"],
+  ["#/proba/neuro","Infections neuro-méningées","infection neuro neuro-meningée encéphalite meningite"],
+  ["#/proba/dermohypo","Infections des parties molles","infection parties molles dermohypodermite fasciite nécrosante"],
+  ["#/proba/endocardite","Endocardites infectieuses","endocardite EI bactériémie"],
+  ["#/proba/mediastinite","Médiastinites post-opératoires","mediastinite"],
+  ["#/proba/scarpa","Infections de Scarpa","infection scarpa"],
+  ["#/proba/sepsis","Sepsis sans porte d'entrée","sepsis choc septique"],
+
+  ["#/adaptee/sensibles","Germes multisensibles","multisensible"],
+  ["#/adaptee/SARM","SARM","SARM staph staphylococcus"],
+  ["#/adaptee/ampC","Entérobactéries AmpC","ampc enterobacterie cephalosporinase"],
+  ["#/adaptee/BLSE","BLSE","BLSE enterobacterie béta-lactamase béta lactamase"],
+  ["#/adaptee/pyo","Pseudomonas aeruginosa MDR/XDR","pyo pseudomonos aeruginosa MDR XDR toto"],
+  ["#/adaptee/acineto","Acinetobacter baumannii imipénème-R","acineto acinetobacter baumanii ABRI"],
+  ["#/adaptee/steno","Stenotrophomonas maltophilia","steno stenotrophomonas maltophilia"],
+  ["#/adaptee/carba","Entérobactéries carbapénémases","carba carbapenemase enterobacterie BHR"],
+  ["#/adaptee/erv","E. faecium vancomycine-R","erv enterocoque enterococcus BHR faecium E.faecium"],
+
+  ["#/reanimation/eer","EER et échanges plasmatiques","EER dialyse hemodialyse filtration hemo-filtration hemofiltration CVVH échanges plasmatiques EP"],
+  ["#/reanimation/eer/post-op","EER CVVH","EER dialyse hemodialyse filtration hemo-filtration hemofiltration CVVH "],
+  ["#/reanimation/eer/echanges-plasmatiques","Échanges plasmatiques","échanges plasmatiques EP"],
+
+  ["#/reanimation/transplantation","Transplantation cardiaque","transplant greffe"],
+  ["#/reanimation/transplantation/hemodynamique","Gestion hémodynamique post-transplantation","transplant hemodynamique greffe"],
+  ["#/reanimation/transplantation/immunosuppression","Protocole d’immunosuppression","immunosupression transplant greffe tacrolimus ciclosporine"],
+  ["#/reanimation/transplantation/rejet-aigu","Rejet aigu de greffon","rejet greffe greffon transplant"],
+  ["#/reanimation/transplantation/infections","Infections et transplantation","infection transplant greffe"],
+  ["#/reanimation/transplantation/coronaires","Prévention de la maladie coronaire du greffon","coronaires greffon transplant"],
+
+  ["#/reanimation/assistances","Assistances circulatoires","ECMO ballon BCPIA Impella LVAD"],
+  ["#/reanimation/assistances/ecmo-va","ECMO VA","ecmo va"],
+  ["#/reanimation/assistances/bcpia","BCPIA","ballon contre pulsation BCPIA"],
+  ["#/reanimation/assistances/impella","Impella","impella"],
+  ["#/reanimation/assistances/lvad","LVAD","lvad"],
+  ["#/reanimation/assistances/cardio-west","CardioWest","cardiowest"],
+
+  ["#/cec-protocoles","Protocoles de CEC","cec protocole"],
+  ["#/cec-urgences","Situations d'urgence","urgence cec"],
+  ["#/cec-procedures","Procédures spécifiques","procedure cec"],
+  ["#/cec-urgences/hypotension","Hypotension artérielle per CEC","hypotension"],
+  ["#/cec-urgences/retour-veineux","Retour veineux insuffisant","retour veineux"],
+  ["#/cec-urgences/resistance-heparine","Résistance à l'héparine","heparine"],
+  ["#/cec-urgences/cardioplegie-inefficace","Cardioplégie inefficace","cardioplegie"],
+  ["#/cec-urgences/decanulation-veineuse","Décanulation veineuse accidentelle","decanulation"],
+  ["#/cec-urgences/dissection-aortique-canulation","Dissection aortique sur la canulation","dissection canulation"],
+  ["#/cec-urgences/changement-circuit","Changement de circuit de CEC","changement circuit"],
+  ["#/cec-urgences/entree-air-oxygenateur","Entrée d’air dans l’oxygénateur","air oxygenateur"],
+  ["#/cec-urgences/embolie-gazeuse-massive","Embolie gazeuse massive","embolie gazeuse"],
+  ["#/cec-urgences/thrombose-circuit","Thrombose de circuit","Thrombose circuit"],
+  ["#/cec-urgences/sevrage-difficile","Sevrage de CEC difficile","Sevrage cec CEC"]
+];
+
+// 2) Outils de matching
+const __searchIdx = SEARCH_PAGES.map(([route, title, keywords]) => ({
+  route,
+  title,
+  keywords: keywords || "",
+  n: norm(`${title} ${keywords || ""}`)
+}));
+
+function __tok(q) {
+  return norm(q).split(/[^a-z0-9]+/).filter(Boolean);
+}
+
+function __score(textNorm, terms) {
+  let s = 0;
+  for (const t of terms) if (textNorm.includes(t)) s++;
+  return s;
+}
+
+// 3) Niveau 2 (global) : index texte des pages (lazy)
+let __fullBuilt = false;
+const __fullTextByRoute = Object.create(null);
+
+async function __buildFullTextIndex(progressEl) {
+  if (__fullBuilt) return;
+  const saved = $app.innerHTML;
+
+  for (let i = 0; i < SEARCH_PAGES.length; i++) {
+    const route = SEARCH_PAGES[i][0];
+    const fn = routes[route];
+    if (typeof fn !== "function") continue;
+
+    fn(); // rend la page
+    __fullTextByRoute[route] = norm($app.innerText || "");
+
+    if (progressEl) progressEl.textContent = `Indexation globale… ${i + 1}/${SEARCH_PAGES.length}`;
+    await new Promise(r => requestAnimationFrame(r));
+  }
+
+  __fullBuilt = true;
+  $app.innerHTML = saved;
+  if (progressEl) progressEl.textContent = "Indexation globale prête ✅";
+}
+
+// 4) UI + binding dans le header (input id="header-search")
+// Recherche — version générique (pour n'importe quel input/panel, pas seulement header)
+function initSearchUI(inputId, panelId) {
+  const input = document.getElementById(inputId);
+  const panel = document.getElementById(panelId);
+  if (!input || !panel) return;
+
+  // sécurité : évite de fermer quand on clique sur les résultats
+  panel.addEventListener("click", (e) => e.stopPropagation());
+
+  const closePanel = () => { panel.classList.remove("open"); };
+  const openPanel  = () => panel.classList.add("open");
+
+  const navigate = (route) => {
+    window.location.hash = route;
+    input.value = "";
+    closePanel();
+    input.blur();
+  };
+
+  const render = (items) => {
+    if (!items.length) {
+      panel.innerHTML = `<div class="search-empty">Aucun résultat</div>`;
+      return;
+    }
+    panel.innerHTML = items.map(x => `
+      <button type="button" class="search-item" data-route="${x.route}">
+        <div class="search-title">${x.title}</div>
+        <div class="search-route">${x.route}</div>
+      </button>
+    `).join("");
+
+    panel.querySelectorAll(".search-item").forEach(b => {
+      b.addEventListener("click", () => navigate(b.dataset.route));
+    });
+  };
+
+  const run = () => {
+    const terms = __tok(input.value);
+
+    if (!terms.length) {
+      closePanel();
+      panel.innerHTML = "";
+      return;
+    }
+
+    const results = __searchIdx
+      .map(p => ({ route: p.route, title: p.title, score: __score(p.n, terms) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 30);
+
+    openPanel();
+    render(results);
+  };
+
+  input.addEventListener("input", run);
+  input.addEventListener("focus", run);
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { closePanel(); input.blur(); }
+    if (e.key === "Enter") {
+      const first = panel.querySelector(".search-item");
+      if (first) navigate(first.dataset.route);
+    }
+  });
+
+  // click outside => close
+  document.addEventListener("click", (e) => {
+    const inSearch = panel.contains(e.target) || input.contains(e.target);
+    if (!inSearch) closePanel();
+  });
+}
+
+function ensureHeaderTitleClickableHome() {
+  const titleEl = document.querySelector(".header-title");
+  if (!titleEl) return;
+  if (titleEl.dataset.homeLinkReady === "1") return;
+
+  titleEl.dataset.homeLinkReady = "1";
+  titleEl.style.cursor = "pointer";
+
+  titleEl.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.hash = "#/"; // menu principal
+  });
+}
+
+function initHomeQuickAccessMobile() {
+  const btn = document.getElementById("home-qa-btn");
+  const menu = document.getElementById("home-qa-menu");
+  if (!btn || !menu) return;
+
+  const items = [
+    ["Gestion des traitements", "#/anesthesie/consultations"],
+    ["Antibioprophylaxie", "#/anesthesie/antibiopro"],
+    ["Calcul Vt 6mL/kg", "#/reanimation/formules/ventilation"],
+    ["Coupes/mesures ETO", "#/reanimation/eto"],
+    ["Antibiothérapie probabiliste", "#/reanimation/antibiotherapie/probabiliste"],
+    ["Adaptation rénale des antibiotiques", "#/reanimation/antibiotherapie/fonction-renale"],
+    ["Calcul CVVH", "#/reanimation/formules/metabolique"],
+    ["Calcul EP", "#/reanimation/eer/echanges-plasmatiques"],
+  ];
+
+  const close = () => menu.classList.remove("is-open");
+  const toggle = () => menu.classList.toggle("is-open");
+
+  menu.innerHTML = items
+    .map(([label, route]) => `<button type="button" class="qa-item" data-route="${route}">${label}</button>`)
+    .join("");
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
+
+  menu.addEventListener("click", (e) => {
+    const b = e.target.closest(".qa-item");
+    if (!b) return;
+    close();
+    window.location.hash = b.dataset.route;
+  });
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!menu.classList.contains("is-open")) return;
+      if (e.target === btn || menu.contains(e.target)) return;
+      close();
+    },
+    true
+  );
+}
+
 
 
 
