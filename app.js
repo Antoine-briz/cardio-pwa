@@ -22478,59 +22478,78 @@ async function __buildFullTextIndex(progressEl) {
 
 // 4) UI + binding dans le header (input id="header-search")
 // Recherche — version générique (pour n'importe quel input/panel, pas seulement header)
-function initSearchUI(inputId, panelId) {
+function initSearchUI(inputId = "home-search", panelId = "home-search-panel") {
   const input = document.getElementById(inputId);
   const panel = document.getElementById(panelId);
   if (!input || !panel) return;
-  if (input.dataset.searchReady === "1") return;
-  input.dataset.searchReady = "1";
 
-  // sécurité : évite de fermer quand on clique sur les résultats
-  panel.addEventListener("click", (e) => e.stopPropagation());
+  // sécurité: panel doit contenir une zone résultats
+  panel.classList.add("search-panel");
+  if (!panel.querySelector(".search-results")) {
+    panel.innerHTML = `<div class="search-results"></div>`;
+  }
+  const resultsEl = panel.querySelector(".search-results");
 
-  const closePanel = () => { panel.classList.remove("open"); };
-  const openPanel  = () => panel.classList.add("open");
+  const stop = (e) => e.stopPropagation();
+  panel.addEventListener("click", stop);
+
+  const close = () => panel.classList.remove("open");
+
+  const positionPanel = () => {
+    // dropdown pleine largeur écran (avec marges), ancré sous l'input
+    const r = input.getBoundingClientRect();
+    const top = Math.min(r.bottom + 8, window.innerHeight - 80);
+    panel.style.left = "8px";
+    panel.style.right = "8px";
+    panel.style.top = `${top}px`;
+  };
 
   const navigate = (route) => {
     window.location.hash = route;
     input.value = "";
-    closePanel();
+    close();
     input.blur();
   };
 
   const render = (items) => {
     if (!items.length) {
-      panel.innerHTML = `<div class="search-empty">Aucun résultat</div>`;
+      resultsEl.innerHTML = `<div class="search-empty">Aucun résultat</div>`;
       return;
     }
-    panel.innerHTML = items.map(x => `
-      <button type="button" class="search-item" data-route="${x.route}">
-        <div class="search-title">${x.title}</div>
-        <div class="search-route">${x.route}</div>
-      </button>
-    `).join("");
+    resultsEl.innerHTML = items
+      .map(
+        (x) => `
+        <button type="button" class="search-item" data-route="${x.route}">
+          <div class="search-title">${x.title}</div>
+          <div class="search-route">${x.route}</div>
+        </button>
+      `
+      )
+      .join("");
 
-    panel.querySelectorAll(".search-item").forEach(b => {
+    resultsEl.querySelectorAll(".search-item").forEach((b) => {
       b.addEventListener("click", () => navigate(b.dataset.route));
     });
   };
 
   const run = () => {
-    const terms = __tok(input.value);
+    const q = (input.value || "").trim();
+    const terms = __tok(q);
 
     if (!terms.length) {
-      closePanel();
-      panel.innerHTML = "";
+      close();
+      resultsEl.innerHTML = "";
       return;
     }
 
     const results = __searchIdx
-      .map(p => ({ route: p.route, title: p.title, score: __score(p.n, terms) }))
-      .filter(x => x.score > 0)
+      .map((p) => ({ route: p.route, title: p.title, score: __score(p.n, terms) }))
+      .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 30);
-panel.style.top = (input.getBoundingClientRect().bottom + 8) + "px";
-    openPanel();
+
+    positionPanel();
+    panel.classList.add("open");
     render(results);
   };
 
@@ -22538,19 +22557,35 @@ panel.style.top = (input.getBoundingClientRect().bottom + 8) + "px";
   input.addEventListener("focus", run);
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { closePanel(); input.blur(); }
+    if (e.key === "Escape") {
+      close();
+      input.blur();
+    }
     if (e.key === "Enter") {
-      const first = panel.querySelector(".search-item");
+      const first = resultsEl.querySelector(".search-item");
       if (first) navigate(first.dataset.route);
     }
   });
 
-  // click outside => close
-  document.addEventListener("click", (e) => {
-    const inSearch = panel.contains(e.target) || input.contains(e.target);
-    if (!inSearch) closePanel();
+  // click dehors => ferme (capture pour ne pas casser les autres clics)
+  document.addEventListener(
+    "click",
+    (e) => {
+      const inSearch = panel.contains(e.target) || input.contains(e.target);
+      if (!inSearch) close();
+    },
+    true
+  );
+
+  // reposition si scroll/resize
+  window.addEventListener("resize", () => {
+    if (panel.classList.contains("open")) positionPanel();
   });
+  window.addEventListener("scroll", () => {
+    if (panel.classList.contains("open")) positionPanel();
+  }, true);
 }
+
 
 function ensureHeaderTitleClickableHome() {
   const titleEl = document.querySelector(".header-title");
@@ -22570,39 +22605,70 @@ function initHomeQuickAccessMobile() {
   const btn = document.getElementById("home-qa-btn");
   const menu = document.getElementById("home-qa-menu");
   if (!btn || !menu) return;
-  if (btn.dataset.qaReady === "1") return;
-  btn.dataset.qaReady = "1";
 
+  menu.classList.add("qa-menu");
+
+  // 8 items demandés
   const items = [
-    ["Gestion pré-opératoire des traitements", "#/anesthesie/consultations/traitements"],
-    ["Antibioprophylaxie", "#/anesthesie/antibiopro"],
-    ["Calcul Vt 6mL/kg", "#/reanimation/formules/ventilation"],
-    ["Coupes/mesures ETO", "#/reanimation/eto"],
-    ["Antibiothérapie probabiliste", "#/reanimation/antibiotherapie/probabiliste"],
-    ["Adaptation rénale des antibiotiques", "#/reanimation/antibiotherapie/fonction-renale"],
-    ["Calcul CVVH", "#/reanimation/eer/post-op"],
-    ["Calcul EP", "#/reanimation/eer/echanges-plasmatiques"],
+    { label: "Gestion des traitements", action: "ttm" },
+    { label: "Antibioprophylaxie", route: "#/anesthesie/antibiopro" },
+    { label: "Calcul Vt 6mL/kg", route: "#/reanimation/formules/ventilation" },
+    { label: "Coupes/mesures ETO", route: "#/reanimation/eto" },
+    { label: "Antibiothérapie probabiliste", route: "#/reanimation/antibiotherapie/probabiliste" },
+    { label: "Adaptation rénale des antibiotiques", route: "#/reanimation/antibiotherapie/fonction-renale" },
+    { label: "Calcul CVVH", route: "#/reanimation/eer/post-op" },
+    { label: "Calcul EP", route: "#/reanimation/eer/echanges-plasmatiques" },
   ];
 
-  const close = () => menu.classList.remove("is-open");
-  const toggle = () => menu.classList.toggle("is-open");
-
   menu.innerHTML = items
-    .map(([label, route]) => `<button type="button" class="qa-item" data-route="${route}">${label}</button>`)
+    .map((it) => {
+      const data = it.action ? `data-action="${it.action}"` : `data-route="${it.route}"`;
+      return `<button type="button" class="qa-item" ${data}>${it.label}</button>`;
+    })
     .join("");
+
+  const close = () => menu.classList.remove("is-open");
+
+  const positionMenu = () => {
+    const r = btn.getBoundingClientRect();
+    const top = Math.min(r.bottom + 8, window.innerHeight - 80);
+    menu.style.left = "8px";
+    menu.style.right = "8px";
+    menu.style.top = `${top}px`;
+  };
 
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    menu.style.top = (btn.getBoundingClientRect().bottom + 8) + "px";
-    toggle();
+
+    const willOpen = !menu.classList.contains("is-open");
+    close();
+    if (willOpen) {
+      positionMenu();
+      menu.classList.add("is-open");
+    }
   });
 
   menu.addEventListener("click", (e) => {
     const b = e.target.closest(".qa-item");
     if (!b) return;
     close();
-    window.location.hash = b.dataset.route;
+
+    // Action spéciale: aller dans Anesthésie > Consultations > ouvrir Gestion des traitements
+    if (b.dataset.action === "ttm") {
+      if (typeof openSubPage === "function" &&
+          typeof renderAnesthConsultTraitements === "function" &&
+          typeof renderAnesthConsultations === "function") {
+        openSubPage(renderAnesthConsultTraitements, renderAnesthConsultations);
+      } else {
+        // fallback: au moins le menu consultations
+        window.location.hash = "#/anesthesie/consultations";
+      }
+      return;
+    }
+
+    // Route simple
+    if (b.dataset.route) window.location.hash = b.dataset.route;
   });
 
   document.addEventListener(
@@ -22614,8 +22680,14 @@ function initHomeQuickAccessMobile() {
     },
     true
   );
-}
 
+  window.addEventListener("resize", () => {
+    if (menu.classList.contains("is-open")) positionMenu();
+  });
+  window.addEventListener("scroll", () => {
+    if (menu.classList.contains("is-open")) positionMenu();
+  }, true);
+}
 
 
 
