@@ -6640,3 +6640,27 @@ body.theme-light #home-qa-menu .qa-item{
   background:rgba(0,0,0,.04);
   color:#000;
 }
+
+/* =========================================================
+   OVERRIDE FINAL — Recherche HOME plus compacte (mobile)
+   (à laisser tout en bas du fichier)
+========================================================= */
+#home-search-panel .search-results{
+  padding: 6px 8px !important;
+  gap: 2px !important;              /* <- divise ~ par 2 vs 10px */
+}
+
+#home-search-panel .search-item{
+  margin: 0 !important;             /* sécurité si une règle met des marges */
+  padding: 5px 10px !important;     /* <- réduit la hauteur de chaque item */
+  border-radius: 10px !important;
+}
+
+#home-search-panel .search-title{
+  line-height: 1.15 !important;
+}
+
+#home-search-panel .search-route{
+  margin-top: 2px !important;       /* <- réduit l’espace interne */
+  line-height: 1.1 !important;
+}
