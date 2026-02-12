@@ -7089,3 +7089,42 @@ body.theme-light #home-qa-menu .qa-item{
     border-radius: 0;
   }
 }
+
+/* =====================================================
+   TTM — Smartphone : boutons sous "Traitement en cours"
+   ===================================================== */
+
+@media (max-width: 520px){
+
+  /* Body en colonne */
+  .ttm-overlay .ttm-body{
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Colonne gauche (Traitement en cours) en premier */
+  .ttm-overlay .ttm-col:first-child{
+    order: 1;
+  }
+
+  /* Boutons juste après */
+  .ttm-overlay .ttm-actions{
+    order: 2;
+    display: flex;
+    flex-direction: row;        /* 🔥 côte à côte */
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Chaque bouton prend la moitié */
+  .ttm-overlay .ttm-actions button{
+    flex: 1;
+  }
+
+  /* Le reste du contenu en dessous */
+  .ttm-overlay .ttm-col:nth-child(2),
+  .ttm-overlay .ttm-right-stack{
+    order: 3;
+  }
+}
