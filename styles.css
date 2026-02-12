@@ -6073,3 +6073,28 @@ body {
   border-color: #000 !important;
 }
 
+
+/* =========================
+   FOOTER CLAIR (theme light)
+========================= */
+
+.theme-light footer {
+  background: #f2f2f2 !important;  /* même esprit que header */
+  color: #000 !important;           /* texte noir */
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Tous les textes du footer en noir */
+.theme-light footer p,
+.theme-light footer span,
+.theme-light footer div,
+.theme-light footer small {
+  color: #000 !important;
+}
+
+/* ⚠️ ON NE TOUCHE PAS AUX BOUTONS */
+.theme-light footer button,
+.theme-light footer .btn,
+.theme-light footer .button {
+  color: inherit;     /* laisse le style existant */
+}
