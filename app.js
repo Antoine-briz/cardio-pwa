@@ -22580,7 +22580,7 @@ function initHomeQuickAccessMobile() {
     ["Coupes/mesures ETO", "#/reanimation/eto"],
     ["Antibiothérapie probabiliste", "#/reanimation/antibiotherapie/probabiliste"],
     ["Adaptation rénale des antibiotiques", "#/reanimation/antibiotherapie/fonction-renale"],
-    ["Calcul CVVH", "#/reanimation/formules/metabolique"],
+    ["Calcul CVVH", "#/reanimation/eer/post-op"],
     ["Calcul EP", "#/reanimation/eer/echanges-plasmatiques"],
   ];
 
