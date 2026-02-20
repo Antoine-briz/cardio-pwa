@@ -7128,3 +7128,53 @@ body.theme-light #home-qa-menu .qa-item{
     order: 3;
   }
 }
+
+/* =========================================================
+   ANNUAIRE — FIX mobile (empêche les tables de dépasser à droite)
+   Cible surtout : Rez-de-chaussée / 1er / 3e / Numéros extérieurs / Labos
+   ========================================================= */
+
+@media (max-width: 600px){
+
+  /* Le tableau ne doit jamais agrandir la page */
+  .annuaire-table{
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;   /* clé : empêche l’expansion */
+    font-size: 0.82rem;               /* un poil plus compact */
+  }
+
+  .annuaire-table th,
+  .annuaire-table td{
+    padding: 6px 4px !important;      /* réduit l’overflow dû aux paddings */
+  }
+
+  /* ⚠️ Colonne téléphone : on autorise le wrap (sinon "65 578 ou 65 577" fait déborder) */
+  .annuaire-table th:nth-child(3),
+  .annuaire-table td:nth-child(3){
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  /* Bonus : évite que des intitulés très longs cassent tout */
+  .annuaire-table td:nth-child(1),
+  .annuaire-table td:nth-child(2){
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ===============================================
+   Boutons importants menu anesthésie (rouge foncé)
+   =============================================== */
+
+.btn-anesth-important{
+  background: #8b0000 !important;   /* rouge foncé */
+  border-color: #7f1d1d !important;
+  color: #ffffff !important;
+}
+
+.btn-anesth-important:hover{
+  background: #8b0000 !important;
+  border-color: #991b1b !important;
+}
