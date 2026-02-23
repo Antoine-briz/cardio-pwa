@@ -14788,7 +14788,7 @@ function renderAdapteeMenu() {
 
   // ====== Titre principal ======
   const title = document.createElement("h2");
-  title.textContent = "BMR et BHRe";
+  title.textContent = "Antibiorésistance bactérienne";
   container.appendChild(title);
 
   // ====== 1) Tableaux des phénotypes ======
@@ -14797,7 +14797,7 @@ function renderAdapteeMenu() {
 
   const block1Title = document.createElement("h3");
   block1Title.classList.add("atb-block-title");
-  block1Title.textContent = "Tableaux des phénotypes habituels d'antibiorésistance";
+  block1Title.textContent = "Phénotypes habituels d'antibiorésistance";
   block1.appendChild(block1Title);
 
   const thumbs = document.createElement("div");
