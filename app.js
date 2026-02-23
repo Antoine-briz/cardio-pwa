@@ -14679,7 +14679,7 @@ function renderReanAntibiotherapieMenu() {
 
 <button class="btn"
   onclick="openSubPage(renderAdapteeMenu, renderReanAntibiotherapieMenu)">
-  Traitement des BMR et BHRe
+  Antibiorésistances bactériennes
 </button>
 
 <button class="btn"
@@ -14777,53 +14777,123 @@ function renderProbaMenu() {
   `;
 }
 
-
 function renderAdapteeMenu() {
-  console.log("renderAdapteeMenu is called!"); 
+  console.log("renderAdapteeMenu (smartphone) is called!");
 
   const appContainer = document.getElementById("app");
-
-  // Efface le contenu précédent
   appContainer.innerHTML = "";
 
   const container = document.createElement("div");
   container.classList.add("antibiotherapy-container");
 
+  // ====== Titre principal ======
   const title = document.createElement("h2");
-  title.textContent = "Antibiothérapie adaptée: germes multisensibles, BMR et BHRe";
+  title.textContent = "BMR et BHRe";
+  container.appendChild(title);
 
-  const linksContainer = document.createElement("div");
-  linksContainer.classList.add("germs-links");
+  // ====== 1) Tableaux des phénotypes ======
+  const block1 = document.createElement("div");
+  block1.classList.add("atb-block");
 
-  const links = [
-    { href: "#/adaptee/sensibles", text: "Germes multisensibles" },
-    { href: "#/adaptee/SARM", text: "SARM" },
-    { href: "#/adaptee/ampC", text: "Entérobactéries ampC" },
-    { href: "#/adaptee/BLSE", text: "BLSE" },
-    { href: "#/adaptee/pyo", text: "Pseudomonas aeruginosas MDR/XDR" },
-    { href: "#/adaptee/acineto", text: "Acinetobacter baumannii Imipénème-R" },
-    { href: "#/adaptee/steno", text: "Stenotrophomonas maltophilia" },
-    { href: "#/adaptee/carba", text: "Entérobactéries carbapénémases" },
-    { href: "#/adaptee/erv", text: "E. faecium Vancomycine-R" }
+  const block1Title = document.createElement("h3");
+  block1Title.classList.add("atb-block-title");
+  block1Title.textContent = "Tableaux des phénotypes habituels d'antibiorésistance";
+  block1.appendChild(block1Title);
+
+  const thumbs = document.createElement("div");
+  thumbs.classList.add("thumb-grid");
+
+  const thumbItems = [
+    { file: "Cocci-Gram-positifs.png", label: "Cocci gram positifs" },
+    { file: "Bacilles-Gram-négatifs.png", label: "Bacilles gram négatif sauvages" },
+    { file: "Béta-lactamases.png", label: "Béta-lactamases" },
+    { file: "Pseudomonas-aeruginosa.png", label: "Pseudomonas aeruginosa" },
+    { file: "Acinetobacter-baumanii.png", label: "Acinetobacter baumanii" },
+    { file: "Carbapénèmases.png", label: "Carbapénèmases" }
   ];
 
-  links.forEach(link => {
-    const anchor = document.createElement("a");
-    anchor.href = link.href;
-    anchor.textContent = link.text;
-    anchor.addEventListener("click", (e) => {
-  e.preventDefault();
-  openSubPage(() => { location.hash = link.href; }, renderAdapteeMenu);
-});
+  thumbItems.forEach(item => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.classList.add("thumb-card");
 
-    linksContainer.appendChild(anchor);
+    const img = document.createElement("img");
+    img.src = `img/${item.file}`;
+    img.alt = item.label;
+    img.loading = "lazy";
+
+    const span = document.createElement("span");
+    span.textContent = item.label;
+
+    btn.appendChild(img);
+    btn.appendChild(span);
+
+    btn.addEventListener("click", () => openImg(item.file));
+    thumbs.appendChild(btn);
   });
 
-  container.appendChild(title);
-  container.appendChild(linksContainer);
+  block1.appendChild(thumbs);
+  container.appendChild(block1);
 
-  console.log("Inserting content into #app");  // Log pour vérifier l'insertion du contenu
-  appContainer.appendChild(container); // Insère le contenu dans #app
+  // Helper pour créer un bouton "menu" qui ouvre une sous-page
+  function makeMenuButton(label, key) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.classList.add("btn");
+    btn.textContent = label;
+
+    btn.addEventListener("click", () => {
+      openSubPage(() => renderBacteriaPage(key, BACTERIA_DATA[key]), renderAdapteeMenu);
+    });
+
+    return btn;
+  }
+
+  // ====== 2) BMR ======
+  const block2 = document.createElement("div");
+  block2.classList.add("atb-block");
+
+  const block2Title = document.createElement("h3");
+  block2Title.classList.add("atb-block-title");
+  block2Title.textContent = "Bactéries multi-résistantes (BMR)";
+  block2.appendChild(block2Title);
+
+  const bmrGrid = document.createElement("div");
+  bmrGrid.classList.add("germs-links"); // tu peux garder ta classe existante
+  // (si tu veux la même grille que d’autres menus, remplace "germs-links" par "grid cols-2" si tu l’as)
+  // bmrGrid.classList.add("grid", "cols-2");
+
+  bmrGrid.appendChild(makeMenuButton("SARM", "SARM"));
+  bmrGrid.appendChild(makeMenuButton("Entérobactéries ampC", "ampC"));
+  bmrGrid.appendChild(makeMenuButton("BLSE", "BLSE"));
+  bmrGrid.appendChild(makeMenuButton("Pseudomonas aeruginosa MDR/XDR", "pyo"));
+  bmrGrid.appendChild(makeMenuButton("Acinetobacter baumannii Imipénème-R", "acineto"));
+  bmrGrid.appendChild(makeMenuButton("Stenotrophomonas maltophilia", "steno"));
+
+  block2.appendChild(bmrGrid);
+  container.appendChild(block2);
+
+  // ====== 3) BHRe ======
+  const block3 = document.createElement("div");
+  block3.classList.add("atb-block");
+
+  const block3Title = document.createElement("h3");
+  block3Title.classList.add("atb-block-title");
+  block3Title.textContent = "Bactéries hautement résistantes émergeantes (BHRe)";
+  block3.appendChild(block3Title);
+
+  const bhreGrid = document.createElement("div");
+  bhreGrid.classList.add("germs-links");
+  // ou bhreGrid.classList.add("grid", "cols-2");
+
+  bhreGrid.appendChild(makeMenuButton("Entérobactéries carbapénémases", "carba"));
+  bhreGrid.appendChild(makeMenuButton("E. faecium Vancomycine-R", "erv"));
+
+  block3.appendChild(bhreGrid);
+  container.appendChild(block3);
+
+  console.log("Inserting content into #app");
+  appContainer.appendChild(container);
 }
 
   const INFECTIONS = {
