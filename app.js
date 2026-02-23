@@ -12114,7 +12114,6 @@ function calcNOCompact() {
   $res.textContent = "Débit de NO = " + debitNO.toFixed(3) + " L/min";
 }
 
-
 /* ============================================================
    FORMULES – CARDIO-VASCULAIRES
    ============================================================ */
@@ -12147,6 +12146,44 @@ function renderReanFormulesCardio() {
         </form>
       `,
     },
+
+    /* ✅ NOUVEAU : DC théorique */
+    {
+      titre: "Débit cardiaque théorique",
+      sousTitreEncadre: "",
+      html: `
+        <form class="form" oninput="calcDCTheo()">
+          <div style="height:6px;"></div>
+
+          <div class="form-line">
+            <label>Sexe</label>
+            <select id="dcTheoSexe">
+              <option value="H" selected>Homme</option>
+              <option value="F">Femme</option>
+            </select>
+          </div>
+
+          <div class="form-line">
+            <label>Taille (cm)</label>
+            <input id="dcTheoTaille" type="number" step="1">
+          </div>
+
+          <div class="form-line">
+            <label>Poids (kg)</label>
+            <input id="dcTheoPoids" type="number" step="0.1">
+          </div>
+
+          <p id="dcTheoSC" class="form-result">Surface corporelle (SC) = —</p>
+          <p id="dcTheoResult" class="form-result">Débit cardiaque théorique = —</p>
+
+          <div class="form-hint" style="margin-top:8px; font-size:0.92em; opacity:0.85;">
+            SC (Mosteller) = √(Taille × Poids / 3600)<br>
+            DCth = IC × SC (IC normal : Homme 3.2 / Femme 3.0 L/min/m²)
+          </div>
+        </form>
+      `,
+    },
+
     {
       titre: "Résistances vasculaires pulmonaires",
       sousTitreEncadre: "",
@@ -12208,7 +12245,7 @@ function renderReanFormulesCardio() {
 
   renderInterventionPage({
     titre: "Formules",
-    image: "formules.png",
+    image: "formules2.png",
     sousTitre: "Cardio-vasculaires",
     encadres,
   });
@@ -12232,6 +12269,33 @@ function calcDCEcho() {
   const DC = (VES * FC) / 1000;
 
   $res.textContent = "Débit cardiaque = " + DC.toFixed(2) + " L/min";
+}
+
+/* ✅ NOUVEAU : DC théorique (SC + IC selon sexe) */
+function calcDCTheo() {
+  const sexe = document.getElementById("dcTheoSexe").value;
+  const taille = parseFloat(document.getElementById("dcTheoTaille").value);
+  const poids = parseFloat(document.getElementById("dcTheoPoids").value);
+
+  const $sc = document.getElementById("dcTheoSC");
+  const $res = document.getElementById("dcTheoResult");
+
+  if (!taille || !poids || taille <= 0 || poids <= 0) {
+    $sc.textContent = "Surface corporelle (SC) = —";
+    $res.textContent = "Débit cardiaque théorique = —";
+    return;
+  }
+
+  // Surface corporelle (Mosteller)
+  const sc = Math.sqrt((taille * poids) / 3600);
+
+  // IC “normal” (choix pratique)
+  const ic = (sexe === "H") ? 3.2 : 3.0;
+
+  const dcTheo = ic * sc;
+
+  $sc.textContent = "Surface corporelle (SC) = " + sc.toFixed(2) + " m²";
+  $res.textContent = "Débit cardiaque théorique = " + dcTheo.toFixed(2) + " L/min";
 }
 
 // 2) RVP
