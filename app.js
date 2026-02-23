@@ -4543,7 +4543,7 @@ function renderAnesthRadioVascMenu() {
 </button>
 
 <button class="btn"
-  onclick="openSubPage(renderInterventionRadioVascAbdo, renderAnesthRadioVascuMenu)">
+  onclick="openSubPage(renderInterventionRadioVascAbdo, renderAnesthRadioVascMenu)">
   Ablations intra-abdominales
 </button>
 
