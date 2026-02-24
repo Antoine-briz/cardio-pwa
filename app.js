@@ -13249,97 +13249,225 @@ function openChadsVascImage() {
 }
 
 /* ====================================================================
-   RÉANIMATION – ETO
+   RÉANIMATION – ETO (SMARTPHONE : MENU IMAGES + MODALES)
    ==================================================================== */
 
-// Pour la RÉA : extrait seulement la liste <ul class="eto-list">...</ul>
-// à partir du HTML complet renvoyé par etoHtmlXXX()
-function stripEtoWrapper(html) {
-  if (!html) return html;
+/**
+ * Parse la <ul class="eto-list">...</ul> produite par etoHtmlXXX()
+ * et extrait une liste { label, type, src }
+ * type = "img" | "video" | "none"
+ */
+function parseEtoListItems(html) {
+  if (!html) return [];
 
   const ulStart = html.indexOf('<ul class="eto-list">');
-  if (ulStart === -1) {
-    // Si on ne trouve pas la liste, on renvoie tel quel
-    return html;
-  }
-
+  if (ulStart === -1) return [];
   const ulEnd = html.indexOf("</ul>", ulStart);
-  if (ulEnd === -1) {
-    return html;
-  }
+  if (ulEnd === -1) return [];
 
-  const inner = html.slice(ulStart, ulEnd + "</ul>".length);
+  const ulHtml = html.slice(ulStart, ulEnd + "</ul>".length);
 
-  // On remet juste un petit <section> autour pour garder le style
-  return `
-    <section class="eto-section">
-      ${inner}
-    </section>
-  `.trim();
+  const tmp = document.createElement("div");
+  tmp.innerHTML = ulHtml;
+
+  const lis = Array.from(tmp.querySelectorAll("li"));
+  return lis
+    .map((li) => {
+      // Texte (sans l’icône)
+      const liClone = li.cloneNode(true);
+      const iconClone = liClone.querySelector(".eto-icon");
+      if (iconClone) iconClone.remove();
+      const label = (liClone.textContent || "").trim().replace(/\s+/g, " ");
+
+      // On cherche l'action media dans onclick de l'icône ou du li
+      const icon = li.querySelector(".eto-icon");
+      const onclick =
+        (icon && icon.getAttribute("onclick")) || li.getAttribute("onclick") || "";
+
+      const imgMatch = onclick.match(/openImg\(\s*['"]([^'"]+)['"]\s*\)/i);
+      const vidMatch = onclick.match(/openVideo\(\s*['"]([^'"]+)['"]\s*\)/i);
+
+      if (vidMatch && vidMatch[1]) return { label, type: "video", src: vidMatch[1] };
+      if (imgMatch && imgMatch[1]) return { label, type: "img", src: imgMatch[1] };
+
+      return { label, type: "none", src: "" };
+    })
+    .filter((x) => x.label.length > 0);
 }
 
-function renderReanEto() {
-  const encadres = [
-    {
-      titre: "Fonction systolique VG",
-      html: stripEtoWrapper(etoHtmlFonctionVG()),
-    },
-    {
-      titre: "Cinétique segmentaire du VG",
-      html: stripEtoWrapper(etoHtmlVGSegmentaire()),
-    },
-    {
-      titre: "Valve aortique",
-      html: stripEtoWrapper(etoHtmlValveAortique()),
-    },
-    {
-      titre: "Valve mitrale",
-      html: stripEtoWrapper(etoHtmlValveMitrale()),
-    },
-    {
-      titre: "PTDVG (Fonction diastolique VG)",
-      html: stripEtoWrapper(etoHtmlPTDVG()),
-    },
-    {
-      titre: "Fonction systolique du VD",
-      html: stripEtoWrapper(etoHtmlFonctionVD()),
-    },
-    {
-      titre: "Valve tricuspide",
-      html: stripEtoWrapper(etoHtmlValveTricuspide()),
-    },
-    {
-      titre: "Evaluation d'une HTAP",
-      html: stripEtoWrapper(etoHtmlHTAP()),
-    },
-  ];
+/* ===== Modales (section + média) ===== */
 
-  renderInterventionPage({
-    titre: "Échocardiographie trans-œsophagienne",
-    sousTitre: "",
-    image: "eto.png",
-    encadres,
-  });
+function removeIfExists(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
 }
 
+function openEtoImageModal(src) {
+  removeIfExists("eto-image-modal");
 
-
-function openVideo(src) {
   const modal = document.createElement("div");
-  modal.className = "img-modal";
-
+  modal.id = "eto-image-modal";
+  modal.className = "eto-modal-backdrop";
   modal.innerHTML = `
-    <div class="img-modal-content">
-      <video class="eto-video" autoplay muted loop controls playsinline>
-        <source src="img/${src}" type="video/mp4">
-      </video>
+    <div class="eto-modal eto-modal--media" role="dialog" aria-modal="true">
+      <button class="eto-modal-close" type="button" aria-label="Fermer">✕</button>
+      <div class="eto-modal-body eto-modal-body--media">
+        <img class="eto-media-img" src="img/${src}" alt="">
+      </div>
     </div>
   `;
 
-  modal.onclick = () => modal.remove();
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+  modal.querySelector(".eto-modal-close").addEventListener("click", () => modal.remove());
+
   document.body.appendChild(modal);
 }
 
+function openEtoVideoModal(src) {
+  removeIfExists("eto-image-modal");
+
+  const modal = document.createElement("div");
+  modal.id = "eto-image-modal";
+  modal.className = "eto-modal-backdrop";
+  modal.innerHTML = `
+    <div class="eto-modal eto-modal--media" role="dialog" aria-modal="true">
+      <button class="eto-modal-close" type="button" aria-label="Fermer">✕</button>
+      <div class="eto-modal-body eto-modal-body--media">
+        <video class="eto-media-video" autoplay muted loop controls playsinline>
+          <source src="img/${src}" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+  modal.querySelector(".eto-modal-close").addEventListener("click", () => modal.remove());
+
+  document.body.appendChild(modal);
+}
+
+function openEtoSectionModal(sectionTitle, items) {
+  removeIfExists("eto-section-modal");
+
+  const modal = document.createElement("div");
+  modal.id = "eto-section-modal";
+  modal.className = "eto-modal-backdrop";
+
+  const cardsHtml = items
+    .map((it) => {
+      if (it.type === "img") {
+        return `
+          <button type="button" class="eto-thumb-card" onclick="openEtoImageModal('${it.src}')">
+            <img src="img/${it.src}" alt="${it.label}" loading="lazy">
+            <span>${it.label}</span>
+          </button>
+        `;
+      }
+      if (it.type === "video") {
+        return `
+          <button type="button" class="eto-thumb-card eto-thumb-card--video" onclick="openEtoVideoModal('${it.src}')">
+            <div class="eto-video-thumb">▶</div>
+            <span>${it.label}</span>
+          </button>
+        `;
+      }
+      return `
+        <div class="eto-thumb-card eto-thumb-card--disabled">
+          <div class="eto-video-thumb">i</div>
+          <span>${it.label}</span>
+        </div>
+      `;
+    })
+    .join("");
+
+  modal.innerHTML = `
+    <div class="eto-modal eto-modal--section" role="dialog" aria-modal="true">
+      <div class="eto-modal-header">
+        <h3 class="eto-modal-title">${sectionTitle}</h3>
+        <button class="eto-modal-close" type="button" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="eto-modal-body">
+        <div class="eto-menu-grid eto-menu-grid--mobile">
+          ${cardsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+  modal.querySelector(".eto-modal-close").addEventListener("click", () => modal.remove());
+
+  document.body.appendChild(modal);
+}
+
+/* ===== Page ETO smartphone : grille d’images (max 3 colonnes) ===== */
+
+function renderReanEto() {
+  const sections = [
+    { titre: "Fonction systolique VG", img: "fonctionsystoliqueVG.png", rawHtml: etoHtmlFonctionVG() },
+    { titre: "Cinétique segmentaire du VG", img: "cinetiquesegmentaire.png", rawHtml: etoHtmlVGSegmentaire() },
+    { titre: "Valve aortique", img: "valveaortique.png", rawHtml: etoHtmlValveAortique() },
+    { titre: "Valve mitrale", img: "valvemitrale.png", rawHtml: etoHtmlValveMitrale() },
+    { titre: "PTDVG (Fonction diastolique VG)", img: "fonctiondiastoliqueVG.png", rawHtml: etoHtmlPTDVG() },
+    { titre: "Fonction systolique du VD", img: "dysfonctionVD.png", rawHtml: etoHtmlFonctionVD() },
+    { titre: "Valve tricuspide", img: "valvetricuspide.png", rawHtml: etoHtmlValveTricuspide() },
+    { titre: "Evaluation d'une HTAP", img: "htap.png", rawHtml: etoHtmlHTAP() },
+  ];
+
+  const sectionData = sections.map((s) => ({
+    ...s,
+    items: parseEtoListItems(s.rawHtml),
+  }));
+
+  window.__ETO_SECTIONS__ = sectionData;
+
+  const appContainer = document.getElementById("app");
+  appContainer.innerHTML = "";
+
+  const container = document.createElement("div");
+  container.classList.add("antibiotherapy-container"); // tu peux garder ta classe mobile existante
+
+  const title = document.createElement("h2");
+  title.textContent = "Échocardiographie trans-œsophagienne";
+  container.appendChild(title);
+
+  const grid = document.createElement("div");
+  grid.classList.add("eto-menu-grid", "eto-menu-grid--mobile");
+
+  sectionData.forEach((sec, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.classList.add("eto-menu-card");
+    btn.setAttribute("data-eto-idx", String(idx));
+
+    btn.innerHTML = `
+      <img src="img/${sec.img}" alt="${sec.titre}" onerror="this.style.opacity='0.35'">
+      <div class="eto-menu-title">${sec.titre}</div>
+    `;
+
+    btn.addEventListener("click", () => {
+      openEtoSectionModal(sec.titre, sec.items);
+    });
+
+    grid.appendChild(btn);
+  });
+
+  container.appendChild(grid);
+  appContainer.appendChild(container);
+}
+
+
+function openVideo(src) {
+  // On garde, mais idéalement utiliser openEtoVideoModal(src) partout.
+  openEtoVideoModal(src);
+}
 
 /* ====================================================================
    RÉANIMATION – EER & ÉCHANGES PLASMATIQUES (MENU + sous-pages)
