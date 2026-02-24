@@ -7307,3 +7307,259 @@ html[data-theme="dark"] .thumb-card * {
   flex-direction: column;
   gap: 14px;   /* espace vertical entre boutons */
 }
+
+/* =========================================================
+   ETO – CSS SMARTPHONE (max 3 colonnes + modales adaptées)
+   ========================================================= */
+
+/* =========================
+   MENU ETO (smartphone)
+   ========================= */
+/* Mobile-first : 3 colonnes max */
+.eto-menu-grid{
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+/* 2 colonnes si écran petit */
+@media (max-width: 520px){
+  .eto-menu-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* 1 colonne si très petit */
+@media (max-width: 360px){
+  .eto-menu-grid{ grid-template-columns: 1fr; }
+}
+
+.eto-menu-card{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 8px;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+/* Si tu as un thème clair via body.theme-light */
+body.theme-light .eto-menu-card{
+  border-color: rgba(0,0,0,0.14);
+  background: rgba(0,0,0,0.03);
+}
+
+/* Image de la carte : on garde entier ici */
+.eto-menu-card img{
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  display: block;
+}
+
+.eto-menu-title{
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(0,0,0,0.25);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+body.theme-light .eto-menu-title{
+  border-color: rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.75);
+  color: #111;
+}
+
+/* =========================
+   LIGNES ETO (icône collée)
+   ========================= */
+.eto-list li{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.eto-icon{
+  font-size: 54px; /* un peu moins que desktop pour mobile */
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 0;
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
+/* =========================
+   MODALES (smartphone)
+   Toujours fond clair
+   ========================= */
+.eto-modal-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* plus serré sur mobile */
+}
+
+/* Sur mobile : modale quasi plein écran */
+.eto-modal{
+  width: 96vw;
+  max-height: 92vh;
+  overflow: hidden;
+  border-radius: 16px;
+
+  /* fond clair forcé */
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  color: #111 !important;
+
+  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+  position: relative;
+}
+
+.eto-modal-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.10) !important;
+}
+
+.eto-modal-title{
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #111 !important;
+}
+
+/* Croix toujours en haut à droite */
+.eto-modal-close{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: auto !important;
+
+  appearance: none;
+  border: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+
+  background: rgba(0,0,0,0.06) !important;
+  color: #111 !important;
+}
+
+.eto-modal-body{
+  padding: 12px;
+  overflow: auto;
+  max-height: calc(92vh - 62px);
+}
+
+.eto-modal-body--media{
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eto-media-img,
+.eto-media-video{
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 14px;
+}
+
+/* =========================
+   MINIATURES DANS MODALE SECTION (smartphone)
+   ========================= */
+/* Max 3 colonnes */
+.eto-thumb-grid{
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 2 colonnes sur petit */
+@media (max-width: 520px){
+  .eto-thumb-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* 1 colonne sur très petit */
+@media (max-width: 360px){
+  .eto-thumb-grid{ grid-template-columns: 1fr; }
+}
+
+.eto-thumb-card{
+  appearance: none;
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  background: rgba(0,0,0,0.03) !important;
+  border-radius: 14px;
+  padding: 8px;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+/* Miniatures : même hauteur, sans déformer, crop en haut */
+.eto-thumb-card img{
+  width: 100% !important;
+  height: 120px !important;         /* un peu moins haut sur mobile */
+  object-fit: cover !important;
+  object-position: top !important;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Titre lisible sur fond clair */
+.eto-thumb-card span{
+  color: #111 !important;
+  font-weight: 900;
+  line-height: 1.15;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.16) !important;
+  background: rgba(0,0,0,0.04) !important;
+}
+
+/* Carte vidéo : même hauteur que les images */
+.eto-thumb-card--video .eto-video-thumb{
+  height: 120px !important;
+  width: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 900;
+  color: #111 !important;
+  background: rgba(0,0,0,0.04) !important;
+  border: 1px dashed rgba(0,0,0,0.20) !important;
+}
+
+.eto-thumb-card--disabled{
+  opacity: 0.6;
+  cursor: default;
+}
