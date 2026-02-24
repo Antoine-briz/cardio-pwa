@@ -7563,3 +7563,35 @@ body.theme-light .eto-menu-title{
   opacity: 0.6;
   cursor: default;
 }
+
+/* =========================================================
+   FIX ETO – SMARTPHONE : 3 vignettes par ligne (max)
+   À coller TOUT EN BAS du style.css
+   ========================================================= */
+
+/* Mobile / tablette : 3 colonnes */
+@media (max-width: 900px){
+  .eto-menu-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Petits téléphones : 2 colonnes */
+@media (max-width: 520px){
+  .eto-menu-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Très petit : 1 colonne */
+@media (max-width: 360px){
+  .eto-menu-grid{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Sécurité : les cartes ne doivent pas forcer une largeur */
+.eto-menu-card{
+  width: auto !important;
+  max-width: 100% !important;
+}
