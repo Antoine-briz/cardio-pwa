@@ -7633,3 +7633,17 @@ body.theme-light .eto-menu-title{
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
+
+/* =========================================================
+   ETO – SMARTPHONE : crop centré (pas le haut)
+   ========================================================= */
+
+@media (max-width: 900px){
+
+  .eto-thumb-card img,
+  .eto-menu-card img{
+    object-fit: cover !important;
+    object-position: center !important;   /* 👈 milieu de l’image */
+  }
+
+}
