@@ -25,6 +25,11 @@ function norm(s) {
 // =====================================================================
 //  POPUP IMAGES (utilisé partout via onclick)
 // =====================================================================
+
+function closePopup() {
+  document.getElementById("img-popup").style.display = "none";
+}
+
 function openImg(name) {
   const popup = document.getElementById("img-popup");
   const imgEl = document.getElementById("popup-img");
@@ -13318,9 +13323,6 @@ function renderReanEto() {
 }
 
 
-function closePopup() {
-  document.getElementById("img-popup").style.display = "none";
-}
 
 function openVideo(src) {
   const modal = document.createElement("div");
