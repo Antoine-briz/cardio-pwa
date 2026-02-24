@@ -7595,3 +7595,41 @@ body.theme-light .eto-menu-title{
   width: auto !important;
   max-width: 100% !important;
 }
+
+/* =========================================================
+   ETO – FORCE 3 MINIATURES PAR LIGNE SUR SMARTPHONE
+   ========================================================= */
+
+@media (max-width: 900px){
+
+  .eto-menu-grid{
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;                 /* réduit l'espace */
+  }
+
+  .eto-menu-card{
+    padding: 6px !important;             /* réduit padding */
+    border-radius: 12px !important;
+  }
+
+  .eto-menu-card img{
+    width: 100% !important;
+    height: 90px !important;             /* plus petite hauteur */
+    object-fit: cover !important;
+    object-position: top !important;
+  }
+
+  .eto-menu-title{
+    font-size: 0.75rem !important;       /* texte plus petit */
+    padding: 4px 6px !important;
+  }
+
+}
+
+/* Très petit écran : on passe à 2 colonnes */
+@media (max-width: 360px){
+  .eto-menu-grid{
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
