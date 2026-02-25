@@ -7647,3 +7647,122 @@ body.theme-light .eto-menu-title{
   }
 
 }
+
+/* =========================================================
+   FIX SMARTPHONE — Isoler ETO Réa (fenêtres) du CR ETO (anesthésie)
+   À COLLER TOUT EN BAS du style.css smartphone
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1) CR d’ETO anesthésie (acr-modal + eto-modal)
+   => doit rester un OVERLAY au-dessus de tout
+   --------------------------------------------------------- */
+.acr-modal.eto-modal{
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;      /* au-dessus de tout */
+  background: rgba(0,0,0,0.65) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px !important;
+}
+
+/* IMPORTANT : on NE met PAS ici width/max-height comme les modales ETO Réa,
+   sinon ça “encadre” le CR et ça peut le faire repasser dessous. */
+
+
+/* ---------------------------------------------------------
+   2) Fenêtres ETO Réa (uniquement celles qui sont dans .eto-modal-backdrop)
+   => fond clair + croix en haut à droite + lisible
+   --------------------------------------------------------- */
+.eto-modal-backdrop{
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;            /* suffisant pour ETO Réa */
+  background: rgba(0,0,0,0.65) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px !important;
+}
+
+/* ⚠️ On scope TOUT sur .eto-modal-backdrop .eto-modal
+      pour ne PAS toucher le CR (.acr-modal.eto-modal) */
+.eto-modal-backdrop .eto-modal{
+  width: 96vw !important;
+  max-height: 92vh !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+
+  background: #ffffff !important;      /* fond clair */
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  color: #111 !important;
+
+  box-shadow: 0 18px 50px rgba(0,0,0,0.45) !important;
+  position: relative !important;
+}
+
+.eto-modal-backdrop .eto-modal-header{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  border-bottom: 1px solid rgba(0,0,0,0.10) !important;
+}
+
+.eto-modal-backdrop .eto-modal-title{
+  margin: 0 !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  color: #111 !important;
+}
+
+/* Croix en haut à droite (ETO Réa uniquement) */
+.eto-modal-backdrop .eto-modal-close{
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+
+  appearance: none !important;
+  border: 0 !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+
+  background: rgba(0,0,0,0.06) !important;
+  color: #111 !important;
+}
+
+.eto-modal-backdrop .eto-modal-body{
+  padding: 12px !important;
+  overflow: auto !important;
+  max-height: calc(92vh - 62px) !important;
+}
+
+/* (si tu as le mode media) */
+.eto-modal-backdrop .eto-modal-body--media{
+  padding: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.eto-modal-backdrop .eto-media-img,
+.eto-modal-backdrop .eto-media-video{
+  width: 100% !important;
+  max-height: 80vh !important;
+  border-radius: 14px !important;
+}
+
+/* Miniatures ETO Réa : uniformes + crop centré (smartphone) */
+.eto-modal-backdrop .eto-thumb-card img,
+.eto-modal-backdrop .eto-menu-card img{
+  object-fit: cover !important;
+  object-position: center !important;
+}
