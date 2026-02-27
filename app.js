@@ -18778,7 +18778,7 @@ function etoHtmlimpella() {
             <span class="eto-icon" onclick="openImg('inletimpella.png')">🖥️</span>
           </li>
           <li>
-            Position outlet en aorte
+            Position outlet dans l'aorte
             <span class="eto-icon" onclick="openImg('outletimpella.png')">🖥️</span>
           </li>
           <li>
