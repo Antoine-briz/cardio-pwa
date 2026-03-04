@@ -20300,10 +20300,6 @@ function renderBibliographie() {
             <button class="btn btn-darkblue" id="btnBiblioJuniors">
               Internes: Biblio & staff juniors
             </button>
-
-            <button class="btn btn-darkblue btn-bibl-typewriter" id="btnBiblioHebdo">
-              BiBL.
-            </button>
           </div>
 
           <!-- ✅ Tableau Revues médicales -->
