@@ -25488,24 +25488,31 @@ const routes = {
   "#/adaptee/carba": () => renderBacteriaPage("carba", BACTERIA_DATA.carba),
   "#/adaptee/erv": () => renderBacteriaPage("erv", BACTERIA_DATA.erv),
 
-  // ---------------------------
-  // CEC
-  // ---------------------------
-  "#/cec": renderCEC,
-  "#/cec-protocoles": renderCecProtocoles,
-  "#/cec-urgences": renderCecUrgencesMenu,
-  "#/cec-urgences/hypotension": sub(renderCecUrgencesMenu, renderCecUrgenceHypotension),
-  "#/cec-urgences/retour-veineux": sub(renderCecUrgencesMenu, renderCecUrgenceRetourVeineux),
-  "#/cec-urgences/resistance-heparine": sub(renderCecUrgencesMenu, renderCecUrgenceResistanceHeparine),
-  "#/cec-urgences/cardioplegie-inefficace": sub(renderCecUrgencesMenu, renderCecUrgenceCardioplegieInefficace),
-  "#/cec-urgences/decanulation-veineuse": sub(renderCecUrgencesMenu, renderCecUrgenceDecanulationVeineuseAccidentelle),
-  "#/cec-urgences/dissection-aortique-canulation": sub(renderCecUrgencesMenu, renderCecUrgenceDissectionAortiqueSurLaCanulation),
-  "#/cec-urgences/changement-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceChangementCircuitCEC),
-  "#/cec-urgences/entree-air-oxygenateur": sub(renderCecUrgencesMenu, renderCecUrgenceEntreeAirOxygenateur),
-  "#/cec-urgences/embolie-gazeuse-massive": sub(renderCecUrgencesMenu, renderCecUrgenceEmbolieGazeuseMassive),
-  "#/cec-urgences/thrombose-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceThromboseDeCircuit),
-  "#/cec-urgences/sevrage-difficile": sub(renderCecUrgencesMenu, renderCecUrgenceSevrageCecDifficile),
-  "#/cec-procedures": renderCecProcedures,
+ // ---------------------------
+// CEC
+// ---------------------------
+"#/cec": renderCEC,
+
+// Protocoles : sous-page + page résultat
+"#/cec-protocoles": sub(renderCEC, renderCecProtocoles),
+"#/cec-protocoles-result": sub(renderCecProtocoles, renderCecProtocolesResult),
+
+// Urgences : menu + sous-pages (inchangé)
+"#/cec-urgences": sub(renderCEC, renderCecUrgencesMenu),
+"#/cec-urgences/hypotension": sub(renderCecUrgencesMenu, renderCecUrgenceHypotension),
+"#/cec-urgences/retour-veineux": sub(renderCecUrgencesMenu, renderCecUrgenceRetourVeineux),
+"#/cec-urgences/resistance-heparine": sub(renderCecUrgencesMenu, renderCecUrgenceResistanceHeparine),
+"#/cec-urgences/cardioplegie-inefficace": sub(renderCecUrgencesMenu, renderCecUrgenceCardioplegieInefficace),
+"#/cec-urgences/decanulation-veineuse": sub(renderCecUrgencesMenu, renderCecUrgenceDecanulationVeineuseAccidentelle),
+"#/cec-urgences/dissection-aortique-canulation": sub(renderCecUrgencesMenu, renderCecUrgenceDissectionAortiqueSurLaCanulation),
+"#/cec-urgences/changement-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceChangementCircuitCEC),
+"#/cec-urgences/entree-air-oxygenateur": sub(renderCecUrgencesMenu, renderCecUrgenceEntreeAirOxygenateur),
+"#/cec-urgences/embolie-gazeuse-massive": sub(renderCecUrgencesMenu, renderCecUrgenceEmbolieGazeuseMassive),
+"#/cec-urgences/thrombose-circuit": sub(renderCecUrgencesMenu, renderCecUrgenceThromboseDeCircuit),
+"#/cec-urgences/sevrage-difficile": sub(renderCecUrgencesMenu, renderCecUrgenceSevrageCecDifficile),
+
+// Procédures spécifiques : menu conservé
+"#/cec-procedures": sub(renderCEC, renderCecProcedures),
 
   "#/enseignement": renderEnseignement,
   "#/bibliographie": renderBibliographie,
