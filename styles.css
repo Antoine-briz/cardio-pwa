@@ -8337,3 +8337,212 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
   color: #7a0c0c !important;
   font-weight: 400 !important;
 }
+
+/* =========================================================
+   CEC — VERSION SMARTPHONE
+   ========================================================= */
+
+@media (max-width: 900px){
+
+/* ---------------------------------------------------------
+   MENU CEC
+--------------------------------------------------------- */
+
+.cec-page{
+  padding: 14px;
+}
+
+.cec-content{
+  display:block;
+}
+
+.cec-side{
+  display:none;
+}
+
+.cec-title-img{
+  width:100%;
+  height:auto;
+  border-radius:14px;
+}
+
+.cec-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.cec-proto-btn{
+  width:100%;
+  margin-bottom:10px;
+}
+
+/* ---------------------------------------------------------
+   BOITE SCHEMA CEC
+--------------------------------------------------------- */
+
+.cec-box{
+  margin-top:16px;
+  padding:14px;
+  border-radius:14px;
+  background:var(--card-bg);
+  border:1px solid var(--border);
+}
+
+.cec-thumb{
+  width:100%;
+  height:auto;
+  border-radius:10px;
+}
+
+.cec-thumb-hint{
+  font-size:13px;
+  margin-top:6px;
+  opacity:.7;
+}
+
+
+/* ---------------------------------------------------------
+   PAGE PROTOCOLES CEC
+--------------------------------------------------------- */
+
+.cec-proto-page{
+  padding:14px;
+}
+
+.cec-proto-title{
+  font-size:26px;
+  font-weight:800;
+  text-align:center;
+}
+
+.cec-proto-stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-top:10px;
+}
+
+/* cartes */
+
+.cec-card-compact{
+  padding:14px;
+}
+
+/* ---------------------------------------------------------
+   LIGNES CARACTERISTIQUES
+--------------------------------------------------------- */
+
+.cec-line{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:12px;
+}
+
+.cec-line-fields{
+  display:flex;
+  gap:10px;
+}
+
+.cec-inline-field{
+  display:flex;
+  flex-direction:column;
+  font-size:14px;
+}
+
+.cec-inline-field input{
+  width:90px;
+}
+
+.cec-line-checks{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.cec-tsa-wrap{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:4px;
+}
+
+/* ---------------------------------------------------------
+   TABLEAU RESULTAT
+--------------------------------------------------------- */
+
+.cec-preview-mobile{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.cec-preview-mobile .cec-proto-table{
+  min-width:720px;
+}
+
+/* ---------------------------------------------------------
+   TITRES COLONNES GAUCHE
+--------------------------------------------------------- */
+
+.cec-cell-title{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.cec-title-main{
+  font-weight:700;
+}
+
+.cec-title-cf{
+  font-size:13px;
+}
+
+/* ---------------------------------------------------------
+   LIENS IMAGE "Cf ..."
+--------------------------------------------------------- */
+
+.cec-imglink{
+  background:none;
+  border:none;
+  color:#2b6cb0;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
+
+.cec-imglink:hover{
+  text-decoration:underline;
+}
+
+/* ---------------------------------------------------------
+   BOITE CALIBRE (FR)
+--------------------------------------------------------- */
+
+.cec-frbox{
+  display:inline-block;
+  min-width:42px;
+  padding:2px 6px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  text-align:center;
+}
+
+/* ---------------------------------------------------------
+   COULEURS VARIABLES
+--------------------------------------------------------- */
+
+.cec-var-word{
+  color:#1f4fa3;
+  font-weight:600;
+}
+
+.cec-var-num{
+  color:#b00020;
+  font-weight:400;
+}
+
+}
