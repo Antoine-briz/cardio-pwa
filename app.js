@@ -18912,15 +18912,18 @@ function renderEtoBibliotheque() {
 // -------------------------------------------------
 // 1) Page menu CEC
 // -------------------------------------------------
+
 function renderCEC() {
   $app.innerHTML = `
-    <section class="cec-page">
+    <section class="cec-page cec-page-mobile">
 
-      <div class="cec-title-strip">
-        <img src="img/titre5.png" alt="CEC" class="cec-title-img">
+      <!-- ✅ Image en haut (mobile-friendly) -->
+      <div class="cec-urgences-top">
+        <img src="img/cec1.png" alt="Circulation extra-corporelle" class="cec-urgences-img">
       </div>
 
-      <div class="cec-content">
+      <!-- ✅ Version smartphone : pas d'image à droite -->
+      <div class="cec-content cec-content-mobile">
 
         <div class="cec-main">
 
@@ -18939,7 +18942,7 @@ function renderCEC() {
             </button>
           </div>
 
-<div class="cec-box">
+          <div class="cec-box">
             <div class="cec-box-title">Schéma de la CEC</div>
             <button class="cec-thumb-btn" type="button"
                     onclick="openImageLightbox('img/schemaCEC.png','Schéma de la CEC')"
@@ -18948,13 +18951,8 @@ function renderCEC() {
               <div class="cec-thumb-hint">Cliquer pour agrandir</div>
             </button>
           </div>
-          </div>
 
-
-        <aside class="cec-side">
-          <img src="img/cec1.png" alt="Circulation extra-corporelle">
-        </aside>
-
+        </div>
       </div>
     </section>
   `;
