@@ -20506,90 +20506,89 @@ if (s.gestes[1] === undefined && s.gestes[2]) s.gestes[1] = "";
         <div class="cec-proto-title">Protocoles de CEC</div>
       </div>
 
-      <div class="cec-proto-grid">
-        <div class="cec-left">
-          <div class="info-card cec-card-compact">
-            <h3>Choix de l’intervention</h3>
+      <div class="cec-proto-stack">
 
-            <div id="cec-gestures-wrap">
-              ${gestureBlockHtml(0)}
-              ${s.gestes[1] !== undefined ? gestureBlockHtml(1) : ""}
-              ${s.gestes[2] !== undefined ? gestureBlockHtml(2) : ""}
-            </div>
+  <div class="info-card cec-card-compact cec-card-intervention">
+    <h3>Choix de l’intervention</h3>
 
-            <!-- ✅ Vidéo-thoraco MITRALE : affichée seulement si mitrale sélectionnée -->
-            <div id="cec-video-mitrale-line" class="cec-video-line" style="display:none;">
-              <label>
-                <input type="checkbox" id="cec-video-mitrale">
-                Vidéo-thoracoscopie
-              </label>
-            </div>
+    <div id="cec-gestures-wrap">
+      ${gestureBlockHtml(0)}
+      ${s.gestes[1] !== undefined ? gestureBlockHtml(1) : ""}
+      ${s.gestes[2] !== undefined ? gestureBlockHtml(2) : ""}
+    </div>
 
-            <button class="btn cec-add-gesture" type="button" id="cec-add-gesture">
-              + Ajouter un geste
-            </button>
-          </div>
+    <!-- ✅ Vidéo-thoraco MITRALE : affichée seulement si mitrale sélectionnée -->
+    <div id="cec-video-mitrale-line" class="cec-video-line" style="display:none;">
+      <label>
+        <input type="checkbox" id="cec-video-mitrale">
+        Vidéo-thoracoscopie
+      </label>
+    </div>
 
-          <div class="info-card cec-card-compact">
-            <h3>Caractéristiques</h3>
+    <button class="btn cec-add-gesture" type="button" id="cec-add-gesture">
+      + Ajouter un geste
+    </button>
+  </div>
 
-            <div class="cec-line">
-              <div class="cec-line-label"><strong>Patient :</strong></div>
-              <div class="cec-line-fields">
-                <label class="cec-inline-field">
-                  <span>Poids</span>
-                  <input id="cec-poids" inputmode="decimal" placeholder="kg"
-                         value="${escapeHtml(s.poidsKg || "")}">
-                </label>
-                <label class="cec-inline-field">
-                  <span>Taille</span>
-                  <input id="cec-taille" inputmode="numeric" placeholder="cm"
-                         value="${escapeHtml(s.tailleCm || "")}">
-                </label>
-              </div>
-            </div>
+  <div class="info-card cec-card-compact cec-card-caracs">
+    <h3>Caractéristiques</h3>
 
-            <div class="cec-line">
-              <div class="cec-line-label"><strong>Cœur :</strong></div>
-              <div class="cec-line-checks">
-                <label><input type="checkbox" id="cec-fevg35"> FEVG &lt; 35%</label>
-                <label><input type="checkbox" id="cec-hvg"> HVG</label>
-                <label><input type="checkbox" id="cec-ia"> IA</label>
-                <label><input type="checkbox" id="cec-stenose"> Sténose coronaire serrée</label>
-              </div>
-            </div>
+    <div class="cec-line">
+      <div class="cec-line-label"><strong>Patient :</strong></div>
+      <div class="cec-line-fields">
+        <label class="cec-inline-field">
+          <span>Poids</span>
+          <input id="cec-poids" inputmode="decimal" placeholder="kg"
+                 value="${escapeHtml(s.poidsKg || "")}">
+        </label>
+        <label class="cec-inline-field">
+          <span>Taille</span>
+          <input id="cec-taille" inputmode="numeric" placeholder="cm"
+                 value="${escapeHtml(s.tailleCm || "")}">
+        </label>
+      </div>
+    </div>
 
-            <div class="cec-line">
-              <div class="cec-line-label"><strong>Chirurgie :</strong></div>
-              <div class="cec-line-checks">
-                <label><input type="checkbox" id="cec-sterno"> Sternotomie à risque</label>
-                <label><input type="checkbox" id="cec-clamp90"> Clampage &gt; 90 min</label>
-              </div>
-            </div>
+    <div class="cec-line">
+      <div class="cec-line-label"><strong>Cœur :</strong></div>
+      <div class="cec-line-checks">
+        <label><input type="checkbox" id="cec-fevg35"> FEVG &lt; 35%</label>
+        <label><input type="checkbox" id="cec-hvg"> HVG</label>
+        <label><input type="checkbox" id="cec-ia"> IA</label>
+        <label><input type="checkbox" id="cec-stenose"> Sténose coronaire serrée</label>
+      </div>
+    </div>
 
-            <div class="cec-line" id="cec-dissection-line" style="display:none;">
-              <div class="cec-line-label"><strong>Dissection aortique :</strong></div>
-              <div class="cec-line-checks">
-                <label><input type="checkbox" id="cec-instabilite"> Instabilité hémodynamique majeure</label>
-                <label><input type="checkbox" id="cec-tsa-diss"> TSA disséqués</label>
+    <div class="cec-line">
+      <div class="cec-line-label"><strong>Chirurgie :</strong></div>
+      <div class="cec-line-checks">
+        <label><input type="checkbox" id="cec-sterno"> Sternotomie à risque</label>
+        <label><input type="checkbox" id="cec-clamp90"> Clampage &gt; 90 min</label>
+      </div>
+    </div>
 
-                <span id="cec-tsa-wrap" class="cec-tsa-wrap" style="display:none;">
-                  <label><input type="checkbox" id="cec-tsa-scd"> SCD</label>
-                  <label><input type="checkbox" id="cec-tsa-cd"> CD</label>
-                  <label><input type="checkbox" id="cec-tsa-cg"> CG</label>
-                  <label><input type="checkbox" id="cec-tsa-scg"> SCG</label>
-                </span>
-              </div>
-            </div>
+    <div class="cec-line" id="cec-dissection-line" style="display:none;">
+      <div class="cec-line-label"><strong>Dissection aortique :</strong></div>
+      <div class="cec-line-checks">
+        <label><input type="checkbox" id="cec-instabilite"> Instabilité hémodynamique majeure</label>
+        <label><input type="checkbox" id="cec-tsa-diss"> TSA disséqués</label>
 
-          </div>
-        </div>
+        <span id="cec-tsa-wrap" class="cec-tsa-wrap" style="display:none;">
+          <label><input type="checkbox" id="cec-tsa-scd"> SCD</label>
+          <label><input type="checkbox" id="cec-tsa-cd"> CD</label>
+          <label><input type="checkbox" id="cec-tsa-cg"> CG</label>
+          <label><input type="checkbox" id="cec-tsa-scg"> SCG</label>
+        </span>
+      </div>
+    </div>
 
-        <div class="cec-right">
-          <div class="info-card cec-preview-card">
-            <div id="cec-preview"></div>
-          </div>
-        </div>
+  </div>
+
+  <!-- ✅ Résultat en dessous + scroll horizontal -->
+  <div class="info-card cec-preview-card cec-preview-mobile">
+    <div id="cec-preview"></div>
+  </div>
+</div>
       </div>
     </section>
   `;
