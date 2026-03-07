@@ -18915,18 +18915,16 @@ function renderEtoBibliotheque() {
 
 function renderCEC() {
   $app.innerHTML = `
-    <section class="intervention-shell">
+    <section class="intervention-shell cec-menu-mobile">
 
-      <!-- Image en haut comme les autres menus -->
       <div class="hero-image">
         <img src="img/cec1.png" alt="Circulation extracorporelle">
       </div>
 
       <div class="intervention-main">
 
-        <div class="grid">
-
-          <button class="btn cec-btn-blue" 
+        <div class="grid cec-menu-grid">
+          <button class="btn cec-btn-blue"
                   onclick="location.hash = '#/cec-protocoles'">
             Protocoles CEC
           </button>
@@ -18940,28 +18938,20 @@ function renderCEC() {
                   onclick="location.hash = '#/cec-urgences'">
             Situations d'urgences CEC
           </button>
-
         </div>
 
         <div class="cec-box">
           <div class="cec-box-title">Schéma de la CEC</div>
 
-          <button class="cec-thumb-btn"
-                  onclick="openImageLightbox('img/schemaCEC.png','Schéma de la CEC')">
-
-            <img src="img/schemaCEC.png"
-                 alt="Schéma de la CEC"
-                 class="cec-thumb">
-
-            <div class="cec-thumb-hint">
-              Cliquer pour agrandir
-            </div>
-
+          <button class="cec-thumb-btn" type="button"
+                  onclick="openImageLightbox('img/schemaCEC.png','Schéma de la CEC')"
+                  aria-label="Ouvrir le schéma de la CEC">
+            <img src="img/schemaCEC.png" alt="Schéma de la CEC" class="cec-thumb">
+            <div class="cec-thumb-hint">Cliquer pour agrandir</div>
           </button>
         </div>
 
       </div>
-
     </section>
   `;
 
