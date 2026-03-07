@@ -8546,3 +8546,215 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
 }
 
 }
+
+/* =========================================================
+   CEC — FIX SMARTPHONE
+   ========================================================= */
+@media (max-width: 900px){
+
+  /* ----- Menu CEC ----- */
+  .cec-page-mobile .cec-content-mobile{
+    display:block !important;
+  }
+
+  .cec-page-mobile .cec-main{
+    width:100%;
+  }
+
+  .cec-page-mobile .cec-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px !important;
+    margin-top:16px;
+  }
+
+  .cec-page-mobile .cec-proto-btn,
+  .cec-page-mobile .cec-grid .btn{
+    width:100%;
+    min-height:82px;
+    padding:20px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:1.05rem;
+    font-weight:800;
+    border-radius:22px;
+    margin:0 !important;
+  }
+
+  .cec-page-mobile .cec-box{
+    margin-top:22px;
+  }
+
+  /* ----- Lightbox image : toujours au-dessus ----- */
+  .img-lightbox-overlay{
+    position:fixed !important;
+    inset:0 !important;
+    z-index:99999 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    background:rgba(0,0,0,.82) !important;
+    padding:16px !important;
+  }
+
+  .img-lightbox-modal{
+    position:relative;
+    max-width:96vw;
+    max-height:92vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .img-lightbox-img{
+    display:block;
+    max-width:96vw;
+    max-height:88vh;
+    width:auto;
+    height:auto;
+    border-radius:14px;
+  }
+
+  .img-lightbox-close{
+    position:absolute;
+    top:-10px;
+    right:-10px;
+    z-index:2;
+  }
+
+  /* ----- Protocoles CEC : layout 1 colonne ----- */
+  .cec-proto-page{
+    padding:12px !important;
+  }
+
+  .cec-proto-title{
+    font-size:2rem !important;
+    line-height:1.05;
+    margin:0;
+  }
+
+  .cec-proto-stack{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-top:10px;
+  }
+
+  .cec-card-compact{
+    padding:12px !important;
+  }
+
+  /* ----- Carte Choix intervention ----- */
+  .cec-gesture{
+    padding:10px;
+    margin-bottom:8px;
+  }
+
+  .cec-gesture-row{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .cec-select{
+    min-height:46px;
+    font-size:16px;
+  }
+
+  /* ----- Carte Caractéristiques : compacte ----- */
+  .cec-card-caracs .cec-line{
+    display:grid !important;
+    grid-template-columns:78px 1fr !important;
+    gap:8px 10px !important;
+    align-items:start !important;
+    padding:8px 0 !important;
+    margin:0 !important;
+  }
+
+  .cec-card-caracs .cec-line-label{
+    width:auto !important;
+    flex:none !important;
+    padding-top:6px;
+  }
+
+  .cec-card-caracs .cec-line-fields{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:8px 10px !important;
+    align-items:center !important;
+  }
+
+  .cec-card-caracs .cec-inline-field{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:6px !important;
+  }
+
+  .cec-card-caracs .cec-inline-field span{
+    font-size:.92rem;
+  }
+
+  .cec-card-caracs .cec-inline-field input{
+    width:74px !important;
+    min-height:38px;
+    padding:6px 8px;
+  }
+
+  .cec-card-caracs .cec-line-checks{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:8px 12px !important;
+    align-items:center !important;
+  }
+
+  .cec-card-caracs .cec-line-checks label{
+    white-space:normal !important;
+    line-height:1.2;
+    font-size:.96rem;
+  }
+
+  .cec-card-caracs .cec-tsa-wrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 10px;
+    margin-top:4px;
+  }
+
+  /* ----- Tableau résultat visible + scroll horizontal ----- */
+  .cec-preview-mobile{
+    overflow:visible !important;
+  }
+
+  .cec-preview-mobile #cec-preview{
+    width:100%;
+    min-width:0;
+  }
+
+  .cec-preview-mobile .cec-proto-table-wrap{
+    width:100%;
+    overflow-x:auto !important;
+    overflow-y:visible !important;
+    -webkit-overflow-scrolling:touch;
+    border-radius:14px;
+  }
+
+  .cec-preview-mobile .cec-proto-table{
+    min-width:760px !important;
+    width:760px !important;
+    table-layout:auto !important;
+  }
+
+  .cec-preview-mobile .cec-proto-table th,
+  .cec-preview-mobile .cec-proto-table td{
+    white-space:normal !important;
+  }
+
+  .cec-preview-mobile .cec-td-title{
+    width:190px !important;
+  }
+}
+
+
