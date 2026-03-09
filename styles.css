@@ -8957,3 +8957,55 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
     font-size: .86rem !important;
   }
 }
+
+/* =========================================================
+   CEC — Encadré Caractéristiques identique desktop
+   avec scroll horizontal sur smartphone
+   ========================================================= */
+
+@media (max-width: 900px){
+
+  .cec-card-caracs{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* chaque ligne garde la structure desktop */
+  .cec-card-caracs .cec-line{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center;
+    gap:14px;
+    min-width:720px; /* force le scroll horizontal */
+  }
+
+  .cec-card-caracs .cec-line-label{
+    width:120px;
+    flex:0 0 120px;
+    font-weight:700;
+  }
+
+  .cec-card-caracs .cec-line-fields{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  .cec-card-caracs .cec-inline-field{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .cec-card-caracs .cec-line-checks{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:nowrap;
+  }
+
+  .cec-card-caracs .cec-line-checks label{
+    white-space:nowrap;
+  }
+
+}
