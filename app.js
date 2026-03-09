@@ -25834,6 +25834,8 @@ function initHomeQuickAccessMobile() {
     { label: "Adaptation rénale des antibiotiques", route: "#/reanimation/antibiotherapie/fonction-renale" },
     { label: "Calcul CVVH", route: "#/reanimation/eer/post-op" },
     { label: "Calcul EP", route: "#/reanimation/eer/echanges-plasmatiques" },
+      { label: "Protocoles CEC", route: "#/cec-protocoles" },
+  { label: "Urgences CEC", route: "#/cec-urgences" },
   ];
 
   menu.innerHTML = items
