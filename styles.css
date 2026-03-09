@@ -9033,3 +9033,101 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
 .img-lightbox-close:hover{
   background:rgba(0,0,0,0.9);
 }
+
+/* =========================================================
+   CEC — LIGHTBOX IMAGES (force superposition au-dessus de tout)
+   À placer TOUT EN BAS du fichier
+   ========================================================= */
+
+/* overlay créé par openImageLightbox() */
+#img-lightbox-overlay,
+.img-lightbox-overlay{
+  position: fixed !important;
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 16px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: rgba(0,0,0,0.82) !important;
+  z-index: 2147483647 !important;   /* au-dessus du footer, header, etc. */
+}
+
+/* fenêtre centrale */
+#img-lightbox-overlay .img-lightbox-modal,
+.img-lightbox-overlay .img-lightbox-modal{
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  max-width: 96vw !important;
+  max-height: 92vh !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* image affichée */
+#img-lightbox-overlay .img-lightbox-img,
+.img-lightbox-overlay .img-lightbox-img{
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 96vw !important;
+  max-height: 88vh !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+  background: #fff !important;
+}
+
+/* petite croix en haut à droite */
+#img-lightbox-overlay .img-lightbox-close,
+.img-lightbox-overlay .img-lightbox-close{
+  position: absolute !important;
+  top: -10px !important;
+  right: -10px !important;
+
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: none !important;
+  border-radius: 999px !important;
+  background: rgba(0,0,0,0.82) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  z-index: 2 !important;
+}
+
+/* sécurité : on évite les styles génériques de .btn sur ce bouton */
+#img-lightbox-overlay .btn.img-lightbox-close,
+.img-lightbox-overlay .btn.img-lightbox-close{
+  background: rgba(0,0,0,0.82) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  flex: 0 0 auto !important;
+}
