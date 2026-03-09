@@ -9009,3 +9009,27 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
   }
 
 }
+/* =========================================================
+   CEC — bouton fermeture image (petite croix)
+   ========================================================= */
+
+.img-lightbox-close{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:none;
+  background:rgba(0,0,0,0.7);
+  color:#fff;
+  font-size:18px;
+  line-height:28px;
+  text-align:center;
+  cursor:pointer;
+  padding:0;
+}
+
+.img-lightbox-close:hover{
+  background:rgba(0,0,0,0.9);
+}
