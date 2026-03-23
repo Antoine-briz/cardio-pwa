@@ -20621,10 +20621,9 @@ $app.innerHTML = `
     }
   }
 
-  function toggleDissectionLine(){
-    const disLine = document.getElementById("cec-dissection-line");
-    disLine.style.display = cecIsDissectionSelected() ? "" : "none";
-  }
+  function cecIsDissectionSelected(){
+  return (s.gestes || []).filter(Boolean).includes("dissection");
+}
 
   function updatePreview(){
     ensureNoDuplicateValues();
