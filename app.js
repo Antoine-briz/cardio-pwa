@@ -20402,9 +20402,8 @@ function cecLevel1FromValue(v){
   return "";
 }
 
-function toggleDissectionLine(){
-  const disLine = document.getElementById("cec-dissection-line");
-  disLine.style.display = cecIsDissectionSelected() ? "" : "none";
+function cecIsDissectionSelected(){
+  return (s.gestes || []).filter(Boolean).includes("dissection");
 }
 
 function renderCecProtocoles() {
