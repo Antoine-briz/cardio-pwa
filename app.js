@@ -18915,44 +18915,42 @@ function renderEtoBibliotheque() {
 
 function renderCEC() {
   $app.innerHTML = `
-    <section class="cec-page cec-page-mobile">
+    <section class="intervention-shell cec-menu-mobile">
 
-      <!-- ✅ Image en haut (mobile-friendly) -->
-      <div class="cec-urgences-top">
-        <img src="img/cec1.png" alt="Circulation extra-corporelle" class="cec-urgences-img">
+      <div class="hero-image">
+        <img src="img/cec1.png" alt="Circulation extracorporelle">
       </div>
 
-      <!-- ✅ Version smartphone : pas d'image à droite -->
-      <div class="cec-content cec-content-mobile">
+      <div class="intervention-main">
 
-        <div class="cec-main">
-
-          <button class="btn cec-btn-blue cec-proto-btn" type="button"
+        <div class="grid cec-menu-grid">
+          <button class="btn cec-btn-blue"
                   onclick="location.hash = '#/cec-protocoles'">
             Protocoles CEC
           </button>
 
-          <div class="cec-grid">
-            <button class="btn" onclick="location.hash = '#/cec-procedures'">
-              Procédures spécifiques
-            </button>
+          <button class="btn"
+                  onclick="location.hash = '#/cec-procedures'">
+            Procédures spécifiques
+          </button>
 
-            <button class="btn btn-red" onclick="location.hash = '#/cec-urgences'">
-              Situations d'urgences CEC
-            </button>
-          </div>
-
-          <div class="cec-box">
-            <div class="cec-box-title">Schéma de la CEC</div>
-            <button class="cec-thumb-btn" type="button"
-                    onclick="openImageLightbox('img/schemaCEC.png','Schéma de la CEC')"
-                    aria-label="Ouvrir le schéma de la CEC">
-              <img src="img/schemaCEC.png" alt="Schéma de la CEC" class="cec-thumb">
-              <div class="cec-thumb-hint">Cliquer pour agrandir</div>
-            </button>
-          </div>
-
+          <button class="btn btn-red"
+                  onclick="location.hash = '#/cec-urgences'">
+            Situations d'urgences CEC
+          </button>
         </div>
+
+        <div class="cec-box">
+          <div class="cec-box-title">Schéma de la CEC</div>
+
+          <button class="cec-thumb-btn" type="button"
+                  onclick="openImageLightbox('img/schemaCEC.png','Schéma de la CEC')"
+                  aria-label="Ouvrir le schéma de la CEC">
+            <img src="img/schemaCEC.png" alt="Schéma de la CEC" class="cec-thumb">
+            <div class="cec-thumb-hint">Cliquer pour agrandir</div>
+          </button>
+        </div>
+
       </div>
     </section>
   `;
@@ -19849,36 +19847,6 @@ function cecPickProtocol(gestes, s){
 // 10) Rendu protocole depuis table PPT — STYLE + objectifs rowspan + calculs objectifs
 // -------------------------------------------------
 
-function cecRenderCfLine(line){
-  // IMPORTANT : on enlève aussi les tags [BLUE]/[ORANGE]/[RED] (comme dans l’autre version)
-  const clean = String(line || "")
-    .replace(/^\[(BLUE|ORANGE|RED)\]/g, "")
-    .trim();
-
-  // Lignes normales : escapeHtml puis conversion des tokens [[FRBOX]] et [[B]]
-  if (!/^Cf\s+/i.test(clean)) {
-    return cecApplySafeMarkup(escapeHtml(clean));
-  }
-
-  const file = CEC_CF_MAP[clean];
-  if (!file) return `<span class="cec-cf-missing">${escapeHtml(clean)}</span>`;
-
-  return `
-    <button class="cec-imglink" type="button"
-      onclick="openImageLightbox('img/${escapeHtml(file)}','${escapeHtml(clean)}')">
-      <span>${escapeHtml(clean)}</span>
-      <span class="cec-img-ico" aria-hidden="true">🖼️</span>
-    </button>
-  `;
-}
-
-function cecNl2brHtml(s){
-  return String(s || "")
-    .split("\n")
-    .map(l => cecRenderCfLine(l.trim()))
-    .join("<br>");
-}
-
 function cecRenderTitleCell(col0){
   const lines = String(col0 || "").split("\n").map(x => x.trim()).filter(Boolean);
   const main = lines[0] || "";
@@ -20434,8 +20402,9 @@ function cecLevel1FromValue(v){
   return "";
 }
 
-function cecIsDissectionSelected(){
-  return (window.__cecState.gestes || []).filter(Boolean).includes("dissection");
+function toggleDissectionLine(){
+  const disLine = document.getElementById("cec-dissection-line");
+  disLine.style.display = cecIsDissectionSelected() ? "" : "none";
 }
 
 function renderCecProtocoles() {
@@ -20653,10 +20622,9 @@ $app.innerHTML = `
     }
   }
 
-  function toggleDissectionLine(){
-    const disLine = document.getElementById("cec-dissection-line");
-    disLine.style.display = cecIsDissectionSelected() ? "" : "none";
-  }
+  function cecIsDissectionSelected(){
+  return (s.gestes || []).filter(Boolean).includes("dissection");
+}
 
   function updatePreview(){
     ensureNoDuplicateValues();
@@ -25666,8 +25634,8 @@ const SEARCH_PAGES = [
   ["#/reanimation/assistances/lvad","LVAD","lvad"],
   ["#/reanimation/assistances/cardio-west","CardioWest","cardiowest"],
 
-  ["#/cec-protocoles","Protocoles de CEC","cec protocole"],
-  ["#/cec-urgences","Situations d'urgence","urgence cec"],
+  ["#/cec-protocoles","Protocoles","CEC", "canulation", "cardioplégie", "DO2"],
+  ["#/cec-urgences","Situations", "urgence","CEC"],
   ["#/cec-procedures","Procédures spécifiques","procedure cec"],
   ["#/cec-urgences/hypotension","Hypotension artérielle per CEC","hypotension"],
   ["#/cec-urgences/retour-veineux","Retour veineux insuffisant","retour veineux"],
@@ -25866,6 +25834,8 @@ function initHomeQuickAccessMobile() {
     { label: "Adaptation rénale des antibiotiques", route: "#/reanimation/antibiotherapie/fonction-renale" },
     { label: "Calcul CVVH", route: "#/reanimation/eer/post-op" },
     { label: "Calcul EP", route: "#/reanimation/eer/echanges-plasmatiques" },
+      { label: "Protocoles CEC", route: "#/cec-protocoles" },
+  { label: "Urgences CEC", route: "#/cec-urgences" },
   ];
 
   menu.innerHTML = items
