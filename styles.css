@@ -9131,3 +9131,53 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
   box-shadow: none !important;
   flex: 0 0 auto !important;
 }
+
+/* =========================================================
+   CEC smartphone — champs clairs en thème sombre
+   ========================================================= */
+@media (max-width: 900px){
+  body:not(.theme-light) .cec-card-caracs input,
+  body:not(.theme-light) .cec-card-caracs select,
+  body:not(.theme-light) .cec-card-caracs textarea{
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  body:not(.theme-light) .cec-card-caracs input::placeholder,
+  body:not(.theme-light) .cec-card-caracs textarea::placeholder{
+    color: #64748b !important;
+  }
+
+  body:not(.theme-light) .cec-card-caracs option{
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+/* =========================================================
+   CEC — colonne gauche toujours alignée à gauche
+   ========================================================= */
+.cec-td-title{
+  text-align: left !important;
+  vertical-align: middle !important;
+}
+
+.cec-cell-title,
+.cec-title-main,
+.cec-title-cf,
+.cec-title-cf-inline{
+  text-align: left !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+.cec-cell-title-inline{
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
+.cec-td-title *{
+  text-align: left !important;
+}
