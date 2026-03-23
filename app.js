@@ -20562,18 +20562,24 @@ $app.innerHTML = `
   // ----------------------------
   // Helpers visibilité
   // ----------------------------
-  function cecIsDissectionSelected(){
-    return (s.gestes || []).filter(Boolean).includes("dissection");
-  }
+function cecIsDissectionSelected(){
+  return (s.gestes || []).filter(Boolean).includes("dissection");
+}
 
-  // Vidéo-thoraco : seulement si mitrale (plastie/rvm) sélectionnée
-  const videoLine = document.getElementById("cec-video-mitrale-line");
-  const videoChk  = document.getElementById("cec-video-mitrale");
+// Vidéo-thoraco : seulement si mitrale (plastie/rvm) sélectionnée
+const videoLine = document.getElementById("cec-video-mitrale-line");
+const videoChk  = document.getElementById("cec-video-mitrale");
 
-  function hasMitraleSelected(){
-    const g = (s.gestes || []).filter(Boolean);
-    return g.includes("plastie_mitrale") || g.includes("rvm");
-  }
+function hasMitraleSelected(){
+  const g = (s.gestes || []).filter(Boolean);
+  return g.includes("plastie_mitrale") || g.includes("rvm");
+}
+
+function toggleDissectionLine(){
+  const disLine = document.getElementById("cec-dissection-line");
+  if (!disLine) return;
+  disLine.style.display = cecIsDissectionSelected() ? "" : "none";
+}
 
   function toggleVideoThoracoLine(){
     const show = hasMitraleSelected();
