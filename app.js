@@ -10399,6 +10399,7 @@ function renderInterventionDissectionAo() {
           <li>Contrôle FC 50–65/min (Esmolol ou Landiolol)</li>
           <li>Contrôle PAS 110–120 mmHg (Urapidil ou Nicardipine)</li>
         </ul>
+        <p><strong>Prélever bilan complet: NFS-Pl, TP, TCA, Gpe-RAI, iono, BHC, GdS-lact</strong></p>
         <p><strong>Précommande large de PSL</strong></p>
       `,
     },
