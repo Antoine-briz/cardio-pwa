@@ -3063,7 +3063,15 @@ function renderInterventionAorteThoracique() {
       `<br>` +
       `<strong>Hémostase: </strong><br>` +
       `- Héparine <strong>${uiKg(50)}</strong>, pas de monitorage de l’ACT. Antagonisation par Protamine en ratio 1/1 si &lt; 2h (½ dose 2-4h, 0 &gt; 4h)<br>` +
-      `- Transfusion guidée par le Quantra ${imgLink("Cf algorithme Quantra", "cf-algorithme-quantra.png")}`
+      `- Transfusion guidée par le Quantra ${imgLink("Cf algorithme Quantra", "cf-algorithme-quantra.png")}<br>` +
+      `<br>` +
+      `<strong>Objectifs tensionnels:</strong><br>` +
+      `- PAS 100 mmHg avant clampage<br>` +
+      `- PAS &lt; 130 mmHg per-clampage<br>` +
+      `- Au déclampage: 150-170 mmHg pour TC, AMS et ARD, 120-130 mmHg pour ARG<br>` +
+      `- PAS 140-150 mmHg avant 1ère jambe<br>` +
+      `- PAS 120-130 mmHg avant 2ème jambe<br>` +
+     `${imgLink("Cf objectifs tensionnels chirurgie aortique", "objectifs-tensionnels.png")} ${imgIcon("objectifs-tensionnels.png")}`
     );
   }
 
