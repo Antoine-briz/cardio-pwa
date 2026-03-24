@@ -9181,3 +9181,42 @@ body:not(.light-theme) .cec-proto-page .cec-select option{
 .cec-td-title *{
   text-align: left !important;
 }
+
+/* =========================================================
+   CEC — force alignement gauche des titres colonne gauche
+   ========================================================= */
+.cec-proto-table .cec-td-title{
+  text-align: left !important;
+  vertical-align: middle !important;
+}
+
+.cec-proto-table .cec-cell-title{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.cec-proto-table .cec-cell-title-inline{
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 6px 10px !important;
+}
+
+.cec-proto-table .cec-title-main,
+.cec-proto-table .cec-title-cf,
+.cec-proto-table .cec-title-cf-inline,
+.cec-proto-table .cec-td-title *{
+  text-align: left !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+.cec-proto-table .cec-title-cf-inline{
+  flex-basis: 100%;
+}
