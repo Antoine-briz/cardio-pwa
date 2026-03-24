@@ -21768,7 +21768,7 @@ const norm = (s) => (s ?? "")
 
 <div class="enseignement-categories-wrap">
   <div class="enseignement-categories">
-    <label for="ens-category" class="enseignement-category-label">Catégorie de cours</label>
+    <label for="ens-category" class="enseignement-category-label">Sélectionnez un type de cours: </label>
     <select id="ens-category" class="enseignement-category-select">
       ${COURSE_CATEGORIES.map(cat => `
         <option value="${esc(cat)}" ${cat === "Tous les cours" ? "selected" : ""}>
