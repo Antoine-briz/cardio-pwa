@@ -10972,6 +10972,7 @@ function renderInterventionTAVI() {
           (KTa radial si anesthésie générale ou RA très serré), ± BIS / NIRS,
           ETT/ETO selon l'opérateur.
         </p>
+        <p><strong>Prévoir adrénaline 1mg/mL et 100µg/mL disponibles</p>
         <p><strong>Objectif RA :</strong> Plein, régulier, fermé.</p>
       `,
     },
