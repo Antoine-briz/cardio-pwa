@@ -21766,15 +21766,17 @@ const norm = (s) => (s ?? "")
       </div>
     </div>
 
-<div class="enseignement-categories">
-  <label for="ens-category" class="sr-only">Catégorie de cours</label>
-  <select id="ens-category" class="enseignement-category-select">
-    ${COURSE_CATEGORIES.map(cat => `
-      <option value="${esc(cat)}" ${cat === "Tous les cours" ? "selected" : ""}>
-        ${esc(cat)}
-      </option>
-    `).join("")}
-  </select>
+<div class="enseignement-categories-wrap">
+  <div class="enseignement-categories">
+    <label for="ens-category" class="enseignement-category-label">Catégorie de cours</label>
+    <select id="ens-category" class="enseignement-category-select">
+      ${COURSE_CATEGORIES.map(cat => `
+        <option value="${esc(cat)}" ${cat === "Tous les cours" ? "selected" : ""}>
+          ${esc(cat)}
+        </option>
+      `).join("")}
+    </select>
+  </div>
 </div>
 
     <div class="enseignement-toolbar">
