@@ -11750,7 +11750,7 @@ function renderInterventionAblationDroit() {
         <p>
           <strong>Héparine :</strong>
           généralement non indiquée, poursuite de l’AOD.<br>
-          Si héparine : objectif ACT = 250 s.
+          Si héparine : 80 UI/kg, objectif ACT = 250 s.
         </p>
         <p><strong>ALR :</strong> Aucune.</p>
       `,
@@ -11811,7 +11811,7 @@ function renderInterventionAblationGauche() {
       html: `
         <p id="ablg-induction-text">
           <strong>Induction :</strong>
-          AIVOC Propofol/Sufentanil + Atracurium 0,5 mg/kg.
+          AIVOC Propofol/Rémifentanil + Atracurium/Rocuronium
         </p>
         <p>
           <strong>Héparine</strong> 100 UI/kg (ACT cible 300–350 s).<br>
