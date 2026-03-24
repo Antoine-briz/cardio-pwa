@@ -21563,7 +21563,6 @@ async function ensureEnsAdminCodeOnce() {
   return false;
 }
 
-
 /* =========================
    PAGE ENSEIGNEMENT
 ========================= */
@@ -21586,6 +21585,16 @@ function renderEnseignement() {
     "Infectiologie",
     "Cardiologie",
     "Autre",
+  ];
+
+  const COURSE_CATEGORIES = [
+    "Tous les cours",
+    "Accueil des internes",
+    "Cours hebdo. internes",
+    "Cours aux externes",
+    "Echographie trans-oesophagienne",
+    "Circulation extra-corporelle",
+    "Autres cours",
   ];
 
   // Base API optionnelle (ex: window.ENSEIGNEMENT_API_BASE = "https://tonserveur")
@@ -21656,8 +21665,6 @@ const finalContentType =
   (file.type || "application/octet-stream");
 
 await ref.put(file, { contentType: finalContentType });
-
-
 
     const fileUrl = await ref.getDownloadURL();
 
@@ -21759,6 +21766,17 @@ const norm = (s) => (s ?? "")
       </div>
     </div>
 
+<div class="enseignement-categories">
+  <label for="ens-category" class="sr-only">Catégorie de cours</label>
+  <select id="ens-category" class="enseignement-category-select">
+    ${COURSE_CATEGORIES.map(cat => `
+      <option value="${esc(cat)}" ${cat === "Tous les cours" ? "selected" : ""}>
+        ${esc(cat)}
+      </option>
+    `).join("")}
+  </select>
+</div>
+
     <div class="enseignement-toolbar">
       <input id="ens-search" type="search" placeholder="Rechercher dans les titres…" autocomplete="off" />
       <select id="ens-filter-domain">
@@ -21830,6 +21848,16 @@ const norm = (s) => (s ?? "")
             <select id="ens-form-domain" required></select>
           </label>
 
+          <label>
+            <span>Catégorie</span>
+            <select id="ens-form-category" required>
+              ${COURSE_CATEGORIES
+                .filter(cat => cat !== "Tous les cours")
+                .map(cat => `<option value="${esc(cat)}">${esc(cat)}</option>`)
+                .join("")}
+            </select>
+          </label>
+
           <div class="ens-dropzone" id="ens-dropzone">
             <div class="ens-dropzone-text">
               <strong>Fichier</strong>
@@ -21853,6 +21881,7 @@ const norm = (s) => (s ?? "")
   const $search = document.getElementById("ens-search");
   const $filterDomain = document.getElementById("ens-filter-domain");
   const $filterAuthor = document.getElementById("ens-filter-author");
+  const $category = document.getElementById("ens-category");
   const $tbody = document.getElementById("ens-tbody");
   const $pagination = document.getElementById("ens-pagination");
 
@@ -21862,7 +21891,6 @@ const norm = (s) => (s ?? "")
   const $btnDownload = document.getElementById("ens-download");
   const $btnDownloadAll = document.getElementById("ens-download-all");
 
-
   const $modalBackdrop = document.getElementById("ens-modal-backdrop");
   const $modalTitle = document.getElementById("ens-modal-title");
   const $modalClose = document.getElementById("ens-modal-close");
@@ -21871,6 +21899,7 @@ const norm = (s) => (s ?? "")
   const $formTitle = document.getElementById("ens-form-title");
   const $formAuthor = document.getElementById("ens-form-author");
   const $formDomain = document.getElementById("ens-form-domain");
+  const $formCategory = document.getElementById("ens-form-category");
   const $formFile = document.getElementById("ens-form-file");
   const $dropzone = document.getElementById("ens-dropzone");
   const $fileName = document.getElementById("ens-file-name");
@@ -21903,12 +21932,16 @@ const norm = (s) => (s ?? "")
     const q = norm($search.value || "");
     const domain = $filterDomain.value || "";
     const author = $filterAuthor.value || "";
+    const category = $category?.value || "Tous les cours";
 
     filteredDocs = allDocs.filter(doc => {
       const okTitle = !q || norm(doc.title || "").includes(q);
       const okDomain = !domain || (doc.domain === domain);
       const okAuthor = !author || (doc.author === author);
-      return okTitle && okDomain && okAuthor;
+      const okCategory =
+        category === "Tous les cours" ||
+        ((doc.category || "Autres cours") === category);
+      return okTitle && okDomain && okAuthor && okCategory;
     });
 
     const totalPages = Math.max(1, Math.ceil(filteredDocs.length / PAGE_SIZE));
@@ -21937,7 +21970,6 @@ const norm = (s) => (s ?? "")
     });
   };
 
-  
   const renderTable = () => {
     applyFilters();
 
@@ -22017,6 +22049,7 @@ const norm = (s) => (s ?? "")
     $formTitle.value = doc?.title || "";
     $formAuthor.value = doc?.author || "";
     $formDomain.value = doc?.domain || DOMAINS[0];
+    $formCategory.value = doc?.category || "Autres cours";
     $formFile.value = "";
     $fileName.textContent = "Aucun fichier sélectionné";
     $modalBackdrop.classList.remove("hidden");
@@ -22064,6 +22097,10 @@ const norm = (s) => (s ?? "")
   $search.addEventListener("input", () => { currentPage = 1; renderTable(); });
   $filterDomain.addEventListener("change", () => { currentPage = 1; renderTable(); });
   $filterAuthor.addEventListener("change", () => { currentPage = 1; renderTable(); });
+  $category?.addEventListener("change", () => {
+    currentPage = 1;
+    renderTable();
+  });
 
 $btnAdd.addEventListener("click", async () => {
   if (!(await ensureEnsAdminCodeOnce())) return;
@@ -22105,7 +22142,6 @@ $btnDelete.addEventListener("click", async () => {
     alert("Erreur : suppression impossible.");
   }
 });
-
 
   $btnDownload.addEventListener("click", async () => {
   if (selectedIds.size === 0) return;
@@ -22149,16 +22185,15 @@ $btnDelete.addEventListener("click", async () => {
   }
 });
 
-
 // Save add/edit (Firebase)
 $form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
 
   const id = ($formId.value || "").trim();
   const title = ($formTitle.value || "").trim();
   const author = ($formAuthor.value || "").trim();
   const domain = ($formDomain.value || "").trim();
+  const category = ($formCategory.value || "").trim() || "Autres cours";
   const file = $formFile.files?.[0] || null;
 
   try {
@@ -22172,6 +22207,7 @@ $form.addEventListener("submit", async (e) => {
         title,
         author,
         domain,
+        category,
         addedAt: firebase.firestore.FieldValue.serverTimestamp(),
         fileUrl: up.fileUrl,
         fileName: up.fileName,
@@ -22184,7 +22220,7 @@ $form.addEventListener("submit", async (e) => {
       const beforeSnap = await docRef.get();
       const before = beforeSnap.exists ? (beforeSnap.data() || {}) : {};
 
-      let patch = { title, author, domain };
+      let patch = { title, author, domain, category };
 
       if (file) {
         // Remplacement du fichier
@@ -22209,7 +22245,6 @@ $form.addEventListener("submit", async (e) => {
 }
 });
 
-
   const load = async () => {
   try {
     const snap = await teachingCol().orderBy("addedAt", "desc").get();
@@ -22220,6 +22255,7 @@ $form.addEventListener("submit", async (e) => {
         title: data.title || "",
         author: data.author || "",
         domain: data.domain || "",
+        category: data.category || "Autres cours",
         addedAt: data.addedAt?.toDate ? data.addedAt.toDate().toISOString() : (data.addedAt || ""),
         fileUrl: data.fileUrl || "",
         fileName: data.fileName || "",
@@ -22627,6 +22663,16 @@ function renderTeachingClonePage(cfg) {
   const norm = (s) => (s ?? "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   const PAGE_SIZE = 10;
 
+  const COURSE_CATEGORIES = [
+  "Tous les cours",
+  "Accueil des internes",
+  "Cours hebdo. internes",
+  "Cours aux externes",
+  "Echographie trans-oesophagienne",
+  "Circulation extra-corporelle",
+  "Autres cours",
+];
+
   let allDocs = [];
   let filteredDocs = [];
   let selectedIds = new Set();
@@ -22798,6 +22844,8 @@ $app.innerHTML = `
   const $fileName = document.getElementById("ens-file-name");
   const $btnCancel = document.getElementById("ens-cancel");
 
+  const $category = document.getElementById("ens-category");
+
   $formDomain.innerHTML = DOMAINS.map(d => `<option value="${d}">${d}</option>`).join("");
 
   const setButtonsState = () => {
@@ -22816,6 +22864,7 @@ $app.innerHTML = `
   };
 
   const applyFilters = () => {
+    // 🔥 recherche = même logique que l’annuaire : norm() + includes()
     const q = norm($search.value || "");
     const domain = $filterDomain.value || "";
     const author = $filterAuthor.value || "";
