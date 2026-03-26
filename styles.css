@@ -7676,15 +7676,21 @@ body.theme-light .eto-menu-title{
    1) CR d’ETO anesthésie (acr-modal + eto-modal)
    => doit rester un OVERLAY au-dessus de tout
    --------------------------------------------------------- */
+
 .acr-modal.eto-modal{
   position: fixed !important;
   inset: 0 !important;
-  z-index: 2147483647 !important;      /* au-dessus de tout */
+  z-index: 2147483000 !important;      /* légèrement sous l’overlay image */
   background: rgba(0,0,0,0.65) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 12px !important;
+}
+
+.acr-modal.eto-modal .acr-modal-card{
+  position: relative !important;
+  z-index: 2147483001 !important;
 }
 
 /* IMPORTANT : on NE met PAS ici width/max-height comme les modales ETO Réa,
