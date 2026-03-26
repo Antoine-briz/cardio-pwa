@@ -920,33 +920,26 @@ table.simple th, table.pheno th {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 2147483646;
 }
+
 .img-popup img {
   max-width: 90%;
   max-height: 90%;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-}
-
-.img-link {
-  color: #0070C0;
-  cursor: pointer;
-  text-decoration: underline;
-  font-weight: 600;
-}
-.img-link:hover {
-  opacity: 0.7;
+  position: relative;
+  z-index: 2147483647;
 }
 
 .img-overlay {
   position: fixed;
-  inset: 0;               /* équivalent de top/left/right/bottom: 0 */
+  inset: 0;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 2147483646;
 }
 
 .img-overlay-content {
@@ -957,6 +950,7 @@ table.simple th, table.pheno th {
   max-width: 90vw;
   max-height: 90vh;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  z-index: 2147483647;
 }
 
 .img-overlay-content img {
