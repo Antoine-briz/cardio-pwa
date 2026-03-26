@@ -3208,10 +3208,20 @@ button.btn.home-btn.home-danger:not(.ghost):not(.outline):hover {
 }
 
 /* =========================================================
-   Z-INDEX images au-dessus
+   Z-INDEX images au-dessus du CR d’ETO smartphone
    ========================================================= */
 .img-popup,
-.img-overlay{ z-index:1000000 !important; }
+.img-overlay{
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483648 !important;
+}
+
+.img-popup img,
+.img-overlay-content{
+  position: relative !important;
+  z-index: 2147483649 !important;
+}
 
 /* ===== Uniformiser la police + colonne gauche en gras ===== */
 .eto-modal .eto-cr-table,
