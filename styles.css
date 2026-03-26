@@ -2698,10 +2698,18 @@ button.btn.home-btn.home-danger:not(.ghost):not(.outline):hover {
   white-space: pre-wrap;
 }
 
-/* Images AU-DESSUS de tout */
+/* Images AU-DESSUS de tout, y compris du CR d’ETO smartphone */
 .img-popup,
 .img-overlay {
-  z-index: 1000000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483648 !important;
+}
+
+.img-popup img,
+.img-overlay-content {
+  position: relative !important;
+  z-index: 2147483649 !important;
 }
 
 /* ===========================
@@ -2998,12 +3006,19 @@ button.btn.home-btn.home-danger:not(.ghost):not(.outline):hover {
   line-height: 1.25;
 }
 
-/* Images AU-DESSUS de tout */
+/* Images AU-DESSUS de tout, y compris du CR d’ETO smartphone */
 .img-popup,
 .img-overlay {
-  z-index: 1000000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483648 !important;
 }
 
+.img-popup img,
+.img-overlay-content {
+  position: relative !important;
+  z-index: 2147483649 !important;
+}
 /* =========================================================
    ETO – TABLEAU UNIQUE ULTRA COMPACT (V2)
    ========================================================= */
