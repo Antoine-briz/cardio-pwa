@@ -11094,7 +11094,7 @@ function setupTaviLogic() {
     if (cbRisk && cbRisk.checked) {
       inductionTxt += `Etomidate ${etoDose} + Sufentanil (AIVOC), `;
     } else {
-      inductionTxt += "AIVOC Propofol/Sufentanil, ";
+      inductionTxt += "AIVOC Propofol/Rémifentanil, ";
     }
     if (cbSeq && cbSeq.checked) {
       inductionTxt += `Rocuronium ${rocDose} (séquence rapide).`;
@@ -11105,7 +11105,7 @@ function setupTaviLogic() {
     lineInduction.innerHTML = inductionTxt;
     lineEntretien.innerHTML = `
       <strong>Entretien :</strong>
-      AIVOC Propofol/Sufentanil.
+      AIVOC Propofol/Rémifentanil.
     `;
   }
 
@@ -11197,11 +11197,11 @@ function renderInterventionMitraClip() {
       html: `
         <p id="mitra-induction-text">
           <strong>Induction :</strong>
-          AIVOC Propofol/Sufentanil + Atracurium 0,5 mg/kg.
+          AIVOC Propofol/Rémifentanil + Atracurium 0,5 mg/kg.
         </p>
         <p id="fop-entretien-text">
           <strong>Entretien :</strong>
-          AIVOC Propofol/Sufentanil
+          AIVOC Propofol/Rémifentanil
         </p>
         <p>
           <strong>Héparine</strong> 100 UI/kg
@@ -11307,9 +11307,9 @@ function setupMitraClipLogic() {
     let txt = "<strong>Induction :</strong> ";
 
     if (cbRisk && cbRisk.checked) {
-      txt += `Etomidate ${etoDose} + Sufentanil (AIVOC), `;
+      txt += `Etomidate ${etoDose} + Rémifentanil (AIVOC), `;
     } else {
-      txt += "AIVOC Propofol/Sufentanil, ";
+      txt += "AIVOC Propofol/Rémifentanil, ";
     }
 
     if (cbSeq && cbSeq.checked) {
@@ -11415,16 +11415,15 @@ function renderInterventionFOPCIA() {
       html: `
         <p id="fop-induction-text">
           <strong>Induction :</strong>
-          AIVOC Propofol/Sufentanil + Atracurium 0,5 mg/kg.
+          AIVOC Propofol/Rémifentanil + Atracurium 0,5 mg/kg.
         </p>
         <p id="fop-entretien-text">
           <strong>Entretien :</strong>
-          AIVOC Propofol/Sufentanil
+          AIVOC Propofol/Rémifentanil
         </p>
         <p>
-          <strong>Héparine</strong> 100 UI/kg (ACT cible 300–350 s).<br>
-          <strong>Protamine</strong> : généralement non indiquée
-          (parfois 50&nbsp;% de la dose d’héparine à la demande de l’opérateur).
+          <strong>Lovenox</strong>: par l'IDE du bloc<br>
+          <strong>Protamine</strong>: non indiquée
         </p>
         <p><strong>ALR :</strong> Aucune.</p>
       `,
