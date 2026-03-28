@@ -11415,7 +11415,7 @@ function renderInterventionFOPCIA() {
       html: `
         <p id="fop-induction-text">
           <strong>Induction :</strong>
-          AIVOC Propofol/Rémifentanil + Atracurium 0,5 mg/kg.
+          AIVOC Propofol/Rémifentanil + Rocuronium 0,6 mg/kg (ou Mivacurium 0,2mg/kg)
         </p>
         <p id="fop-entretien-text">
           <strong>Entretien :</strong>
