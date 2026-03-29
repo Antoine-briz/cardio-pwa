@@ -21577,10 +21577,11 @@ function renderEnseignement() {
       .replaceAll("'", "&#039;");
   
   const DOMAINS = [
-    "Réanimation",
-    "Anesthésie",
+    "Anesthésie chir. cardiaque",
+    "Anesthésie chir. vasculaire",
     "ETO",
     "CEC",
+    "Réanimation",
     "Infectiologie",
     "Cardiologie",
     "Autre",
