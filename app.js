@@ -22206,7 +22206,9 @@ $form.addEventListener("submit", async (e) => {
 
   const saveBtn = document.getElementById("ens-save");
   if (saveBtn) saveBtn.disabled = true;
-
+  const modalBox = document.getElementById("ens-modal-box");
+  if (modalBox) modalBox.classList.add("is-saving");
+  
   const id = ($formId.value || "").trim();
   const title = ($formTitle.value || "").trim();
   const author = ($formAuthor.value || "").trim();
@@ -22260,10 +22262,14 @@ $form.addEventListener("submit", async (e) => {
     } catch (err) {
     console.error(err);
     alert(err.message || "Erreur lors de l'enregistrement.");
-  } finally {
+    } finally {
     ensSaving = false;
+
     const saveBtn = document.getElementById("ens-save");
     if (saveBtn) saveBtn.disabled = false;
+
+    const modalBox = document.getElementById("ens-modal-box");
+    if (modalBox) modalBox.classList.remove("is-saving");
   }
 });
 
@@ -22796,11 +22802,15 @@ $app.innerHTML = `
 
     <!-- Modal (identique) -->
     <div class="ens-modal-backdrop hidden" id="ens-modal-backdrop">
-      <div class="ens-modal" role="dialog" aria-modal="true">
-        <div class="ens-modal-head">
-          <h3 id="ens-modal-title">Ajouter un fichier</h3>
-          <button class="ens-modal-close" id="ens-modal-close" aria-label="Fermer">×</button>
-        </div>
+  <div class="ens-modal" id="ens-modal-box" role="dialog" aria-modal="true">
+    <div class="ens-modal-saving" id="ens-modal-saving">
+      <div class="ens-modal-saving-spinner" aria-hidden="true"></div>
+    </div>
+
+    <div class="ens-modal-head">
+      <h3 id="ens-modal-title">Ajouter un fichier</h3>
+      <button class="ens-modal-close" id="ens-modal-close" aria-label="Fermer">×</button>
+    </div>
 
         <form id="ens-form" class="ens-form">
           <input type="hidden" id="ens-form-id" value="" />
