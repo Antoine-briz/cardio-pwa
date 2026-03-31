@@ -22661,7 +22661,7 @@ function renderTeachingClonePage(cfg) {
     if (isPpt && file.size > MAX_PPT) throw new Error("PPT/PPTX trop volumineux (limite 80 Mo).");
 
     const safeName = name.replace(/[^\w.\-]+/g, "_");
-    const path = `SARIC/bibliography/${Date.now()}__${safeName}`;
+    const path = `SARIC/${cfg.storageFolder}/${Date.now()}__${safeName}`;
     const ref = window.storage.ref().child(path);
 
     let contentType = file.type;
