@@ -21634,7 +21634,7 @@ const uploadToStorage = async (file) => {
   }
 
   const safeName = name.replace(/[^\w.\-]+/g, "_");
-  const path = `teaching/${Date.now()}__${safeName}`;
+  const path = `SARIC/teaching/${Date.now()}__${safeName}`;
   const ref = window.storage.ref().child(path);
 
   try {
@@ -22661,7 +22661,7 @@ function renderTeachingClonePage(cfg) {
     if (isPpt && file.size > MAX_PPT) throw new Error("PPT/PPTX trop volumineux (limite 80 Mo).");
 
     const safeName = name.replace(/[^\w.\-]+/g, "_");
-    const path = `${cfg.storageFolder}/${Date.now()}__${safeName}`;
+    const path = `SARIC/bibliography/${Date.now()}__${safeName}`;
     const ref = window.storage.ref().child(path);
 
     let contentType = file.type;
@@ -23228,7 +23228,7 @@ function renderRecherche() {
       throw new Error(isPdf ? "PDF trop volumineux (max 40 Mo)." : "Fichier trop volumineux (max 80 Mo).");
     }
 
-    const path = `research/${protocolId}/${Date.now()}__${safeFileName(file.name)}`;
+    const path = `SARIC/research/${protocolId}/${Date.now()}__${safeFileName(file.name)}`;
     const ref = window.storage.ref().child(path);
     await ref.put(file);
     const fileUrl = await ref.getDownloadURL();
