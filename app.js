@@ -25501,9 +25501,7 @@ const routes = {
   "#/enseignement": renderEnseignement,
   "#/bibliographie": renderBibliographie,
   "#/biblio-juniors": renderBiblioJuniors,
-"#/biblio-hebdo": renderBiblioHebdo,
-"#/bibliographie/juniors": renderBiblioJuniors,
-"#/bibliographie/hebdo": renderBiblioHebdo,
+"#/bibliographie/juniors": renderBiblioJuniors,,
   "#/recherche": renderRecherche,
   
   // Divers
