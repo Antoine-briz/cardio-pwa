@@ -12939,7 +12939,7 @@ function setupReanPrescLogic() {
   // - Aspirine + Kardégic systématiques
   // - Anticoagulation préventive
   // - Retrait électrodes J1
-  const groupePréventif = new Set(["pc", "tsc", "rva-bio"]);
+  const groupePréventif = new Set(["pc", "tsc", "rva-bio", "plastie-ao"]);
 
   function update() {
     // 1) valeur brute du select
