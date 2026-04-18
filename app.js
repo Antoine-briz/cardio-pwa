@@ -14810,28 +14810,28 @@ function renderReanAssistancesMenu() {
         <button
             type="button"
             class="btn"
-            onclick="openSubPage(renderReanAssistECMO, renderReanAssistMenu)">
+            onclick="openSubPage(renderReanAssistECMO, renderReanAssistancesMenu)">
             ECMO artério-veineuse
           </button>
 
           <button
             type="button"
             class="btn"
-            onclick="openSubPage(renderReanAssistBCPIA, renderReanAssistMenu)">
+            onclick="openSubPage(renderReanAssistBCPIA, renderReanAssistancesMenu)">
             BCPIA
           </button>
 
           <button
             type="button"
             class="btn"
-            onclick="openSubPage(renderReanAssistImpella, renderReanAssistMenu)">
+            onclick="openSubPage(renderReanAssistImpella, renderReanAssistancesMenu)">
             Impella
           </button>
 
           <button
             type="button"
             class="btn"
-            onclick="openSubPage(renderReanAssistLVAD, renderReanAssistMenu)">
+            onclick="openSubPage(renderReanAssistLVAD, renderReanAssistancesMenu)">
             LVAD
           </button>
       </div>
