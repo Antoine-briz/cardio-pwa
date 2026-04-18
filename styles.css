@@ -9849,3 +9849,46 @@ table.bact-table p:last-child {
 .ecmo-table ul.impella-sub-list > li::before {
   content: none !important;
 }
+
+@media (max-width: 768px) {
+  .ecmo-table {
+    min-width: 720px;
+  }
+
+  .ecmo-table-4cols {
+    min-width: 1000px;
+  }
+}
+
+/* =========================================================
+   TABLEAUX ECMO / BCPIA / IMPELLA / LVAD — smartphone
+   Défilement horizontal garanti
+   ========================================================= */
+
+.ecmo-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ecmo-table {
+  width: 100%;
+  min-width: 760px;
+  table-layout: auto;
+}
+
+.ecmo-table-4cols {
+  min-width: 1100px;
+}
+
+@media (max-width: 768px) {
+  .ecmo-table {
+    min-width: 720px;
+  }
+
+  .ecmo-table-4cols {
+    min-width: 1000px;
+  }
+}
