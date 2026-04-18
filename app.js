@@ -14794,28 +14794,424 @@ function renderReanAssistancesMenu() {
             onclick="openSubPage(renderReanAssistLVAD, renderReanAssistMenu)">
             LVAD
           </button>
-
-          <button
-            type="button"
-            class="btn"
-            onclick="openSubPage(renderReanAssistCardioWest, renderReanAssistMenu)">
-            Cardio-West
-          </button>
       </div>
     </section>
   `;
 }
 
 function renderReanAssistECMO() {
+  const imgInline = (label, file) => `
+    <span class="img-link" onclick="openImg('${file}')">
+      ${label} <span style="font-size:18px;">🖥️</span>
+    </span>
+  `;
+
+  const ecmoTable = (rows) => `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table">
+        <tbody>
+          ${rows
+            .map(
+              ([left, right]) => `
+                <tr>
+                  <th>${left}</th>
+                  <td>${right}</td>
+                </tr>
+              `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const etoThumbs = `
+    <div class="thumb-grid ecmo-eto-grid">
+      <button class="thumb-card" onclick="openImg('etoimplantation.png')">
+        <img src="img/etoimplantation.png" alt="ECMO VA implantation">
+        <span>ECMO VA implantation</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('canulationecmo.png')">
+        <img src="img/canulationecmo.png" alt="Canulation ECMO VA">
+        <span>Canulation ECMO VA</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('aorteecmo.png')">
+        <img src="img/aorteecmo.png" alt="Evaluation aortique: ouverture, IA">
+        <span>Evaluation aortique: ouverture, IA</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('dilatvgsludge.png')">
+        <img src="img/dilatvgsludge.png" alt="Dilatation VG et contraste spontané">
+        <span>Dilatation VG et contraste spontané</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('etoquotidien.png')">
+        <img src="img/etoquotidien.png" alt="ECMO VA quotidien">
+        <span>ECMO VA quotidien</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('sevrageecmo.png')">
+        <img src="img/sevrageecmo.png" alt="Sevrabilité ECMO VA">
+        <span>Sevrabilité ECMO VA</span>
+      </button>
+    </div>
+  `;
+
   const encadres = [
     {
-      titre: "ECMO artério-veineuse",
-      html: `
-        <p>Prise en charge d’une ECMO VA (débit, anticoagulation, sevrage, interactions ventilatoires).
-        Contenu détaillé à compléter à partir de ton tableau dédié.</p>
-      `,
+      titre: "Généralités sur l’ECMO VA",
+      html: ecmoTable([
+        [
+  "Principe et composition",
+  `
+    <p>L’ECMO <strong>artério-veineuse</strong> est une technique d’assistance circulatoire et respiratoire visant à se substituer à la fonction cardiaque en cas de défaillance <strong>cardio-circulatoire</strong> sévère et réfractaire.</p>
+    <p>Le circuit se compose de:</p>
+    <p>- Une <strong>canule veineuse</strong> placée dans l’OD: via la veine fémorale si périphérique, insertion possible directement dans l’OD si centrale.</p>
+    <p>- Une <strong>pompe centrifuge</strong>: génère le débit sanguin</p>
+    <p>- Une <strong>membrane d’oxygénation</strong>: permet l’oxygénation et la décarboxylation du sang</p>
+    <p>- Un <strong>réchauffeur</strong>: permet le maintient d’une température cible à 37°C</p>
+    <p>- Une <strong>canule artérielle</strong> d’éjection: via l’artère fémorale ou axillaire si périphérique (rétrograde), abord aortique direct si centrale (antérograde).</p>
+    <p>- Un <strong>contrôleur</strong>: Permet de fixer la vitesse de pompe (tpm), affiche le débit calculé et les pressions mesurées.</p>
+  `,
+],
+[
+  "Schéma du circuit (ECMO VA périphérique fémoro-fémorale)",
+  `
+    <div class="image-container">
+      <img src="img/schemaecmo.png" alt="Schéma ECMO VA" style="display:block;">
+    </div>
+  `,
+],
+        [
+          "Types d’ECMO artério-veineuses",
+          `
+            <p><strong>ECMO VA périphérique</strong>: ${imgInline("", "ecmoperiph.png")}</p>
+            <p>- Canulation: canule veineuse fémorale, canule artérielle fémorale ou axillaire (flux artériel rétrograde)</p>
+            <p>- Indication: Technique privilégiée en ère intention</p>
+
+            <p><strong>ECMO VA centrale</strong>: ${imgInline("", "ecmocentrale.png")}</p>
+            <p>- Canulation: canule veineuse dans l’OD (soit part abord direct, soit via la veine fémorale), canule artérielle aortique (flux artériel antérograde).</p>
+            <p>- Indication: OAP réfractaire sous ECMOA VA périphérique, également possible en post-cardiotomie en 1ère intention.</p>
+
+            <p><strong>ECMO droite</strong>: ${imgInline("", "ecmodroite.png")}</p>
+            <p>- Canulation: Canule d’admission dans l’OD, canule éjectionnelle dans l’artère pulmonaire.</p>
+            <p>- Indication: Dysfonction VD isolée. A privilégier lorsqu’on souhaite limiter les conséquences négatives de l’ECMO VA sur le VG.</p>
+
+            <p><strong>Double ECMO centrale</strong>: ${imgInline("", "ecmodouble.png")}</p>
+            <p>- Canulation: 1er circuit OD-Artère pulmonaire, 2ème circuit VG-Aorte.</p>
+            <p>- Indication: Défaillance bi-ventriculaire sévère avec échec ou inadéquation de l’ECMO VA périphérique</p>
+          `,
+        ],
+        [
+          "Indications",
+          `
+            <p><strong>Choc cardiogénique réfractaire d’étiologies variables</strong>: post-ischémique, post-cardiotomie, post-ACR, EP grave, myocardite, intoxication aux cardiotropes, cardiopathie septique…</p>
+            <p><strong>Critères d’implantation (ESC 2021/2023):</strong> L’EMCO VA doit être envisagé chez les patients en choc cardiogénique (IC &lt; 2,4L/min/m²) avec hypoperfusion persistante (hyperlactatémie et/ou diurèse &lt; 0,5mL/h) malgré traitement conventionnel optimal, dans une stratégie de bridge, après sélection soigneuse et au sein d’une équipe experte.</p>
+            <p>Classes D et E de la classification SCAI du choc cardiogénique. ${imgInline("Cf SCAI", "SCAI.png")}</p>
+          `,
+        ],
+        [
+          "Contre-indications (Consensus ESLO-SCCM 2020)",
+          `
+            <p><strong>Contre-indications absolues:</strong> Hémorragie active intra-cérébrale, hémorragie sévère non contrôlée, lésion cérébrale sévère irréversible, pathologie terminale évoluée (ex: cancer multi-métastatique), absence de stratégie: pas de bridge, pas de récupération.</p>
+            <p><strong>Contre-indications relatives:</strong> Ventilation mécanique prolongée, coagulopathie sévère, ACR prolongé, comorbidités sévères, insuffisance aortique sévère (sauf centrale avec décharge VG)</p>
+          `,
+        ],
+      ]),
     },
+
+    {
+      titre: "Gestion pratique de l’ECMO VA",
+      html: ecmoTable([
+        [
+          "Implantation de l’ECMO VA",
+          `
+            <p><strong>Objectifs biologiques</strong> (sans retarder la canulation): Hb ≥ 8g/dL (hémodilution), Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 1,5, fibrinogène &gt; 1,5g/L. Groupes/RAI et pré-commande de 2 CGR.</p>
+            <p><strong>Voie d’abord:</strong> Privilégier l’abord percutané par Seldinger échoguidé plutôt que chirurgical pour ECMO périphérique. Sternotomie nécessaire pour ECMO centrale.</p>
+            <p><strong>Antibioprophylaxie:</strong> uniquement en cas d’abord chirurgical Céfazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+            <p><strong>Anticoagulation:</strong> HNF 50-100 UI/kg (généralement 5000 UI) dans le circuit</p>
+            <p><strong>ETO:</strong> Position des guides/canules, recherche de valvulopathies, décharge VD, test aux bulles… ${imgInline("Cf ETO et implantation", "etoimplantation.png")}</p>
+          `,
+        ],
+        [
+          "Réglage des débits",
+          `
+            <p><strong>Débit de pompe:</strong> Objectif d’index cardiaque théorique 2,4L/min/m², avec un débit de pompe minimal pour régression de l’hypoperfusion tissulaire. Ne pas diminuer en dessous de 1500 tpm ou 2 L/min</p>
+            <p><strong>FmO2:</strong> Absence de recommandation claire. Généralement FmO2 haute afin de délivrer une ventilation mécanique protectrice avec FiO2 minimale. ⚠️ Une FmO2 &lt; 50% crée une hypoxémie iatrogène.</p>
+            <p><strong>Balayage:</strong> Initialement ratio 1:1 avec le débit de pompe, puis QSP PaCO2 35-45 mmHg. ⚠️ Un balayage &lt; 1L/min crée une hypoxémie iatrogène.</p>
+          `,
+        ],
+        [
+          "Surveillance quotidienne",
+          `
+            <p><strong>Clinique:</strong> Signes d’hypoperfusion périphériques, signes d’ischémie de MI, examen neurologique (risque d’AVC), recherche de complications infectieuses (scarpas, pneumonies…)</p>
+            <p><strong>Monitorage continu:</strong> Pression artérielle pulsatile, SvO2 sur Swan Ganz ou ligne veineuse, NIRS cérébral et membres inférieurs</p>
+            <p><strong>Circuit:</strong> Débit cible atteint, oxygénation de la ligne artérielle, caillotage de membrane, insertion des canules, vérification des batteries et branchements muraux </p>
+            <p><strong>Biologie:</strong> GdS-lact, NFS-Pl, ionogramme sanguin, BHC, CPK, AntiXa (Obj 0,2-0,4 UI/mL), Hb plasmatique (Norme &lt; 50 mg/L, objectif &lt; 150 mg/L)</p>
+            <p><strong>Imagerie:</strong> Radiographie de thorax (position canule veineuse, pneumonie…), échocardiographie (position canule veineuse, récupération/sevrabilité, ouverture de la valve aortique, décharge du VG…) ${imgInline("Cf ETT/ETO quotidien", "etoquotidien.png")}</p>
+          `,
+        ],
+        [
+          "Prescriptions médicamenteuses",
+          `
+            <p><strong>Hémodynamique:</strong></p>
+            <p>- Inotropes: Dobutamine si sludge et/ou absence de débit aortique. Cure le Levosimendan (Charge de 6-12µg/kg sur 10min IVL puis 0,1 µg/kg/min pendant 24h) à discuter en cas de sevrage difficile.</p>
+            <p>- Vasopresseurs: Noradrénaline 0,16mg/mL avec objectif de PAM &gt; 70 mmHg</p>
+            <p><strong>Anticoagulation:</strong> HNF IVSE pour objectif de TCA ratio 1,5-2 et AntiXa 0,2-0,4 UI/mL. Si inefficacité, dosage de l’ATIII (norme &gt; 80%)</p>
+            <p><strong>Anti-infectieux:</strong> Pas de modification significative du volume de distribution donc pas d’augmentation des posologies usuelles.</p>
+          `,
+        ],
+        [
+          "Ventilation mécanique",
+          `
+            <p><strong>Ventilation protectrice:</strong> Vt 6 mL/kg, FR 10-12/min, PEP 5-10cmH2O, FiO2 minimale pour SpO2 &gt; 95%. Pplat &lt; 28 cmH2O et Driving pressure &lt; 14 cmH2O. Peu de preuve pour une stratégie spécifique sous ECMO VA.</p>
+            <p><strong>Membrane de l’ECMO:</strong> FmO2 plutôt haute (&gt; 50-60%) pour SpO2 &gt; 95%. Balayage pour PaCO2 35-45 mmHg (toujours &gt; 1L/min)</p>
+          `,
+        ],
+        [
+          "Epuration extra-rénale continue",
+          `
+            <p><strong>Principe:</strong> Possibilité de branchement d’une EER en CVVH sur le circuit d’ECMO VA afin de préserver les axes veineux du patient.</p>
+            <p><strong>Branchements:</strong> Lignes artérielle et veineuse entre la pompe centrifuge et l’oxygénateur. ${imgInline("Cf schéma", "eerecmo.png")}</p>
+            <p><strong>Précaution:</strong> pas de ré-injection complète du volume sanguin lors de la restitution car risque de bullage du circuit d’ECMO</p>
+          `,
+        ],
+        [
+          "Sevrage de l’ECMO VA",
+          `
+            <p><strong>Critères clinico-biologiques de sevrabilité:</strong></p>
+            <p>- Récupération d’une pulsatilité depuis &gt; 24h sur la courbe de pression artérielle</p>
+            <p>- PAM &gt; 60 mmHg avec faibles doses de cathécholamines</p>
+            <p>- Disparition des signes d’hypoxie tissulaire (marbrures, lactate, fonction rénale et hépatique…)</p>
+            <p>- Oxygénation pulmonaire satisfaisante (envisager conversion en ECMO VV dans le cas contraire)</p>
+
+            <p><strong>Déroulement du test de sevrage:</strong> Baisse du débit à 1 500 tpm et balayage &lt; 1L/min</p>
+            <p>- Tolérance clinique: Maintient d’une PAM satisfaisante avec faible dose d’amines, et bonne tolérance ventilatoire (P/F &gt; 200 et absence d’acidose respiratoire).</p>
+            <p>- Tolérance échographique: FEVG &gt; 30-40%, ITV Ssao ≥ 12 cm, onde S’ mitrale ≥ 6 cm/s, absence de dilatation des cavités cardiaques droite ou gauche</p>
+            <p>- Si monitorage par Swan Ganz: IC &gt; 2,4 L/min/m², PAPO &lt; 18 mmHg, POD &lt; 18 mmHg, SvO2 &gt; 65%</p>
+
+            <p><strong>Déroulement de l’explantation d’ECMO VA:</strong></p>
+            <p>- Objectifs biologiques: Hb ≥ 8g/dL, Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 2 (arrêt HNF 2h avant), fibrinogène &gt; 1,5g/L. Groupes/RAI et pré-commande de 2 CGR.</p>
+            <p>- Bolus d’HNF 5000 UI, puis clampage des lignes pendant 30min. Si bonne tolérance clinique et échographique, OK pour explantation.</p>
+            <p>- Antibioprophylaxie uniquement en cas d’abord chirurgical Céfazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+            <p>- Artériographie des axes artériels post-explantation à la recherche d’une ischémie de membre inférieur</p>
+            <p>- Poursuite de l’anticoagulation efficace par HNF IVSE. Arrêt si écho-doppler veineux normal.</p>
+          `,
+        ],
+      ]),
+    },
+
+    {
+  titre: "Echocardiographie et ECMO VA",
+  html: `
+    <div class="info-content">
+      ${etoThumbs}
+    </div>
+  `,
+},
+
+    {
+  titre: "Complications de l’ECMO VA",
+  html: `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table ecmo-table-4cols">
+        <thead>
+          <tr>
+            <th>Complication</th>
+            <th>Facteurs favorisants</th>
+            <th>Prévention</th>
+            <th>Prise en charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hémorragie</strong><br>(site opératoire, site de canule, ORL, digestive…)</td>
+            <td>
+              <p>- Abord chirurgical > percutané</p>
+              <p>- Contexte post-opératoire</p>
+              <p>- Troubles de hémostase: thrombopénie, Willebrand acquis, HNF IVSE, TIH…</p>
+              <p>- Lésion à risque hémorragique pré-existante</p>
+            </td>
+            <td>
+              <p>- Abord percutané à privilégier</p>
+              <p>- Correction des troubles de l’hémostase, objectif d’AntiXa 0,2-0,4 UI/mL</p>
+              <p>- Débit d’assistance minimal</p>
+            </td>
+            <td>
+              <p><strong>Intervention hémostatique:</strong> reprise chirurgicale, point sur site de canulation, tamponnement ORL, endoscopie digestive, radiologie interventionnelle…</p>
+              <p><strong>Correction des troubles de l’hémostase:</strong> Arrêt HNF, transfusion PFC/CUP…</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Infections:</strong>
+              <p>- Pneumonies</p>
+              <p>- Bactériémies</p>
+              <p>- Scarpa (> 7j)</p>
+              <p><p><strong>Germes:</strong> BGN (entérobact., P. aeruginosa), CG+ (S. aureus, SCN)</p>
+              </td>
+            <td>
+              <p>- Abord chirurgical > percutané</p>
+              <p>- Manipulations de canules</p>
+              <p>- Antibiothérapie récente</p>
+              <p>- Durée d’assistance par ECMO</p>
+              <p>- Durée de sédation</p>
+            </td>
+            <td>
+              <p>- Abord percutané à privilégier</p>
+              <p>- Soins locaux et manipulations prudentes des scarpas</p>
+              <p>- Sauvegarde antibiotique</p>
+              <p>- Explantation précoce</p>
+              <p>- Sevrage précoce de la ventilation mécanique</p>
+            </td>
+            <td>
+              <p><strong>Antibiothérapie probabiliste</strong> (ou adaptée) selon le site infecté: couverture des entérobactéries Gp3, P.aeruginosa (+/- Staphylococcus spp. si point d’appel cutané).</p>
+              <p><strong>Sevrage d’ECMO</strong> ou changement de site de canulation si possible</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Ischémie: </strong>
+              <p>- AVC</p>
+              <p>- Membre inf.</p>
+              <p>- Mésentérique</p></td>
+            <td>
+              
+              <p>- Athérome pré-existant: TSA, AOMI, art. viscérales…</p>
+              <p>- Débit de perfusion insuffisant</p>
+              <p>- Anticoagulation insuffisante</p>
+              <p>- Canulation axillaire (AVC) et défaut de reperfusion (MI)</p>
+            </td>
+            <td>
+              <p>- Canulation adaptée à l’athérome du patient et calibre adapté des canules</p>
+              <p>- Anticoagulation HNF pour AntiXa 0,2-0,4 UI/mL</p>
+              <p>- Débit cible > 2,4 L/min/m² et PAM > 70 mmHg</p>
+            </td>
+            <td>
+              <p><strong>Pour AVC:</strong> thrombectomie (thrombolyse CI)</p>
+              <p><strong>Pour membre inf.:</strong> reperfusion chirurgicale, discuter changement de canulation</p>
+              <p><strong>Pour ischémie mésentérique:</strong> laparotomie exploratrice</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Œdème pulmonaire hydrostatique</strong></td>
+            <td>
+              <p>- ECMO VA périphérique</p>
+              <p>- Débit d’assistance élevé</p>
+              <p>- Akinésie/Hypokinésie VG sévère</p>
+              <p>- Absence de technique de décharge VG</p>
+            </td>
+            <td>
+              <p>- Diminuer le débit d’assistance au minimum possible</p>
+              <p>- Dobutamine pour maintient d’une éjection VG</p>
+              <p>- Technique de décharge VG prophylactique (BCPIA)</p>
+            </td>
+            <td>
+              <p><strong>Technique de décharge VG curative:</strong> BCPIA, Impella, atriotomie (Rashking), canule VG apicale…</p>
+              <p><strong>ECMO VAV:</strong> ajout d’une canule d’éjection veineuse</p>
+              <p><strong>Centralisation de l’ECMO périphérique</strong></p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Syndrome d’Arlequin</strong><p>${imgInline("Cf schéma", "arlequin.png")}</p></td>
+            <td>
+              <p>- Oxygénation pulmonaire compromise (SDRA, pneumonie sévère, OAP réfractaire…)</p>
+              <p>- Récupération d’une éjection VG satisfaisante</p>
+            </td>
+            <td>
+              <p>- Détection précoce: Kta radial droit et SpO2 main droite</p>
+            </td>
+            <td>
+              <p><strong>Conversion en ECMO VV</strong> si défaillance cardio-circulatoire résolue.</p>
+              <p><strong>Conversion en ECMO VAV</strong> (ajout d’une canule veineuse éjectionnelle) si défaillance cardio-circulatoire non résolue.</p>
+              <p>- Rarement conversion en double ECMO centrale</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Hémolyse</strong></td>
+            <td>
+              <p>- Pression veineuse très négatives (hypovolémique, déplacement de canule, tamponnade…)</p>
+              <p>- Caillotage de l’oxygénateur ou anticoagulation insuffisante</p>
+              <p>- Vitesse de pompe importante</p>
+            </td>
+            <td>
+              <p>- Détection précoce: Hémoglobine plasmatique quotidienne (objectif < 150 mg/L, norme < 50 mg/L)</p>
+              <p>- Limiter le débit de pompe au minimum nécessaire</p>
+              <p>- Anticoagulation HNF AntiXa 0,2-0,4 UI/mL</p>
+            </td>
+            <td>
+              <p><strong>Transfusion</strong> pour Hb > 7-8 g/dL</p>
+              <p><strong>Anticoagulation</strong> HNF AntiXa 0,2-0,4 UI/mL</p>
+              <p><strong>Changement de membrane</strong> si oxygénateur coagulé</p>
+              <p><strong>Diminution du débit de pompe</strong> ou explantation d’ECMO si possible</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Insuffisance rénale aiguë</strong></td>
+            <td>
+              <p>- Fonction rénale préalable</p>
+              <p>- CEC prolongée avant ECMO</p>
+              <p>- Gravité clinique avant ECMO</p>
+              <p>- Implantation tardive d’ECMO</p>
+              <p>- Traitements néphrotoxiques</p>
+              <p>- Hémolyse, rhabdomyolyse</p>
+              <p>- Sepsis, infections</p>
+            </td>
+            <td>
+              <p>- Implantation précoce de l’ECMO VA si indiquée</p>
+              <p>- Eviction des néphrotoxiques</p>
+            </td>
+            <td>
+              <p><strong>EER en CVVH si IRA KDIGO III</strong> avec indication à l’épuration</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Décanulation accidentelle</strong></td>
+            <td>
+              <p>- Canule artérielle axillaire</p>
+              <p>- Agitation du patient</p>
+              <p>- Transports et manipulations nombreuses</p>
+            </td>
+            <td>
+              <p>- Surveillance et fixation soigneuse des canules</p>
+              <p>- Prévention et traitement du délirium de réanimation</p>
+            </td>
+            <td>
+              <p><strong>Clampage immédiat des lignes artérielle et veineuse</strong> (risque de spoliation sanguine et embolie gazeuse)</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Arrêt de pompe</strong></td>
+            <td>
+              <p>- Dysfonction électrique (batterie, prise murale etc…)</p>
+              <p>- Bullage de la pompe</p>
+              <p>- Thrombose de circuit</p>
+            </td>
+            <td>
+              <p>- Remplissage et EER sur ECMO toujours entre pompe et membrane</p>
+              <p>- Surveillance des batteries et branchements</p>
+              <p>- Manivelle accessible</p>
+            </td>
+            <td>
+              <p><strong>Activation de la pompe de secours</strong></p>
+              <p><strong>Changement de circuit d’ECMO</strong></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `,
+},
   ];
+
   renderInterventionPage({
     titre: "Assistances circulatoires",
     sousTitre: "ECMO artério-veineuse",
@@ -14825,15 +15221,264 @@ function renderReanAssistECMO() {
 }
 
 function renderReanAssistBCPIA() {
+  const imgInline = (label, file) => `
+    <span class="img-link" onclick="openImg('${file}')">
+      ${label} <span style="font-size:18px;">🖥️</span>
+    </span>
+  `;
+
+  const ecmoTable = (rows) => `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table">
+        <tbody>
+          ${rows.map(([left, right]) => `
+            <tr>
+              <th>${left}</th>
+              <td>${right}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const bcpiaComplicationsTable = `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table ecmo-table-4cols">
+        <thead>
+          <tr>
+            <th>Complication</th>
+            <th>Facteurs favorisants</th>
+            <th>Prévention</th>
+            <th>Prise en charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Asynchronie patient-machine</strong><br>
+              ${imgInline("Cf asynchronies et BCPIA", "asynchroniebcpia.png")}
+            </td>
+            <td>
+              <p>Source de déclenchement non fiable, mauvaise détection du cycle cardiaque</p>
+            </td>
+            <td>
+              <p>Vérification quotidienne de la synchronisation</p>
+            </td>
+            <td>
+              <p>Modifier la source de déclenchement si non fiable.</p></p>
+              <p>Modifier manuellement le timing de « gonflage » / « dégonflage » (encadré « synchronisation »)</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Ischémie</strong>
+              <p>- Membre inf.</p>
+              <p>- Viscérale: Rénale ou mésentérique</p>
+            </td>
+            <td>
+              <p>- Pose traumatique</p>
+              <p>- Malposition du ballon: artères rénales et/ou viscérales recouvertes</p>
+              <p>- AOMI sévère</p>
+              <p>- Anticoagulation insuffisante</p>
+              <p>- Arrêt prolongé de l’assistance</p>
+            </td>
+            <td>
+              <p>- Vérification quotidienne de la position du BCPIA</p>
+              <p>- Jamais d’arrêt &gt; 30min</p>
+              <p>- Surveillance quotidienne des membres inférieurs</p>
+              <p>- HNF IVSE pour AntiXa 0,3-0,6 UI/mL</p>
+            </td>
+            <td>
+              <p><strong>Revascularisation:</strong> retrait/changement de côté, revascularisation chirurgicale si nécessaire</p></p>
+              <p><strong>Anticoagulation efficace: </strong> HNF IVSE pour AntiXa 0,3-0,6 UI/mL</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Infection de scarpa</strong>
+            </td>
+            <td>
+              <p>- Abord chirurgical</p>
+              <p>- Pose traumatique</p>
+              <p>- Manipulations nombreuses</p>
+              <p>- Antibiothérapie récente</p>
+              <p>- Durée d’assistance par BCPIA</p>
+            </td>
+            <td>
+              <p>- Abord percutané à privilégier</p>
+              <p>- Soins locaux et manipulations prudentes des scarpas</p>
+              <p>- Sauvegarde antibiotique</p>
+              <p>- Retrait précoce</p>
+            </td>
+            <td>
+              <p><strong>Antibiothérapie probabiliste</strong> (ou adaptée) : couverture probabiliste des entérobactéries Gp3, P.aeruginosa et Staphylococcus spp.</p></p>
+              <p><strong>Retrait du BCPIA</strong></p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Complication vasculaire mécanique</strong>
+              <p>- Dissection aortique</p>
+              <p>- Hémorragie</p>
+            </td>
+            <td>
+              <p>- Pose traumatique</p>
+              <p>- Pathologie vasculaire préexistante: AOMI sévère, anévrysme aortique…</p>
+            </td>
+            <td>
+              <p>Pose par un opérateur entrainé (chirurgien cardiaque ou vasculaire)</p>
+            </td>
+            <td>
+              <p>Prise en charge chirurgicale si indiquée</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
   const encadres = [
     {
-      titre: "BCPIA",
+      titre: "Généralités sur le BCPIA",
+      html: ecmoTable([
+        [
+          "Principe et composition",
+          `
+            <p>Le ballon de contre-pulsion intra-aortique (BCPIA) est un dispositif d’assistance circulatoire temporaire, dont le principe repose sur un ballon placé en intra-aortique et dont l’état d’inflation/déflation évolue en deux phases:</p>
+            <p><strong>- Inflation en protodiastole:</strong> amélioration de la perfusion diastolique des artères coronaires, et donc augmentation de la DO2 myocardique.</p>
+
+<p><strong>- Déflation en protosystole:</strong> diminution de la postcharge du VG (pression négative de la déflation), diminution de la tension pariétale, et donc diminution de la VO2 myocardique.</p>
+
+<div style="height:10px;"></div>
+
+<p>Le dispositif se compose de:</p>
+            <p>- <strong>Un cathéter ballon</strong> de 40 à 50mL gonflé à l’hélium, inséré par l’artère fémorale, à placer dans l’aorte thoracique descendante (entre l’artère sous-clavière gauche et les artères viscérales).</p>
+            <p>- <strong>Un circuit d’hélium:</strong> Connexion entre une cartouche d’hélium, la console, et le cathéter ballon permettant son inflation/déflation.</p>
+            <p>- <strong>Une console BCPIA:</strong> permet le paramétrage de l’assistance, la synchronisation du ballon au patient, et le monitorage. Il se compose: d’un compresseur (propulsion du gaz), d’une électrovanne de timing, et d’une interface utilisateur.</p>
+            <p>- <strong>Des systèmes de monitorage:</strong> Scope ECG et PA invasive permettant la synchronisation, capteur de pression intra-aortique.</p>
+          `,
+        ],
+        [
+          "Schéma du dispositif",
+          `
+            <div class="image-container">
+              <img src="img/bcpia.png" alt="Schéma du BCPIA" style="display:block;">
+            </div>
+          `,
+        ],
+        [
+          "Indications",
+          `
+            <p><strong>En chirurgie cardiaque:</strong></p>
+            <p>- Pré-opératoire: Chirurgie de pontage coronaire à risque</p>
+            <p>- Per-opératoire: Sevrage difficile de CEC</p>
+            <p>- Post-opératoire: Troubles de repolarisation, IDM, troubles du rythme ventriculaire…</p>
+            <p><strong>Assistance par ECMO VA:</strong> Décharge ventriculaire gauche pour améliorer l’éjection aortique et diminuer l’œdème pulmonaire hydrostatique.</p>
+            <p><strong>Infarctus du myocarde:</strong> En l’absence de choc cardiogénique dans certains contextes spécifiques: troubles du rythme ventriculaires, complications mécaniques (CIV, IM). Plus d'indications dans le choc cardiogénique post-ischémique (IABP Shock 2)</p>
+            <p><strong>Angioplasties coronaires à risque:</strong> FEVG &lt; 30%, lésion du tronc commun, complication per-coronarographie</p>
+          `,
+        ],
+        [
+          "Contre-indications",
+          `
+            <p><strong>Absolues:</strong></p>
+            <p>- Dissection aortique</p>
+            <p>- Insuffisance aortique ( &gt; 1/4)</p>
+            <p><strong>Relatives:</strong></p>
+            <p>- Autre pathologie aortique: anévrysme, hématome, athérome sévère</p>
+            <p>- AOMI sévère des axes fémoraux</p>
+            <p>- Contre-indication à l’anticoagulation</p>
+          `,
+        ],
+      ]),
+    },
+
+    {
+      titre: "Gestion pratique du BCPIA",
+      html: ecmoTable([
+        [
+          "Implantation du BCPIA",
+          `
+            <p><strong>Objectifs biologiques:</strong> Correction des troubles de l’hémostase, mais risque hémorragique faible (Hb ≥ 8g/dL, Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 1,5, fibrinogène &gt; 1,5g/L).</p>
+            <p><strong>Voie d’abord:</strong> Insertion dans l’artère fémorale en privilégiant la voie percutanée (Seldinger échoguidé). Voie chirurgicale en cas d’artère pathologique, ou contexte per-opératoire.</p>
+            <p><strong>Antibioprophylaxie:</strong> uniquement en cas d’abord chirurgical Cefazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+            <p><strong>Anticoagulation:</strong> Bolus d’HNF 50 UI/kg (3000-5000 UI) à l’implantation, à adapter au risque hémorragique puis HNF IVSE pour AntiXa 0,3-0,6 UI/mL.</p>
+            <p><strong>Positionnement:</strong></p>
+            <p>- Radiographie de thorax: extrémité du BCPIA à 2cm au dessus de la carène ${imgInline("Cf Radio & BCPIA", "radiobcpia.png")}</p>
+            <p>- ETO: extrémité du BCPIA à 2cm en dessous de la sous-clavière gauche ${imgInline("Cf ETO & BCPIA", "etobcpia.png")}</p>
+            <p><strong>Branchements du dispositif:</strong> Monitorage relié à la console (ECG et PA invasive), cathéter ballon relié à la console, cartouche d’hélium ouverte et pleine, prise électrique murale branchée.</p>
+          `,
+        ],
+        [
+          "Réglage de la console",
+          `
+            <p><strong>Source du déclenchement:</strong> Le ballon peut être synchronisé sur l'ECG (trigger = onde R), la PA invasive (trigger = onde dicrote), ou le pacemaker (trigger = spike)</p>
+            <p><strong>Mode de fonctionnement:</strong> Automatique (recommandé), semi-automatique ou manuel</p>
+            <p><strong>Fréquence de déclenchement:</strong> 1:1 (à chaque cycle), 1:2 (tous les deux cycles) ou 1:3 (tous les trois cycles). Un rythme d'inflation en 1:1 est recommandé pendant toute la durée d'assitance</p>
+            <p><strong>Niveau d’inflation:</strong> Inflation du ballon de 0 à 100%. L'inflation complète est à privilégier initialement, puis diminuée à 50% pour le sevrage.</p>
+            <div class="bcpia-screens">
+              <img src="img/ecranbcpia.png" alt="Écran BCPIA 1" style="display:block;">
+              <img src="img/ecranbcpia2.png" alt="Écran BCPIA 2" style="display:block;">
+            </div>
+          `,
+        ],
+        [
+          "Surveillance quotidienne",
+          `
+            <p><strong>Clinique:</strong> PA invasive pulsatile, signes d’hypoperfusion tissulaire, diurèse, ischémie de membre inférieur, saignement ou infection au site d’insertion. Position allongée ou inclinaison &lt; 30°.</p>
+            <p><strong>Assistance:</strong> Bonne synchronisation patient-machine (${imgInline("Cf asynchronies et BCPIA", "asynchroniebcpia.png")}), bonne détection de la source de déclenchement, niveau d’hélium, niveau de batterie/prise murale.</p>
+            <p><strong>Biologie:</strong> AntiXa 0,3-0,6 UI/mL, recherche de thrombopénie/hémolyse</p>
+            <p><strong>Imagerie:</strong> Vérification du positionnement correct du dispositif: à 2cm de la carène à la radiographie (${imgInline("Cf Radio & BCPIA", "radiobcpia.png")}) et à 2cm de la sous-clavière gauche en ETO (${imgInline("Cf ETO & BCPIA", "etobcpia.png")})</p>
+          `,
+        ],
+        [
+          "Prescriptions médicamenteuses",
+          `
+            <p><strong>Anticoagulation:</strong> HNF IVSE pour objectif d’AntiXa 0,3-0,6 UI/mL. Si inefficacité, dosage de l’ATIII (norme &gt; 80%)</p>
+          `,
+        ],
+        [
+          "Sevrage du BCPIA",
+          `
+            <p><strong>Critères de sevrabilité:</strong></p>
+            <p>- Régression des signes d’hypoperfusion tissulaires, faibles doses d’amines</p>
+            <p>- Si décharge VG sous ECMO: PA invasive pulsatile (à l’arrêt du BCPIA) et œdème pulmonaire hydrostatique contrôlé</p>
+            <p>- Bonne tolérance d’une diminution de l’inflation à 50% pendant 24h</p>
+            <p>- Ne jamais interrompre l’assistance pendant plus de 30min</p>
+            <p><strong>Déroulement du retrait de BCPIA:</strong></p>
+            <p>- Arrêt de l’HNF IVSE 2h avant le retrait. Objectifs biologiques: Hb ≥ 8g/dL, Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 1,5, fibrinogène &gt; 1,5g/L.</p>
+            <p>- Interruption de l’assistance, déflation complète du ballon, retrait du ballon et de la gaine, laisser saigner 1 à 2 secondes avant compression.</p>
+            <p>- Compression fémorale pendant 30min ou système de fermeture percutané (Femostop), puis pansement compressif pendant 24h. Surveillance des pouls pédieux.</p>
+            <p>- Antibioprophylaxie uniquement en cas d’abord chirurgical Cefazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+          `,
+        ],
+      ]),
+    },
+
+    {
+      titre: "Echographie trans-oesophagienne et BCPIA",
       html: `
-        <p>Prise en charge d’une contre-pulsion intra-aortique :
-        positionnement, synchronisation, réglages, sevrage. Contenu à compléter.</p>
+        <div class="info-content">
+          <div class="thumb-grid ecmo-eto-grid">
+            <button class="thumb-card" onclick="openImg('etobcpia.png')">
+              <img src="img/etobcpia.png" alt="Positionnement BCPIA">
+              <span>Positionnement BCPIA</span>
+            </button>
+          </div>
+        </div>
       `,
     },
+
+    {
+      titre: "Complications du BCPIA",
+      html: bcpiaComplicationsTable,
+    },
   ];
+
   renderInterventionPage({
     titre: "Assistances circulatoires",
     sousTitre: "BCPIA",
@@ -14843,15 +15488,375 @@ function renderReanAssistBCPIA() {
 }
 
 function renderReanAssistImpella() {
+  const imgInline = (label, file) => `
+    <span class="img-link" onclick="openImg('${file}')">
+      ${label} <span style="font-size:18px;">🖥️</span>
+    </span>
+  `;
+
+  const ecmoTable = (rows) => `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table">
+        <tbody>
+          ${rows.map(([left, right]) => `
+            <tr>
+              <th>${left}</th>
+              <td>${right}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const complicationsTable = `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table ecmo-table-4cols">
+        <thead>
+          <tr>
+            <th>Complication</th>
+            <th>Facteurs favorisants</th>
+            <th>Prévention</th>
+            <th>Prise en charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dysfonction ventriculaire droite</strong></td>
+            <td>
+              <p>- Dysfonction systolique du VD pré-existante</p>
+              <p>- Haut débits d’assistance</p>
+            </td>
+            <td>
+              <p>- Evaluation soigneuse de la fonction VD avant implantation</p>
+              <p>- Débit d’assistance minimal</p>
+              <p>- Mesures de protection VD: FC 100/min, PAM &gt; 70 mmHg, diminution postcharge VD...</p>
+            </td>
+            <td>
+              <p><strong>Inotropes: Dobutamine</strong></p>
+              <p><strong>Débit d’assistance minimal</strong></p>
+              <p><strong>Mesures de protection VD:</strong> FC 100/min, PAM &gt; 70 mmHg, diminution postcharge VD...</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Malposition intra-cardiaque</strong></td>
+            <td>
+              <p>- Impella trop enfoncée dans le VG: augmentation PTDVG et pas de débit trans-aortique</p>
+              <p>- Insuffisance aortique ou mitrale: augmentation PTDVG</p>
+            </td>
+            <td>
+              <p>- Surveillance courbe de pression différentielle</p>
+              <p>- Surveillance du repère de cathéter à la peau</p>
+              <p>- Radio/échographique quotidiennes</p>
+            </td>
+            <td>
+              <p><strong>Mobilisation de l’Impella</strong> sous contrôle échographique en aseptie stricte</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Thrombose et arrêt de pompe</strong></td>
+            <td>
+              <p>- Débit de purge &lt; 10mL/h</p>
+              <p>- Pression de purge &gt; 1000 mmHg</p>
+              <p>- Anticoagulation insuffisante</p>
+              <p>- P-level trop faible (P0-P1)</p>
+            </td>
+            <td>
+              <p>- Débit de purge &gt; 10mL/h et pression purge 300-1000 mmHg</p>
+              <p>- HNF IVSE pour AntiXa 0,2-0,4 UI/mL</p>
+              <p>- P-level &gt; P2-P3</p>
+            </td>
+            <td>
+              <p><strong>Ajuster purge et anticoagulation</strong></p>
+              <p><strong>Si arrêt de pompe:</strong> retrait du dispositif si échec de redémarrage à 3 reprises</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Hémolyse</strong></td>
+            <td>
+              <p>- Malposition</p>
+              <p>- Phénomène de succion (hypovolémie notamment)</p>
+              <p>- Thrombose de pompe</p>
+            </td>
+            <td>
+              <p>- Surveillance Hb plasmatique (&lt; 150mg/L), LDH, bilirubine...</p>
+              <p>- Débit de purge &gt; 10mL/h et pression purge 300-1000 mmHg</p>
+              <p>- HNF IVSE pour AntiXa 0,2-0,4 UI/mL</p>
+            </td>
+            <td>
+              <p><strong>Ajuster purge et anticoagulation</strong></p>
+              <p><strong>Retrait de l’Impella</strong> si possible</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Ischémie</strong>
+              <p>- AVC</p>
+              <p>- membre inf.</p>
+            </td>
+            <td>
+              <p>- Pose traumatique</p>
+              <p>- Athérome préexistant</p>
+              <p>- Anticoagulation insuffisante</p>
+              <p>- Débit de purge insuffisant</p>
+            </td>
+            <td>
+              <p>- Surveillance quotidienne des membres inférieurs</p>
+              <p>- Débit de purge &gt; 10mL/h pression purge 300-1000 mmHg</p>
+              <p>- HNF IVSE pour AntiXa 0,2-0,4 UI/mL</p>
+            </td>
+            <td>
+              <p><strong>Revascularisation:</strong> retrait/changement de côté, revascularisation chirurgicale si nécessaire</p>
+              <p><strong>Anticoagulation efficace</strong> HNF IVSE pour AntiXa 0,2-0,4 UI/mL</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Infection de scarpa</strong></td>
+            <td>
+              <p>- Abord chirurgical</p>
+              <p>- Pose traumatique</p>
+              <p>- Manipulations nombreuses</p>
+              <p>- Antibiothérapie récente</p>
+              <p>- Durée d’assistance par Impella</p>
+            </td>
+            <td>
+              <p>- Abord percutané à privilégier</p>
+              <p>- Soins locaux et manipulations prudentes des scarpas</p>
+              <p>- Sauvegarde antibiotique</p>
+              <p>- Retrait précoce</p>
+            </td>
+            <td>
+              <p><strong>Antibiothérapie probabiliste</strong> (ou adaptée) : couverture probabiliste des entérobactéries Gp3, <em>P.aeruginosa</em> et <em>Staphylococcus spp.</em></p>
+              <p><strong>Retrait de l’Impella</strong></p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <strong>Complication vasculaire mécanique</strong>
+              <p>- Dissection aortique</p>
+              <p>- Hémorragie</p>
+            </td>
+            <td>
+              <p>- Pose traumatique</p>
+              <p>- Pathologie vasculaire préexistante: AOMI sévère, anévrysme aortique...</p>
+            </td>
+            <td>
+              <p>- Pose par un opérateur entrainé</p>
+            </td>
+            <td>
+              <p><strong>Prise en charge chirurgicale si indiquée</strong></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+    const impellaEtoThumbs = `
+  <div class="thumb-grid ecmo-eto-grid">
+    <button class="thumb-card" onclick="openImg('inletimpella.png')">
+      <img src="img/inletimpella.png" alt="Position inlet dans le VG">
+      <span>Position inlet dans le VG</span>
+    </button>
+
+    <button class="thumb-card" onclick="openImg('outletimpella.png')">
+      <img src="img/outletimpella.png" alt="Position outlet dans l’aorte">
+      <span>Position outlet dans l’aorte</span>
+    </button>
+
+    <button class="thumb-card" onclick="openImg('impella-im.png')">
+      <img src="img/impella-im.png" alt="Recherche d’IM">
+      <span>Recherche d’IM</span>
+    </button>
+  </div>
+`;
+
+  
   const encadres = [
     {
-      titre: "Impella",
+      titre: "Généralités sur l'Impella",
+      html: ecmoTable([
+        [
+          "Principe et composition",
+          `
+          <p><strong>L’Impella</strong> est une assistance circulatoire antérograde du ventricule gauche de courte durée, dont le principe repose sur une micro-pompe axiale à débit continu positionnée au travers de la valve aortique, et permettant de faciliter l’éjection du VG vers l’aorte.</p>
+
+<div class="impella-spacer"></div>
+
+<p>Le dispositif se compose de:</p>
+
+<div class="impella-main-list">
+  <div class="impella-main-item">
+    Une <strong>micro-pompe axiale</strong> à rotation rapide (environ 50 000 tpm), composée d’un orifice d’éjection intra-aortique (outlet), d’un corps de pompe (12-14Fr) en regard de la valve aortique, d’un orifice de pression sanglante, d’un orifice d’admission intra-VG (inlet), et d’une terminaison en queue de cochon (pigtail) orientée vers l’apex du VG. Elle peut être de calibre variable:  ${imgInline("Cf calibres Impella", "calibreimpella.png")}
+  </div>
+
+  <ul class="impella-sub-list">
+  <li><strong>Impella 2.5:</strong> débit max 2,5L/min. Insertion percutanée.</li>
+  <li><strong>Impella CP:</strong> débit max 3,7L/min. Insertion percutanée.</li>
+  <li><strong>Impella 5:</strong> débit max 5L/min. Insertion chirurgicale (axillaire)</li>
+  <li><strong>Impella 5.5:</strong> non disponible en France</li>
+  <li><strong>Impella RP:</strong> destinée à l’assistance du VD</li>
+</ul>
+</div>
+
+          <p>- Un <strong>cable (drive) de connexion:</strong> il relie la micro-pompe à la console, permettant l’alimentation de la pompe et la transmission des données (tpm, pressions, débit de pompe...)</p>
+
+          <p>- Une <strong> console de contrôle (Impella controller): </strong> Permet l’alimentation de la pompe, le réglage du débit (P-level), l’affichage du monitoring (débit estimé, vitesse de pompe, pression aortique), et le réglage des alarmes.  ${imgInline("Cf contrôleur Impella", "controleurimpella.png")}</p>
+
+          <p>- Un <strong>circuit de purge:</strong> soluté glucosé et hépariné injecté en continu à forte pression (300-1000mmHg) au travers de l’outlet, permettant de prévenir la thrombose de pompe.  ${imgInline("Cf purge Impella", "purgeimpella.png")}</p>
+          `
+        ],
+
+        [
+          "Schéma du dispositif",
+          `
+          <div class="image-container">
+            <img src="img/circuitimpella.png" alt="Schéma Impella" style="display:block;">
+          </div>
+          `
+        ],
+
+        [
+          "Indications",
+          `
+          <p>- Choc cardiogénique avec dysfonction mono-ventriculaire gauche, et notamment le STEMI compliqué de choc cardiogénique (étude DanGer Shock NEJM 2024). Cependant pas de bénéfice clair en comparaison du BCPIA.</p>
+          <p>- Décharge ventriculaire gauche au cours de l’assistance par ECMO VA</p>
+          <p>- Certaines dysfonctions VG en péri-opératoire de chirurgie cardiaque</p>
+          <p>- Possible en cas d’angioplastie coronaire à haut risque: FEVG &lt;30% et anatomie coronaire complexe</p>
+          `
+        ],
+
+        [
+          "Contre-indications",
+          `
+          <p>- Défaillance ventriculaire droite sévère (sauf si ECMO VA en place)</p>
+          <p>- Rétrécissement aortique avec surface aortique &lt; 1,5cm² ou calcifications aortiques majeures</p>
+          <p>- Insuffisance aortique &gt; 2/4</p>
+          <p>- Valve aortique mécanique</p>
+          <p>- Rétrécissement mitral serré</p>
+          <p>- Thrombus intra-VG</p>
+          <p>- Communication inter-ventriculaire (CIV)</p>
+          <p>- AOMI sévère</p>
+          `
+        ],
+      ])
+    },
+
+    {
+      titre: "Gestion pratique de l’Impella",
+      html: ecmoTable([
+        [
+          "Implantation de l’Impella",
+          `
+          <p><strong>Objectifs biologiques:</strong> Correction des troubles de l’hémostase, mais risque hémorragique faible (Hb ≥ 8g/dL, Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 1,5, fibrinogène &gt; 1,5g/L).</p>
+
+          <p><strong>Voie d’abord:</strong> Abord percutané par l’artère fémorale pour Impella 2.5 et CP, veine fémorale pour Impella RP, et abord chirurgical axillaire pour Impella 5.</p>
+
+          <p><strong>Antibioprophylaxie:</strong> uniquement en cas d’abord chirurgical Cefazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+
+          <p><strong>Anticoagulation:</strong> Bolus d’HNF 50-100 UI/kg (généralement 5000 UI) à l’implantation, à adapter au risque hémorragique. Purge héparinée: G10% 500mL contenant HNF 5000 UI (10 UI/mL) initialement.</p>
+
+          <p><strong>Initiation de l’assistance:</strong> Réglage du P-level de P1 à P8 (absence de débit à P0, et assistance maximale P9 uniquement temporaire)</p>
+
+          <p><strong>Positionnement:</strong></p>
+          <p>- ETO avant assistance: orientation de la pigtail vers l’apex du VG, inlet à 3,5cm de la valve aortique, absence de conflit avec la valve mitrale, angulation du corps de pompe en regard de la valve aortique</p>
+          <p>- ETO pendant assistance: Diminution des signes de surcharge VG (PTDVG, IM), flux éjectionnel au dessus de la valve aortique, recherche d’IA et d’IM, évaluation de la fonction VD (dilatation, septum interventriculaire, fonction systolique du VD...)</p>
+          <p>- Radiographie de thorax: évaluation de la bonne position de l’Impella, la radiographie initiale permet un comparatif ultérieur</p>
+          <p>- Repère du cathéter à la peau et fixation soigneuse</p>
+          `
+        ],
+
+        [
+          "Réglage de la console",
+          `
+          <p><strong>Paramètre à régler = Niveau d’assistance (P-level):</strong> Réglage du P-level de P1 à P8 (absence de débit à P0, et assistance maximale P9 uniquement temporaire). ${imgInline("Cf P-level & débit Impella", "debitimpella.png")}</p>
+
+          <p><strong>Affichage sur le contrôleur:</strong></p>
+          <p>- Débit sanguin estimé de pompe</p>
+          <p>- Signal de positionnement (courbe rouge): courbe de pression différentielle (Paortique – PVG). Le capteur de pression différentielle est souvent défectueux après J10 d’assistance (mais pompe toujours fonctionnelle).</p>
+          <p>- Signal du courant moteur (courbe verte): reflète la charge de la pompe. Son augmentation (pas de seuil fixe) permet de révéler une complication (thrombose, hypovolémie, malposition...)</p>
+          <ul>
+  <li>Système de purge:
+    <ul>
+      <li>Débit de purge: de 8 à 15 mL/h, il dépend du débit de pompe et de la pression de purge. Un débit &lt; 2mL/h expose à un risque de thrombose de pompe</li>
+      <li>Pression de purge: Elle doit être entre 300 et 1000 mmHg. Elle dépend de la viscosité du soluté (G10% ou G5%) et d’éventuelles obstructions/plicatures.</li>
+    </ul>
+  </li>
+</ul>
+          <p>- Niveau de batterie et source d’alimentation secteur</p>
+
+          <div class="bcpia-screens">
+            <img src="img/ecranimpella.png" alt="Écran Impella gauche" style="display:block;">
+            <img src="img/ecranimpella2.png" alt="Écran Impella droite" style="display:block;">
+          </div>
+          `
+        ],
+
+        [
+          "Surveillance quotidienne",
+          `
+          <p><strong>Clinique:</strong> Signes d’hypoperfusion tissulaire, diurèse, ischémie de membre inférieur, saignement ou infection au site d’insertion. Position allongée ou inclinaison &lt; 30°.</p>
+
+          <p><strong>Assistance:</strong> <span style="color:#d62828;"><strong>« Règles des 3 P »</strong></span></p>
+          <p>- <u>Pansement</u>: Repérage d’insertion du cathéter à la peau, fixation du cathéter en boucle au dessus du genou avec connectique rouge visible.  ${imgInline("Cf fixation Impella", "fixationimpella.png")}</p>
+          <p>- <u>Pression</u>: Pression de purge 300-1000mmHg, débit de purge &gt;10mL/h</p>
+          <p>- <u>Position</u>: Courbe de position (Pdifférentielle), radio de thorax, ETT/ETO</p>
+
+          <p><strong>Biologie:</strong> AntiXa 0,2-0,4 UI/mL, recherche de thrombopénie/hémolyse</p>
+          `
+        ],
+
+        [
+          "Prescriptions médicamenteuses",
+          `
+          <p><strong>Anticoagulation:</strong></p>
+          <p>- HNF dans le système de purge: Débuter à 10 UI/mL (5 000 UI / 500mL de G10%) avec majoration possible jusqu’à 50 UI/mL (25 000 UI / 500mL de G10%). Le G10% peut être remplacé par du G5% pour diminuer la viscosité.</p>
+          <p>- Ajout HNF IVSE pour objectif d’AntiXa 0,2-0,4 UI/mL.</p>
+          `
+        ],
+
+        [
+          "Sevrage de l’Impella",
+          `
+          <p><strong>Critères de sevrabilité:</strong></p>
+          <p>- Régression des signes d’hypoperfusion tissulaires, faibles doses d’amines</p>
+          <p>- Pression artérielle invasive pulsatile et œdème pulmonaire hydrostatique contrôlé</p>
+          <p>- Bonne tolérance d’une diminution du P-level P2-P3 (1,5-2L/min selon dispositif) pendant 24h</p>
+          <p>- ⚠️ Ne pas arrêter la pompe (P0) pour tester la sevrabilité (risque de back-flow)</p>
+
+          <p><strong>Déroulement du retrait de l’Impella:</strong></p>
+          <p>- Arrêt de l’HNF IVSE 2h avant le retrait. Objectifs biologiques: Hb ≥ 8g/dL, Pl &gt; 50 G/L, TP &gt; 50%, TCA &lt; 1,5, fibrinogène &gt; 1,5g/L.</p>
+          <p>- Interruption de l’assistance (P0), retrait du cathéter.</p>
+          <p>- Compression fémorale pendant 30min ou système de fermeture percutané (Femostop), puis pansement compressif pendant 24h avec surveillance des pouls pédieux.</p>
+          <p>- Antibioprophylaxie uniquement en cas d’abord chirurgical Cefazoline 2g (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+          `
+        ],
+      ])
+    },
+
+
+
+{
+      titre: "Echographie trans-oesophagienne et Impella",
       html: `
-        <p>Prise en charge d’un dispositif Impella (positionnement, débits, anticoagulation).
-        Contenu à compléter.</p>
+        <div class="info-content">
+          ${impellaEtoThumbs}
+        </div>
       `,
     },
+
+    {
+      titre: "Complications de l’Impella",
+      html: complicationsTable,
+    },
   ];
+
   renderInterventionPage({
     titre: "Assistances circulatoires",
     sousTitre: "Impella",
@@ -14861,15 +15866,451 @@ function renderReanAssistImpella() {
 }
 
 function renderReanAssistLVAD() {
+  const imgInline = (label, file) => `
+    <span class="img-link" onclick="openImg('${file}')">
+      ${label} <span style="font-size:18px;">🖥️</span>
+    </span>
+  `;
+
+  const ecmoTable = (rows) => `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table">
+        <tbody>
+          ${rows.map(([left, right]) => `
+            <tr>
+              <th>${left}</th>
+              <td>${right}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const lvadEtoThumbs = `
+    <div class="thumb-grid ecmo-eto-grid">
+      <button class="thumb-card" onclick="openImg('etolvad.png')">
+        <img src="img/etolvad.png" alt="Evaluation ETO pré-LVAD">
+        <span>Evaluation ETO pré-LVAD</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('inflowlvad.png')">
+        <img src="img/inflowlvad.png" alt="Canule d'admission (Inflow)">
+        <span>Canule d'admission (Inflow)</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('trajetlvad.png')">
+        <img src="img/trajetlvad.png" alt="Trajet de la canule d'éjection">
+        <span>Trajet de la canule d'éjection</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('outflowlvad.png')">
+        <img src="img/outflowlvad.png" alt="Flux éjectionnel (Outflow)">
+        <span>Flux éjectionnel (Outflow)</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('aortelvad.png')">
+        <img src="img/aortelvad.png" alt="Valve aortique et LVAD">
+        <span>Valve aortique et LVAD</span>
+      </button>
+
+      <button class="thumb-card" onclick="openImg('debitlvad.png')">
+        <img src="img/debitlvad.png" alt="Débits LVAD">
+        <span>Débits LVAD</span>
+      </button>
+    </div>
+  `;
+
+  const complicationsTable = `
+    <div class="info-content ecmo-table-wrap">
+      <table class="ecmo-table ecmo-table-4cols">
+        <thead>
+          <tr>
+            <th>Complication</th>
+            <th>Facteurs favorisants</th>
+            <th>Prévention</th>
+            <th>Prise en charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Malposition chirurgicale</strong></td>
+            <td>
+              <p>- VG de petite taille (non dilaté)</p>
+              <p>- Canule d’admission orientée vers le SIV</p>
+              <p>- Anastomose aortique sténosante</p>
+            </td>
+            <td>
+              <p>- Sélection soigneuse du patient: VG dilaté, absence de RM serré</p>
+              <p>- Vérification ETO à l’implantation: position <em>inflow</em>, doppler <em>outflow</em></p>
+            </td>
+            <td>
+              <p><strong>Ré-intervention</strong> chirurgicale si nécessaire</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Majoration d’une insuffisance aortique, d’un FOP/CIA</strong></td>
+            <td>
+              <p>- Insuffisance aortique, FOP ou CIA pré-existant</p>
+            </td>
+            <td>
+              <p>- RVA, fermeture du FOP/CIA dans le même temps que l’implantation du LVAD</p>
+            </td>
+            <td>
+              <p>- RVA, fermeture du FOP/CIA</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Dysfonction ventriculaire droite (20-30% des cas)</strong></td>
+            <td>
+              <p>- Dysfonction VD pré-existante</p>
+              <p>- Score Intermacs 1 ou 2</p>
+              <p>- DFG &lt; 30 mL/min</p>
+              <p>- Polytransfusion, expansion volémique massive</p>
+              <p>- Troubles du rythme cardiaque</p>
+              <p>- Reprise chirurgicale</p>
+              <p>- Infection</p>
+              <p>- Haut débits d’assistance</p>
+            </td>
+            <td>
+              <p>- Evaluation soigneuse de la fonction VD avant implantation</p>
+              <p>- Eviter le sur-débit d’assistance</p>
+              <p>- Noradrénaline pour PAM &gt; 75 mmHg</p>
+              <p>- NO inhalé, PEP minimale</p>
+              <p>- Accélération FC 100/min</p>
+              <p>- Inotropes: Dobutamine</p>
+            </td>
+            <td>
+              <p><strong>Mesures de protection VD:</strong> FC 100/min, PAM &gt; 70 mmHg, diminution postcharge VD</p>
+              <p><strong>Si échec:</strong> assistance droite (ECMO droite-droite ou Impella droite)</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Saignements</strong></td>
+            <td>
+              <p>- Post-op précoces</p>
+              <p>- Hémorragie digestive tardive</p>
+              <p>- Antiagrégant/anticoagulant pré-opératoires, troubles de coagulation</p>
+              <p>- Willebrandt acquis (<em>shear</em> stress)</p>
+              <p>- ECMO péri-opératoire ou CEC prolongée</p>
+              <p>- Patient redux/tridux</p>
+              <p>- Dysfonction VD</p>
+            </td>
+            <td>
+              <p>- Correction des troubles de coagulation</p>
+              <p>- Eviter le sur-débit d’assistance</p>
+            </td>
+            <td>
+              <p>- Correction des troubles de coagulation</p>
+              <p>- Reprise chirurgicale si nécessaire</p>
+              <p>- Si hémorragie digestive: FOGD, embolisation…</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>AVC: ischémiques ou hémorragiques</strong></td>
+            <td>
+              <p>- AVC ischémiques: absence d’ouverture aortique, défaut d’anticoagulation</p>
+              <p>- AVC hémorragiques: HTA, surdosage anticoagulant</p>
+            </td>
+            <td>
+              <p>- Surveillance d’une pulsatilité/ouverture aortique</p>
+              <p>- Anticoagulation adaptée</p>
+              <p>- Contrôle tensionnel</p>
+            </td>
+            <td>
+              <p>- Si AVC ischémique: thrombectomie (thrombolyse CI)</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Thrombose et arrêt de pompe</strong></td>
+            <td>
+              <p>- Défaut d’anticoagulation</p>
+              <p>- Hypercoagulabilité</p>
+              <p>- Faible débit de pompe: HTA, diminution de vitesse…</p>
+            </td>
+            <td>
+              <p>- Anticoagulation efficace: HNF IVSE AntiXa 0,3-0,6 ou AVK avec INR 2-3</p>
+              <p>- Réglage d’une vitesse minimale de pompe</p>
+            </td>
+            <td>
+              <p>- Majorer anticoagulation</p>
+              <p>- Discuter thrombolyse systémique</p>
+              <p>- Changement LVAD ou transplantation cardiaque</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Hémolyse</strong></td>
+            <td>
+              <p>- Malposition &amp; phénomène de succion</p>
+              <p>- Thrombose de pompe</p>
+              <p>- Anastomose éjectionnelle sténosante</p>
+              <p>- Vitesse de rotation élevée</p>
+            </td>
+            <td>
+              <p>- Surveillance Hb plasmatique (&lt; 150mg/L), LDH, bilirubine…</p>
+              <p>- Anticoagulation efficace</p>
+              <p>- Vmax éjectionnelle &lt; 2,5 m/s (doppler continu)</p>
+            </td>
+            <td>
+              <p>- Ajuster vitesse de rotation</p>
+              <p>- Majorer anticoagulation</p>
+              <p>- Correction chirurgicale d’une malposition</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>Complications infectieuses:</strong><br>Locales de driveline<br>Infections systémiques</td>
+            <td>
+              <p>- Durée d’asssistance par LVAD</p>
+              <p>- Terrain: Diabète, immunodépression…</p>
+              <p>- Antibiothérapies à répétition</p>
+            </td>
+            <td>
+              <p>- Antibioprophylaxie à l’implantation</p>
+              <p>- Soins locaux de driveline</p>
+            </td>
+            <td>
+              <p>- Si infection orifice driveline:</p>
+              <p>- Sans sepsis/bactériémie: Mise à plat si abcès, ATB 14 jours (pas de probabiliste), soins locaux</p>
+              <p>- Avec sepsis/bactériémie: Mise à plat si abcès, ATB ≥ 14 jours (probabiliste couvrant <em>P.aeruginosa</em>, entérobactéries nosocomiales, <em>Staphylococcus spp.</em>)</p>
+              <p>- Si infection profonde: ATB IV ≥ 6 semaines. Si persistante après 6 semaines d’ATB: discuter changement de pompe ou transplantation.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
   const encadres = [
     {
-      titre: "LVAD",
+      titre: "Généralités sur le LVAD",
+      html: ecmoTable([
+        [
+          "Principe et composition",
+          `
+            <p>Le <strong>LVAD</strong> (<strong>Left Ventricular Assist Device</strong>) est une technique d’assistance mono-ventriculaire gauche de longue durée, chez les patients présentant une dysfonction ventriculaire gauche sévère terminale. Il s’agit d’une pompe centrifuge internalisée placée à l’apex du VG permettant un débit sanguin de 3 à 10 L/min du ventricule gauche vers l’aorte thoracique.</p>
+            <div class="impella-spacer"></div>
+            
+            <p>Le dispositif se compose de:</p>
+            <p>- Une <strong>canule d’admission</strong> (<strong>inflow cannula</strong>): implantée à l’apex du ventricule gauche, elle doit être orientée vers le flux mitral.</p>
+            <p>- Une <strong>pompe centrifuge magnétique</strong>: A l’apex du VG, elle génère un débit continu avec pouls artificiel. Le débit sanguin peut atteindre 10 L/min pour le HeartMate3. Son débit dépend des conditions de charge (pré-charge VG), de la vitesse réglée (en tours/min) et de la pression intra-aortique.</p>
+            <p>- Une <strong>canule éjectionnelle</strong> (<strong>outflow graft</strong>): Prothèse vasculaire reliant la pompe centrifuge à l’aorte thoracique ascendante (à privilégier) ou descendante.</p>
+            <p>- Une <strong>driveline</strong>: Câble reliant la pompe centrifuge au contrôleur externe, généralement externalisée en sous-costal droit. Elle permet l’alimentation de la pompe et la transmission des données de fonctionnement (réglages, alarmes…).</p>
+            <p>- Un <strong>contrôleur</strong> (System Controller): Il permet le réglage de la vitesse de pompe (tpm), l’affichage des paramètres mesurés (débit estimé en L/min, la puissance en W, l’index de pulsatilité), la gestion des batteries, le réglage et l’historique des alarmes. Il est relié à la pompe via la driveline, et à une source d’alimentation (batteries externes ou secteur).</p>
+            <p>- Une <strong>source d’alimentation</strong>: Elle peut se faire par prise secteur (si connecté à la base station), via deux batteries externes portables, ou sur batterie interne (de courte autonomie).</p>
+            <div class="impella-spacer"></div>
+            <p>Il existe actuellement principalement 3 types de LVAD: HeartMate3, HeartWare, Jarvik 2000. ${imgInline("Cf types de LVAD", "typelvad.png")}</p>
+          `
+        ],
+        [
+          "Schéma du dispositif",
+          `
+            <div class="image-container">
+              <img src="img/circuitlvad.png" alt="Schéma du LVAD" style="display:block;">
+            </div>
+          `
+        ],
+        [
+          "Indications",
+          `
+            <p>Insuffisance cardiaque mono-ventriculaire gauche ou bi-ventriculaire au stade terminal et réfractaire au traitement médical optimal. Généralement des cardiomyopathies dilatées et cardiopathies ischémiques terminales. Le contexte clinique correspond à des patients INTERMACS 2 à 4. ${imgInline("Cf Intermacs", "intermacs.png")}</p>
+            <div class="impella-spacer"></div>
+
+            <p>En cas d’indication retenue d’assistance par LVAD, les trois devenirs possibles sont:</p>
+            <p><strong>- Bridge to transplantation</strong>: dans l’attente d’un greffon cardiaque</p>
+            <p><strong>- Bridge to recovery</strong>: en cas de récupération attendue de la fonction myocardique</p>
+            <p><strong>- Destination therapy</strong>: assistance définitive, en cas de contrôle indication à la greffe et sans récupération myocardique attendue</p>
+          `
+        ],
+        [
+          "Contre-indications",
+          `
+            <p><strong>Contre-indications absolues:</strong></p>
+            <p>- Défaillance d’organe sévère: insuffisance hépatique, insuffisance respiratoire, lésion neurologique étendue irréversible</p>
+            <p>- Troubles sévères de l’hémostase ou contre-indication à l’anticoagulation (hémorragie active, saignement intracrânien).</p>
+            <p>- Infection/sepsis non contrôlé</p>
+            <p>- Espérance de vie &lt; 2 ans: comorbidités majeures, cancer évolutif, cachexie, maladie de système avec atteinte multiple d’organes…</p>
+            <p>- Maladies psychiatriques déséquilibrées et/ou mauvaise observance majeure</p>
+            <div class="impella-spacer"></div>
+            <p><strong>Contre-indications relatives (selon contexte/avis expert):</strong></p>
+            <p>- Défaillance ventriculaire droite ou HTAP sévère associée (possibilité d’assistance courte durée par ECMO droite-droite ou longue durée par BiVAD)</p>
+            <p>- Insuffisance aortique sévère (corrigeable par RVA lors de l’implantation)</p>
+            <p>- Rétrécissement mitral sévère (risque de succion, RVM possible)</p>
+            <p>- CIV (corrigeable par fermeture lors de l’implantation)</p>
+            <p>- VG de petite taille ou hypertrophique (risque de succion)</p>
+            <p>- Surface corporelle &lt; 1,2 m² (risque de succion)</p>
+            <p>- Aorte porcelaine (risque embolique)</p>
+          `
+        ],
+      ]),
+    },
+
+    {
+      titre: "Gestion pratique du LVAD",
+      html: ecmoTable([
+        [
+          "Evaluation pré-opératoire",
+          `
+            <p><strong>Détermination de la voie d’abord chirurgicale et de l’assistance circulatoire per-opératoire:</strong></p>
+            <p>- Sternotomie: Sous CEC si autre geste associé (RVA, fermeture de CIA, plastie tricuspide…) ou ECMO artério-veineuse si implantation seule de LVAD</p>
+            <p>- Thoracotomie gauche + mini-manubriectomie sous ECMO artério-veineuse: thoracotomie pour positionnement de la pompe, mini-manubriectomie pour accès à l’aorte ascendante.</p>
+            <p>- Thoracotomie gauche isolée (rarement pratiquée): Clampage latéral de l’aorte si ré-injection dans l’aorte thoracique descendante (Possible pour Jarvik 2000 et HeartWare).</p>
+            <div class="impella-spacer"></div>
+            <p><strong>Evaluation de la fonction ventriculaire droite:</strong></p>
+            <p>- Echocardiographie: Rapport VD/VG &gt; 0,75, modification géométrique du VD, TAPSE &lt; 7,5 mm, onde S’ &lt; 8 cm/s, insuffisance tricuspide ≥ modérée, dilatation anneau tricuspide</p>
+            <p>- Cathétérisme droit: POD, PAPm, index de pulsatilité de l’artère pulmonaire PAPi = (PAPs-PAPd)/PVC, Index de charge de travail du VD RVSWI = (PAPm- POD) x IC/FC, RVP</p>
+            <p>- Une assistance par Impella peut permettre de « tester » la fonction VD en mimant une assistance par LVAD de courte durée</p>
+            <div class="impella-spacer"></div>
+            <p><strong>Gestion hémodynamique post-opératoire prévue:</strong></p>
+            <p>- Monitorage étroit de la fonction VD par cathéter de Swan Ganz (au minimum)</p>
+            <p>- Implantation d’emblée d’une ECMO droite-droite en fin d’intervention</p>
+          `
+        ],
+        [
+          "Implantation du LVAD",
+          `
+            <p><strong>Pré-commande large de PSL:</strong> 8 CGR, 8 PFC, 2 CUP au minimum</p>
+            <p><strong>Eléments disponibles en salle:</strong> aimant si PM/DAI, bouteille de NO, contrôleur principal et de secours programmés (date, identité patient, langue) et chargés.</p>
+            <p><strong>Abord chirurgical prévu:</strong> Sternotomie ou thoracotomie gauche + manubriectomie ou thoracotomie gauche seule</p>
+            <p><strong>Assistance circulatoire prévue:</strong> CEC ou ECMO VA ou aucune</p>
+
+            <p><strong>Protocole anesthésique:</strong></p>
+            <p>- Monitorage: Scope, SpO2, Kta, VVP, KTc, BIS, NIRS, ETO, +/- Swan Ganz</p>
+            <p>- Induction Etomidate, entretien AIVOC Propofol/Sufentanil.</p>
+            <p>- Atracurium bolus puis IVSE</p>
+            <p>- Kétamine 0,125mg/kg/h IVSE</p>
+            <p>- Anti-fibrinolyse par Exacyl 20mg/kg puis 2mg/kg/h</p>
+
+            <p><strong>Ventilation:</strong> Sonde monolumière si sternotomie, double lumière si thoracotomie gauche</p>
+
+            <p><strong>Antibioprophylaxie:</strong> Céfazoline 2g puis 1g/4h (Vancomycine 20mg/kg si allergie sévère aux béta-lactamines)</p>
+
+            <p><strong>Anticoagulation:</strong></p>
+            <p>- Si CEC: Bolus d’HNF 300-400 UI/kg pour objectif d’ACT &gt; 400s</p>
+            <p>- Si ECMO VA: Bolus d’HNF 200-300 UI/kg pour objectif d’ACT &gt; 350s</p>
+
+            <p><strong>ETO pré-implantation:</strong> A rechercher spécifiquement:${imgInline("Cf ETO pré-LVAD", "etolvad.png")}</p>
+            <p>- Ventricule gauche: HVG, CIV, thrombus VG, anévrysme VG</p>
+            <p>- Oreillette gauche: FOP/CIA, thrombus auriculaire</p>
+            <p>- Ventricule droit: Dysfonction systolique VD, dilatation VD</p>
+            <p>- Valves: insuffisance aortique, rétrécissement mitral, insuffisance tricuspide</p>
+            <p>- Aorte: anévrysme aortique, aorte porcelaine, dissection aortique</p>
+
+            <p><strong>Etapes chirurgicale de l’implantation d’un HeartMate3:</strong></p>
+            <p>- Abord chirurgical, exposition du cœur</p>
+            <p>- Test de la pompe sur le champ opératoire avec NaCl 0,9% contenant 1g de Vancomycine. Laisser tourner à vitesse minimale pendant 10min.</p>
+            <p>- Tunnelisation de la driveline jusqu’en position sous-costale droite</p>
+            <p>- Administration du bolus d’HNF, canulation et départ CEC/ECMO après objectif d’ACT. Clampage aortique si autre geste chirurgical associé ou stimulation épicardique rapide.</p>
+            <p>- Fixation de la collerette de la canule d’admission à l’apex du VG, excision du tissu apical, introduction de la canule d’admission en direction du flux mitral</p>
+            <p>- Fixation du tube d’éjection sur l’aorte ascendante ou descendante (clampage aortique latéral dans ce cas)</p>
+            <p>- Connexion de la pompe au contrôleur</p>
+            <p>- Purge du cœur et du LVAD, recrutement alvéolaire. Diminution transitoire du débit d’assistance CEC/ECMO +/- déclampage aortique (si clampage)</p>
+
+            <p><strong>Démarrage de la pompe:</strong></p>
+            <p>- Reprise du monitorage du débit cardiaque par Swan Ganz (si en place)</p>
+            <p>- Démarrage du LVAD à vitesse minimale + déclampage du tube éjectionnel</p>
+            <p>- Vérification ETO de l’absence de bulle intra-cardiaque</p>
+            <p>- Augmentation progressive du débit de LVAD jusqu’à 2,2-2,4 L/min/m²</p>
+            <p>- Réglages de la console: vitesse de rotation, vitesse de rotation minimale, alarme de débit minimal, hématocrite de sortie. Copie de ces réglages du contrôleur de secours.</p>
+            <p>- Insertion de la batterie interne et réarmement des alarmes</p>
+
+            <p><strong>ETO post-implantation</strong></p>
+            <p>- Canule d’admission: orientation vers le flux mitral, parallèle au SIV, flux d’admission &lt; 1,5m/s (doppler continu)</p>
+            <p>- Cavités gauches: Diminution de la taille du VG, absence de contraste spontané intra-VG, diminution ou disparition d’une IM</p>
+            <p>- Ventricule droit: SIV aplati, rapport VD/VG augmenté à 0,8-1. Possible dysfonction VD à rechercher, risque de majoration d’une IT.</p>
+            <p>- Canule de réinjection: Flux de ré-injection aortique non aliasé, vitesse &lt; 2 m/s (doppler continu). Suture sténosante si &gt; 2 m/s.</p>
+            <p>- Valve aortique: persistance d’une ouverture intermittente, absence d’IA (ou minime), absence de contraste spontané de la racine aortique.</p>
+          `
+        ],
+        [
+          "Réglage de la console (Exemple du HeartMate3)",
+          `
+            <p><strong>Affichage sur le contrôleur:</strong> Etat de marche de la pompe, vitesse (tpm), niveau de batterie</p>
+<p><strong>Gestion du moniteur (HeartMate Touch)</strong></p>
+
+<p>- Paramètres à régler: (Menu en haut à droite de l’écran)</p>
+<ul class="impella-sub-list">
+  <li>Vitesse de rotation (tpm): Généralement 5000-5400 tpm (mais peut aller de 3000 à 9000 tpm).</li>
+  <li>Vitesse minimale de pompe (tpm)</li>
+  <li>L’hématocrite minimal de sortie (%)</li>
+</ul>
+
+<p>- Paramètres affichés:</p>
+<ul class="impella-sub-list">
+  <li>Vitesse de pompe (tpm)</li>
+  <li>Débit sanguin estimé de pompe (L/min)</li>
+  <li>Puissance délivrée (Watt): 3-6 Watt</li>
+  <li>Index de pulsatilité (PI)</li>
+  <li>Niveau de batterie</li>
+</ul>
+
+            <div class="bcpia-screens">
+              <img src="img/ecranlvad.png" alt="Écran LVAD" style="display:block;">
+            </div>
+          `
+        ],
+        [
+          "Surveillance quotidienne après implantation de LVAD",
+          `
+            <p><strong>Clinique:</strong></p>
+            <p>- Signes d’hypoperfusion tissulaire, diurèse, saignement ou infection du site opératoire.</p>
+            <p>- Swan Ganz: débit cardiaque et fonction ventriculaire droite</p>
+
+            <p><strong>Assistance:</strong></p>
+            <p>- Vitesse de rotation et débit de pompe: Généralement 5000-5400 tpm pour débit de LVAD de 2,2-2,4 L/min/m². Si débit LVAD estimé insuffisant: ${imgInline("Cf algorithme débit LVAD", "algolvad.png")}</p>
+            <p>- Puissance délivrée (Watt): 3-6 Watt</p>
+            <ul class="impella-sub-list">
+  <li>Augmentation si: augmentation de vitesse, augmentation de viscosité sanguine, thrombose de pompe, obstruction partielle, hypertension artérielle. </li>
+  <li>Diminution si: Diminution de vitesse, diminution de viscosité, diminution de précharge, dysfonction de pompe, batterie faible</li>
+</ul>
+            <p>- Index de pulsatilité (PI):</p>
+            <ul class="impella-sub-list">
+  <li>Augmentation si: Augmentation de précharge VG (diminution vitesse de pompe, expansion volémique), récupération de fonction VG</li>
+  <li>Diminution si: Baisse de précharge (hypovolémie, tamponnade, dysfonction VD…), troubles du rythme, thrombose de pompe</li>
+</ul>
+
+            <p><strong>Biologie:</strong> AntiXa 0,3-0,6 UI/mL, recherche de thrombopénie/hémolyse</p>
+          `
+        ],
+        [
+          "Prescriptions médicamenteuses après implantation de LVAD",
+          `
+            <p><strong>Hémodynamique:</strong></p>
+            <p>- Vasopresseurs:Noradrénaline IVSE pour objectif de PAM 70-80 mmHg (risque d’AVC si &gt; 85 mmHg)</p>
+            <p>- Inotropes: Dobutamine si dysfonction VD ou absence de débit trans-aortique. Milrinone ou Levosimedan à discuter</p>
+            <p>- Vasodilatateurs: NO inhalé, éproprosténol inhalé, inhibiteurs de la phosphodiestérase type 5 (Sildénafil)</p>
+
+            <p><strong>Traitements cardiologiques de fond:</strong></p>
+            <p>- Anti-hypertenseurs:IEC ou ARA2 en 1ère intention</p>
+            <p>- Furosémide pour limiter la congestion veineuse et dysfonction droite</p>
+
+            <p><strong>Anticoagulation:</strong> HNF IVSE pour objectif d’AntiXa 0,3-0,6 UI/mL. AVK à distance de l’intervention (INR cible 2-3)</p>
+          `
+        ],
+      ]),
+    },
+
+    {
+      titre: "Echographie trans-oesophagienne et LVAD",
       html: `
-        <p>Prise en charge d’un LVAD (paramètres de pompe, anticoagulation, surveillance).
-        Contenu à compléter.</p>
+        <div class="info-content">
+          ${lvadEtoThumbs}
+        </div>
       `,
     },
+
+    {
+      titre: "Complications du LVAD",
+      html: complicationsTable,
+    },
   ];
+
   renderInterventionPage({
     titre: "Assistances circulatoires",
     sousTitre: "LVAD",
@@ -14878,23 +16319,13 @@ function renderReanAssistLVAD() {
   });
 }
 
-function renderReanAssistCardioWest() {
-  const encadres = [
-    {
-      titre: "Cardio-west",
-      html: `
-        <p>Prise en charge d’un cœur artificiel total (Cardio-west).
-        Contenu à compléter.</p>
-      `,
-    },
-  ];
-  renderInterventionPage({
-    titre: "Assistances circulatoires",
-    sousTitre: "Cardio-west",
-    image: "assistances.png",
-    encadres,
-  });
-}
+
+
+
+
+
+
+
 
 // =====================================================================
 //  RÉANIMATION – ANTIBIOTHÉRAPIE (5 sous-parties existantes ATB)
