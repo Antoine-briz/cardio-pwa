@@ -199,7 +199,7 @@ const PRECACHE = [
   "img/controleurimpella.png",
   "img/purgeimpella.png",
   "img/circuitimpella.png",
-  "img/plevelimpella.png",
+  "img/debitimpella.png",
   "img/ecranimpella.png",
   "img/ecranimpella2.png",
   "img/fixationimpella.png",
