@@ -26860,7 +26860,6 @@ const routes = {
   "#/reanimation/assistances/bcpia": sub(renderReanAssistancesMenu, renderReanAssistBCPIA),
   "#/reanimation/assistances/impella": sub(renderReanAssistancesMenu, renderReanAssistImpella),
   "#/reanimation/assistances/lvad": sub(renderReanAssistancesMenu, renderReanAssistLVAD),
-  "#/reanimation/assistances/cardio-west": sub(renderReanAssistancesMenu, renderReanAssistCardioWest),
 
   // Antibiothérapie probabiliste (routes existantes)
   "#/proba": renderProbaMenu,
