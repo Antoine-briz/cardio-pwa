@@ -193,7 +193,7 @@ const PRECACHE = [
   "img/etobcpia.png",
   "img/ecranbcpia.png",
   "img/ecranbcpia2.png",
-  "img/asynchroniebcpia",
+  "img/asynchroniebcpia.png",
   "img/radiobcpia.png",
   "img/calibreimpella.png",
   "img/controleurimpella.png",
@@ -207,7 +207,7 @@ const PRECACHE = [
   "img/circuitlvad.png",
   "img/intermacs.png",
   "img/etolvad.png",
-  "img/ecranlvad2.png",
+  "img/ecranlvad.png",
   "img/algolvad.png",
 
   // Menu principal
