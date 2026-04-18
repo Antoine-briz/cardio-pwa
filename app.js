@@ -2106,7 +2106,7 @@ function renderAnesthChirCecMenu() {
             Transplantation cardiaque
           </button>
           <button class="btn" onclick="openSubPage(renderInterventionAssistancesCEC, renderAnesthChirCecMenu)">
-            Assistances circulatoires (implantation / explantation)
+            Assistances circulatoires 
           </button>
       </div>
     </section>
@@ -10889,36 +10889,7 @@ function setupTransplantAnesthLogic() {
 }
 
 function renderInterventionAssistancesCEC() {
-  const encadres = [
-    {
-      titre: "Implantation / explantation",
-      html: `
-        <p>
-          Contenu à compléter (checklist anesthésie, anticoagulation, monitorage,
-          stratégie hémodynamique, transfusion, points de vigilance, etc.).
-        </p>
-      `,
-      ouvert: true,
-    },
-    {
-      titre: "Points clés",
-      html: `
-        <ul>
-          <li>Indication / type d’assistance (ECLS/ECMO, Impella, CPIA, etc.)</li>
-          <li>Anticoagulation / hémostase</li>
-          <li>Gestion hémodynamique / ventilation</li>
-          <li>Complications per-op</li>
-        </ul>
-      `,
-    },
-  ];
-
-  renderInterventionPage({
-    titre: "Assistances circulatoires",
-    sousTitre: "Implantation / explantation (CEC)",
-    image: "assistances.png",
-    encadres,
-  });
+  renderReanAssistancesMenu();
 }
 
 function renderInterventionTAVI() {
