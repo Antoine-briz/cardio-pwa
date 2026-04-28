@@ -10775,3 +10775,73 @@ body.theme-light .saric-cal-cell.weekend.holiday {
   transform: scale(0.97);
   border-color: #3b82f6 !important;
 }
+
+/* ============================================================
+   DÉSIRÉRATAS - couleurs popup + badges calendrier
+   ============================================================ */
+
+.saric-popup-options label {
+  border: 1px solid var(--border, #334155) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+
+.saric-popup-options input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #0b3c6d !important;
+}
+
+.saric-desid-choice-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 5px 10px !important;
+  font-weight: 900 !important;
+  font-size: 0.85rem !important;
+}
+
+/* Rouge */
+.saric-mini-tag-red,
+.saric-desid-choice-label.saric-mini-tag-red {
+  background: #fecaca !important;
+  color: #7f1d1d !important;
+}
+
+/* Gris */
+.saric-mini-tag-grey,
+.saric-desid-choice-label.saric-mini-tag-grey {
+  background: #d1d5db !important;
+  color: #111827 !important;
+}
+
+/* Bleu */
+.saric-mini-tag-blue,
+.saric-desid-choice-label.saric-mini-tag-blue {
+  background: #dbeafe !important;
+  color: #0b1f3b !important;
+}
+
+/* Bouton orange avant validation */
+.saric-desid-submit-btn {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+}
+
+/* Bouton vert après validation */
+.saric-desid-valid-btn {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+}
+
+/* Bouton Modifier */
+.saric-desid-edit-btn {
+  background: #0b3c6d !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+}
