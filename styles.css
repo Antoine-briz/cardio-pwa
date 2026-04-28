@@ -10340,3 +10340,261 @@ button[onclick*="admin"],
 .saric-login-card .btn {
   width: 100% !important;
 }
+
+/* ============================================================
+   LOGIN PLANNING - CORRECTIONS STYLE
+   1. Espacement des champs / boutons
+   2. Champ mot de passe identique au select médecin
+   ============================================================ */
+
+.saric-login-card {
+  display: grid !important;
+  gap: 16px !important;              /* espace entre tous les éléments */
+  padding: 18px !important;
+}
+
+.saric-login-card label {
+  display: block !important;
+  margin-bottom: 6px !important;
+}
+
+/* espace entre chaque bloc formulaire */
+.saric-login-card select,
+.saric-login-card input[type="password"],
+.saric-login-card .btn {
+  margin-top: 6px !important;
+}
+
+/* Champ médecin + mot de passe = même style */
+.saric-login-card select,
+.saric-login-card input[type="password"] {
+  width: 100% !important;
+  height: 54px !important;
+  padding: 0 18px !important;
+
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,0.85) !important;
+
+  background: #0b1220 !important;
+  color: #ffffff !important;
+
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+
+  outline: none !important;
+  box-sizing: border-box !important;
+
+  transition: all 0.2s ease !important;
+}
+
+/* Focus identique */
+.saric-login-card select:focus,
+.saric-login-card input[type="password"]:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18) !important;
+}
+
+/* Boutons mieux espacés */
+.saric-login-card .btn {
+  margin-top: 4px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+}
+
+/* Texte aide en bas */
+.saric-login-card small,
+.saric-login-card p {
+  margin-top: 8px !important;
+}
+
+/* ============================================================
+   PLANNING SMARTPHONE - onglets bleus + calendrier personnel 7 colonnes
+   ============================================================ */
+
+#saric-planning-body .saric-tabs,
+.saric-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+}
+
+.saric-tab {
+  background: #0b3c6d !important;
+  color: #ffffff !important;
+  border: 1px solid #0b3c6d !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  font-weight: 900 !important;
+}
+
+.saric-tab.active {
+  background: #145ea8 !important;
+  border-color: #145ea8 !important;
+  color: #ffffff !important;
+}
+
+/* Sélecteur médecin du planning */
+#saric-planning-doctor {
+  width: 100% !important;
+  height: 50px !important;
+  border-radius: 14px !important;
+  padding: 0 14px !important;
+  background: #0b1220 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.8) !important;
+}
+
+/* Calendrier personnel : 7 jours par ligne */
+.saric-calendar {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+  width: 100% !important;
+}
+
+.saric-weekdays {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+  margin-bottom: 6px !important;
+}
+
+.saric-weekdays b {
+  font-size: 0.7rem !important;
+  text-align: center !important;
+}
+
+.saric-cal-cell {
+  min-height: 58px !important;
+  padding: 5px 3px !important;
+  border-radius: 9px !important;
+  overflow: hidden !important;
+}
+
+.saric-cal-cell.muted {
+  visibility: hidden !important;
+  display: block !important;
+}
+
+.saric-day {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  align-items: flex-start !important;
+  margin: 0 !important;
+}
+
+.saric-day strong {
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+}
+
+.saric-day small {
+  font-size: 0.52rem !important;
+  line-height: 1 !important;
+}
+
+.saric-personal-post-badge,
+.saric-tags span {
+  margin: 3px 0 0 0 !important;
+  padding: 3px 4px !important;
+  border-radius: 6px !important;
+  font-size: 0.52rem !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.saric-empty {
+  font-size: 0.65rem !important;
+  margin-top: 4px !important;
+}
+
+/* Popup détail jour */
+.saric-day-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.saric-day-detail-box {
+  width: min(92vw, 420px);
+  max-height: 82vh;
+  overflow: auto;
+  background: var(--card, #111827);
+  color: var(--fg, #ffffff);
+  border: 1px solid var(--border, #334155);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.saric-day-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.saric-day-detail-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.saric-day-detail-close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.saric-day-detail-content .saric-personal-post-badge {
+  font-size: 0.95rem !important;
+  padding: 10px !important;
+  border-radius: 12px !important;
+  white-space: normal !important;
+}
+
+/* Mois simplifié : flèche gauche / titre / flèche droite */
+.saric-month-nav {
+  display: grid !important;
+  grid-template-columns: 46px 1fr 46px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.saric-month-title {
+  min-width: 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  text-transform: capitalize !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--fg) !important;
+}
+
+.saric-month-arrow {
+  width: 46px !important;
+  height: 46px !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+}
+
+/* Retire le bouton/logo calendrier */
+.saric-calendar-btn,
+.saric-hidden-month-input {
+  display: none !important;
+}
