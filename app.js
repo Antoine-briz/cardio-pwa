@@ -27770,11 +27770,15 @@ function saricOpenDesiderataDay(iso) {
     <h3>Désidératas du ${iso}</h3>
     <div class="saric-choice-grid">
       ${SARIC_DESIDERATA_TYPES.map(t => `
-        <label class="saric-choice">
-          <input type="checkbox" value="${t.id}" ${selected.includes(t.id) ? "checked" : ""}>
-          ${saricEscape(t.label)}
-        </label>
-      `).join("")}
+  <label>
+    <input type="checkbox"
+           value="${t.id}"
+           ${selected.includes(t.id) ? "checked" : ""}>
+    <span class="saric-desid-choice-label ${saricDesiderataClass(t.id)}">
+      ${saricEscape(t.label)}
+    </span>
+  </label>
+`).join("")}
     </div>
     <button class="btn" onclick="saricSaveDesiderata('${iso}')">Enregistrer</button>
   `;
