@@ -10598,3 +10598,51 @@ button[onclick*="admin"],
 .saric-hidden-month-input {
   display: none !important;
 }
+
+/* ============================================================
+   Planning mobile - amélioration visuelle des jours + mois lisible
+   ============================================================ */
+
+/* Nom du mois visible en thème sombre */
+.saric-month-title {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* Si thème clair, on remet foncé */
+body.theme-light .saric-month-title {
+  color: #0f172a !important;
+}
+
+/* Cases du calendrier plus jolies */
+.saric-cal-cell {
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,0.03) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+/* Survol / clic */
+.saric-cal-cell:active {
+  transform: scale(0.97);
+  border-color: #3b82f6 !important;
+}
+
+/* Week-end / férié gardent leur style mais avec contour */
+.saric-cal-cell.weekend,
+.saric-cal-cell.holiday,
+.saric-cal-cell.weekend.holiday {
+  border-width: 1px !important;
+}
+
+/* Numéro du jour plus visible */
+.saric-day strong {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* Thème clair */
+body.theme-light .saric-day strong {
+  color: #0f172a !important;
+}
