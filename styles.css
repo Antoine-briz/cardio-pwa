@@ -11073,3 +11073,65 @@ body.theme-light .saric-cal-cell.weekend.holiday {
   font-weight: 900 !important;
   z-index: auto !important;
 }
+
+/* ============================================================
+   MENU PRINCIPAL SARIC : 3 boutons sur la même ligne
+   Planning / Désidératas / Mon compte
+   ============================================================ */
+
+/* Conteneur des 3 boutons */
+.saric-main-menu,
+.saric-top-menu,
+.saric-tabs,
+.saric-nav-buttons {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin: 12px 0 16px 0 !important;
+  align-items: stretch !important;
+}
+
+/* Boutons */
+.saric-main-menu button,
+.saric-main-menu .btn,
+.saric-top-menu button,
+.saric-top-menu .btn,
+.saric-tabs button,
+.saric-tabs .btn,
+.saric-nav-buttons button,
+.saric-nav-buttons .btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 52px !important;
+  padding: 0 10px !important;
+  border-radius: 14px !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  white-space: nowrap !important;
+}
+
+/* Smartphone : texte légèrement plus petit */
+@media (max-width: 640px) {
+  .saric-main-menu,
+  .saric-top-menu,
+  .saric-tabs,
+  .saric-nav-buttons {
+    gap: 8px !important;
+  }
+
+  .saric-main-menu button,
+  .saric-main-menu .btn,
+  .saric-top-menu button,
+  .saric-top-menu .btn,
+  .saric-tabs button,
+  .saric-tabs .btn,
+  .saric-nav-buttons button,
+  .saric-nav-buttons .btn {
+    font-size: 13px !important;
+    height: 48px !important;
+    padding: 0 6px !important;
+  }
+}
