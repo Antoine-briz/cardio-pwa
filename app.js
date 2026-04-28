@@ -27589,36 +27589,32 @@ function saricMonthControl(extra = "") {
 
   return `
     <div class="saric-toolbar">
-      <div class="saric-month-nav">
-        <button class="saric-month-arrow" onclick="saricShiftMonth(-1)">←</button>
+  <div class="saric-month-nav">
+    <button
+      class="saric-month-arrow"
+      onclick="saricShiftMonth(-1)"
+      type="button"
+      aria-label="Mois précédent"
+    >
+      ←
+    </button>
 
-        <div class="saric-month-title">
-          ${saricEscape(saricMonthLabel(st.month))}
-        </div>
-
-        <button class="saric-month-arrow" onclick="saricShiftMonth(1)">→</button>
-
-        <button
-          type="button"
-          class="saric-calendar-btn"
-          onclick="document.getElementById('saric-month-picker')?.showPicker?.(); document.getElementById('saric-month-picker')?.click();"
-          title="Choisir un mois"
-        >
-          📅
-        </button>
-        <input
-          id="saric-month-picker"
-          class="saric-hidden-month-input"
-          type="month"
-          min="2026-01"
-          max="2026-12"
-          value="${st.month}"
-          onchange="saricSetMonth(this.value)"
-        >
-      </div>
-
-      ${extra}
+    <div class="saric-month-title">
+      ${saricEscape(saricMonthLabel(st.month))}
     </div>
+
+    <button
+      class="saric-month-arrow"
+      onclick="saricShiftMonth(1)"
+      type="button"
+      aria-label="Mois suivant"
+    >
+      →
+    </button>
+  </div>
+
+  ${extra}
+</div>
   `;
 }
 
@@ -27833,25 +27829,79 @@ function saricCalendarHtml(mode) {
     <div class="saric-weekdays">
       ${["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => `<b>${d}</b>`).join("")}
     </div>
+
     <div class="saric-calendar">
       ${Array.from({ length: pad }).map(() => `<div class="saric-cal-cell muted"></div>`).join("")}
+
       ${days.map(date => {
         const iso = saricDateKey(date);
         const weekend = saricIsWeekend(date);
         const holiday = saricIsHoliday(date);
+
+        const click =
+          mode === "desiderata"
+            ? `onclick="saricOpenDesiderataPopup('${iso}')"`
+            : `onclick="saricOpenPlanningDayDetail('${iso}')"`; 
+
         return `
-          <div class="saric-cal-cell ${weekend ? "weekend" : ""} ${holiday ? "holiday" : ""} ${mode === "desiderata" ? "saric-click-cell" : ""}"
-               ${mode === "desiderata" ? `onclick="saricOpenDesiderataPopup('${iso}')"` : ""}>
+          <div class="saric-cal-cell ${weekend ? "weekend" : ""} ${holiday ? "holiday" : ""} saric-click-cell"
+               ${click}>
             <div class="saric-day">
               <strong>${date.getDate()}</strong>
               <small>${holiday ? "Férié" : weekend ? "WE" : ""}</small>
             </div>
-            ${mode === "planning" ? saricPlanningCellContent(st, iso, date) : saricDesiderataCellContent(st, iso)}
+
+            ${mode === "planning"
+              ? saricPlanningCellContent(st, iso, date)
+              : saricDesiderataCellContent(st, iso)}
           </div>
         `;
       }).join("")}
     </div>
   `;
+}
+
+function saricOpenPlanningDayDetail(iso) {
+  const st = saricLoadState();
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+
+  const label = date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  const content = saricPlanningCellContent(st, iso, date);
+
+  const old = document.querySelector(".saric-day-detail-overlay");
+  if (old) old.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "saric-day-detail-overlay";
+  overlay.innerHTML = `
+    <div class="saric-day-detail-box">
+      <div class="saric-day-detail-head">
+        <h3>${saricEscape(label)}</h3>
+        <button class="saric-day-detail-close" onclick="saricClosePlanningDayDetail()">×</button>
+      </div>
+
+      <div class="saric-day-detail-content">
+        ${content}
+      </div>
+    </div>
+  `;
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) saricClosePlanningDayDetail();
+  });
+
+  document.body.appendChild(overlay);
+}
+
+function saricClosePlanningDayDetail() {
+  document.querySelector(".saric-day-detail-overlay")?.remove();
 }
 
 function saricPlanningCellContent(st, iso, date) {
