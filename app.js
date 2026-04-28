@@ -27891,7 +27891,12 @@ function saricCalendarHtml(mode, forcedState = null) {
 }
 
 function saricOpenPlanningDayDetail(iso) {
-  const st = saricLoadState();
+  const raw = saricLoadState();
+
+  const st = saricMonthIsPublished(raw, raw.month)
+    ? saricPublishedViewState(raw, raw.month)
+    : raw;
+
   const [y, m, d] = iso.split("-").map(Number);
   const date = new Date(y, m - 1, d);
 
@@ -27904,34 +27909,31 @@ function saricOpenPlanningDayDetail(iso) {
 
   const content = saricPlanningCellContent(st, iso, date);
 
-  const old = document.querySelector(".saric-day-detail-overlay");
-  if (old) old.remove();
+  document.querySelector(".saric-day-detail-overlay")?.remove();
 
   const overlay = document.createElement("div");
   overlay.className = "saric-day-detail-overlay";
   overlay.innerHTML = `
-    <div class="saric-day-detail-box">
+    <div class="saric-day-detail-box" onclick="event.stopPropagation()">
       <div class="saric-day-detail-head">
         <h3>${saricEscape(label)}</h3>
         <button class="saric-day-detail-close" onclick="saricClosePlanningDayDetail()">×</button>
       </div>
 
       <div class="saric-day-detail-content">
-        ${content}
+        ${content || `<div class="saric-empty">Aucun poste publié</div>`}
       </div>
     </div>
   `;
 
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) saricClosePlanningDayDetail();
-  });
-
+  overlay.addEventListener("click", saricClosePlanningDayDetail);
   document.body.appendChild(overlay);
 }
 
 function saricClosePlanningDayDetail() {
   document.querySelector(".saric-day-detail-overlay")?.remove();
 }
+
 
 function saricPlanningCellContent(st, iso, date) {
   const day = st.assignments[iso] || {};
@@ -29089,12 +29091,12 @@ function saricOpenDesiderataPopup(iso) {
   const current = saricCurrentUser();
   if (!current) return;
 
+  const docId = current.doctorId;
+  const selected = st.desiderata?.[docId]?.[iso] || [];
+
   const isSubmitted =
-    !!st.desiderataSubmitted?.[st.month]?.[current.doctorId];
+    !!st.desiderataSubmitted?.[st.month]?.[docId];
 
-  if (isSubmitted) return;
-
-  const selected = st.desiderata?.[current.doctorId]?.[iso] || [];
   const date = new Date(iso + "T00:00:00");
   const dateLabel = date.toLocaleDateString("fr-FR", {
     weekday: "long",
@@ -29105,25 +29107,54 @@ function saricOpenDesiderataPopup(iso) {
 
   document.getElementById("saric-popup")?.remove();
 
+  const selectedHtml = selected.length
+    ? `
+      <div class="saric-day-detail-content">
+        ${selected.map(key => `
+          <span class="saric-desid-choice-label ${saricDesiderataClass(key)}">
+            ${saricEscape(saricDesiderataLabel(key))}
+          </span>
+        `).join("")}
+      </div>
+    `
+    : `<div class="saric-empty">Aucune demande</div>`;
+
+  const editableHtml = isSubmitted
+    ? `
+      <div class="saric-popup-readonly">
+        ${selectedHtml}
+      </div>
+
+      <button class="btn saric-popup-ok" onclick="saricCloseDesiderataPopup()">
+        OK
+      </button>
+    `
+    : `
+      <div class="saric-popup-options">
+        ${SARIC_DESIDERATA_TYPES.map(t => `
+          <label>
+            <input
+              type="checkbox"
+              value="${t.id}"
+              ${selected.includes(t.id) ? "checked" : ""}
+            >
+            <span class="saric-desid-choice-label ${saricDesiderataClass(t.id)}">
+              ${saricEscape(t.label)}
+            </span>
+          </label>
+        `).join("")}
+      </div>
+
+      <button class="btn saric-popup-ok" onclick="saricSaveDesiderataPopup('${iso}')">
+        OK
+      </button>
+    `;
+
   const html = `
     <div class="saric-popup-overlay" id="saric-popup" onclick="saricCloseDesiderataPopup(event)">
       <div class="saric-popup-box" onclick="event.stopPropagation()">
         <h3>${saricEscape(dateLabel)}</h3>
-
-        <div class="saric-popup-options">
-          ${SARIC_DESIDERATA_TYPES.map(t => `
-            <label>
-              <input type="checkbox"
-                     value="${t.id}"
-                     ${selected.includes(t.id) ? "checked" : ""}>
-              ${saricEscape(t.label)}
-            </label>
-          `).join("")}
-        </div>
-
-        <button class="btn saric-popup-ok" onclick="saricSaveDesiderataPopup('${iso}')">
-          OK
-        </button>
+        ${editableHtml}
       </div>
     </div>
   `;
@@ -29184,8 +29215,8 @@ function saricSaveDesiderataPopup(iso) {
 }
 
 function saricCloseDesiderataPopup(event) {
-  if (event.target?.id === "saric-popup") {
-    event.target.remove();
+  if (!event || event.target?.id === "saric-popup") {
+    document.getElementById("saric-popup")?.remove();
   }
 }
 
