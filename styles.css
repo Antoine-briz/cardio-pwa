@@ -9952,3 +9952,391 @@ table.bact-table p:last-child {
   margin-top: 10px;
   min-height: 18px;
 }
+
+/* ============================================================
+   PLANNING MÉDICAL SARIC — VERSION SMARTPHONE
+   À coller à la fin du styles.css smartphone
+   ============================================================ */
+
+#app,
+.container,
+main.container,
+.saric-planning-page,
+#saric-planning-body {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.saric-planning-page {
+  padding: 10px !important;
+}
+
+/* Header */
+.saric-planning-head {
+  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+.saric-planning-head h2 {
+  font-size: 1.25rem !important;
+  margin: 0 !important;
+}
+
+.saric-planning-head p {
+  font-size: 0.85rem !important;
+  margin: 4px 0 0 !important;
+  color: var(--muted);
+}
+
+.saric-logout-btn {
+  position: static !important;
+  width: auto !important;
+  padding: 8px 10px !important;
+  font-size: 0.8rem !important;
+}
+
+/* Onglets */
+.saric-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin: 12px 0 !important;
+}
+
+.saric-tab {
+  width: 100% !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+}
+
+/* On masque uniquement le bouton/page Admin sur smartphone */
+.saric-tab[data-tab="admin"],
+.saric-tab[data-saric-tab="admin"],
+button[onclick*="saricRenderAdmin"],
+button[onclick*="admin"],
+.saric-admin-grid,
+.saric-admin-published-card,
+.saric-counts-wrap,
+.saric-rules,
+.saric-generate-card,
+.saric-admin-collapsible-card {
+  display: none !important;
+}
+
+/* Barre mois */
+.saric-toolbar {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  border-radius: 14px !important;
+}
+
+.saric-month-nav {
+  display: grid !important;
+  grid-template-columns: 44px 1fr 44px 54px;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.saric-month-arrow,
+.saric-month-title {
+  padding: 10px 8px !important;
+  border-radius: 12px !important;
+}
+
+.saric-month-title {
+  min-width: 0 !important;
+  font-size: 0.9rem !important;
+}
+
+.saric-calendar-btn {
+  width: 46px !important;
+  height: 46px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.saric-calendar-btn span {
+  font-size: 1.8rem !important;
+}
+
+.saric-current-doctor-label {
+  width: 100% !important;
+  text-align: center !important;
+  padding: 10px !important;
+  font-size: 0.9rem !important;
+}
+
+/* Calendrier personnel / désidératas */
+.saric-weekdays {
+  display: none !important;
+}
+
+.saric-calendar {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+.saric-cal-cell {
+  min-height: auto !important;
+  padding: 10px !important;
+  border-radius: 14px !important;
+}
+
+.saric-cal-cell.muted {
+  display: none !important;
+}
+
+.saric-day {
+  margin-bottom: 6px !important;
+}
+
+.saric-shift {
+  font-size: 0.78rem !important;
+}
+
+.saric-tags {
+  gap: 6px !important;
+}
+
+.saric-tags span,
+.saric-personal-post-badge {
+  font-size: 0.78rem !important;
+}
+
+/* Bouton validation désidératas */
+.saric-desid-submit-wrap {
+  display: grid !important;
+  grid-template-columns: 1fr 56px !important;
+  gap: 8px !important;
+}
+
+.saric-desid-edit-btn {
+  width: 56px !important;
+  min-width: 56px !important;
+}
+
+/* Mon compte */
+#saric-planning-body .saric-account-grid,
+#saric-planning-body .saric-fields-2,
+#saric-planning-body .saric-fields-4 {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+#saric-planning-body .saric-account-card.card {
+  padding: 12px !important;
+}
+
+#saric-planning-body .saric-fields-4 .btn {
+  width: 100% !important;
+}
+
+/* Planning global : mobile avec colonne postes fixe + jours scrollables */
+.saric-global-table-card {
+  width: 100% !important;
+  margin-top: 12px !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+}
+
+.saric-global-table-card h3 {
+  font-size: 1rem !important;
+  margin: 0 0 10px !important;
+}
+
+.saric-split-planning {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  border: 2px solid #0b3c6d !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+
+.saric-fixed-posts {
+  flex: 0 0 132px !important;
+  width: 132px !important;
+  min-width: 132px !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  z-index: 5 !important;
+  box-shadow: 3px 0 0 #111827 !important;
+}
+
+.saric-scroll-days,
+.saric-global-scroll {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  background: #fff !important;
+}
+
+.saric-posts-only-table {
+  width: 132px !important;
+  min-width: 132px !important;
+}
+
+.saric-days-only-table {
+  width: max-content !important;
+  min-width: 1750px !important;
+}
+
+.saric-global-table,
+.saric-posts-only-table,
+.saric-days-only-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.saric-global-table th,
+.saric-global-table td {
+  min-width: 56px !important;
+  padding: 4px 5px !important;
+  font-size: 0.68rem !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  border-right: 1px solid #111827 !important;
+  border-bottom: 1px solid #111827 !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+}
+
+.saric-posts-only-table .saric-post-col {
+  min-width: 132px !important;
+  width: 132px !important;
+  max-width: 132px !important;
+  padding-left: 6px !important;
+  padding-right: 4px !important;
+  text-align: left !important;
+  font-size: 0.66rem !important;
+  white-space: normal !important;
+  line-height: 1.05 !important;
+  word-break: break-word !important;
+}
+
+.saric-left-week-head,
+.saric-global-table .saric-week-header {
+  height: 34px !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  font-size: 0.68rem !important;
+}
+
+.saric-left-day-head,
+.saric-global-table thead tr:nth-child(2) th {
+  height: 36px !important;
+  background: #dbeafe !important;
+  color: #0b1f3b !important;
+  font-size: 0.68rem !important;
+}
+
+#saric-planning-body .saric-posts-only-table td,
+#saric-planning-body .saric-days-only-table td {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  vertical-align: top !important;
+}
+
+#saric-planning-body .saric-days-only-table td.saric-absence-multi {
+  padding: 2px 3px !important;
+  overflow: hidden !important;
+}
+
+#saric-planning-body .saric-absence-cell-scroll {
+  height: 42px !important;
+  max-height: 42px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  white-space: normal !important;
+  line-height: 1.05 !important;
+  font-size: 0.58rem !important;
+  font-weight: 800 !important;
+}
+
+/* Planning non publié */
+.saric-planning-waiting-card {
+  min-height: 180px !important;
+  padding: 18px !important;
+}
+
+.saric-planning-waiting-title {
+  font-size: 1.35rem !important;
+}
+
+.saric-planning-waiting-subtitle {
+  font-size: 0.95rem !important;
+}
+
+/* Popup désidératas */
+.saric-popup-overlay {
+  padding: 12px !important;
+  align-items: center !important;
+}
+
+.saric-popup-box {
+  width: 94vw !important;
+  max-width: 94vw !important;
+  padding: 16px !important;
+  border-radius: 16px !important;
+}
+
+.saric-popup-options {
+  max-height: 55vh !important;
+}
+
+/* Aperçu désidératas */
+.saric-desid-preview-overlay {
+  padding: 10px !important;
+}
+
+.saric-desid-preview-box {
+  width: 96vw !important;
+  max-height: 90vh !important;
+  padding: 12px !important;
+}
+
+.saric-mini-weekdays {
+  display: none !important;
+}
+
+.saric-mini-calendar {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+
+.saric-mini-day {
+  min-height: auto !important;
+}
+
+/* Login */
+.saric-login-card {
+  margin: 18px auto !important;
+  padding: 14px !important;
+  width: 100% !important;
+}
+
+.saric-login-card input[type="password"],
+.saric-login-card select,
+.saric-login-card .btn {
+  width: 100% !important;
+}
