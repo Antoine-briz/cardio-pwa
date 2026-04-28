@@ -10646,3 +10646,132 @@ body.theme-light .saric-month-title {
 body.theme-light .saric-day strong {
   color: #0f172a !important;
 }
+
+/* ============================================================
+   PLANNING SMARTPHONE - désidératas + popup + WE/fériés grisés
+   ============================================================ */
+
+/* Bouton orange avant validation */
+.saric-desid-submit-btn {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* Bouton vert après validation */
+.saric-desid-valid-btn {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  cursor: default !important;
+}
+
+/* Ligne : Désidérata validés + Modifier */
+.saric-desid-submit-wrap {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.saric-desid-edit-btn {
+  min-width: 96px !important;
+  width: auto !important;
+  padding: 0 14px !important;
+  background: #0b3c6d !important;
+  border-color: #0b3c6d !important;
+  color: #ffffff !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+}
+
+/* Popup désidératas en encadré superposé */
+#saric-popup,
+.saric-popup-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(0,0,0,0.62) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  margin: 0 !important;
+}
+
+#saric-popup .saric-popup-box,
+.saric-popup-overlay .saric-popup-box {
+  position: relative !important;
+  width: min(92vw, 420px) !important;
+  max-height: 82vh !important;
+  overflow: auto !important;
+  background: var(--card, #111827) !important;
+  color: var(--fg, #ffffff) !important;
+  border: 1px solid var(--border, #334155) !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.45) !important;
+}
+
+#saric-popup .saric-popup-options,
+.saric-popup-overlay .saric-popup-options {
+  display: grid !important;
+  gap: 12px !important;
+  margin-bottom: 16px !important;
+}
+
+#saric-popup .saric-popup-options label,
+.saric-popup-overlay .saric-popup-options label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-weight: 700 !important;
+}
+
+#saric-popup .saric-popup-ok,
+.saric-popup-overlay .saric-popup-ok {
+  background: #0b3c6d !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* Cases calendrier normales */
+.saric-cal-cell {
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+
+/* WE et jours fériés grisés */
+.saric-cal-cell.weekend,
+.saric-cal-cell.holiday,
+.saric-cal-cell.weekend.holiday {
+  background: #d1d5db !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+/* Texte lisible dans WE/fériés */
+.saric-cal-cell.weekend *,
+.saric-cal-cell.holiday *,
+.saric-cal-cell.weekend.holiday * {
+  color: #111827 !important;
+}
+
+/* Thème clair : même gris propre */
+body.theme-light .saric-cal-cell.weekend,
+body.theme-light .saric-cal-cell.holiday,
+body.theme-light .saric-cal-cell.weekend.holiday {
+  background: #e5e7eb !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+/* Clic visuel */
+.saric-cal-cell.saric-click-cell:active {
+  transform: scale(0.97);
+  border-color: #3b82f6 !important;
+}
