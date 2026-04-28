@@ -27697,7 +27697,14 @@ function saricPublishedViewState(raw, monthKey) {
 }
 
 function saricPersonalCalendarHtml() {
-  return saricCalendarHtml("planning");
+  const raw = saricLoadState();
+
+  if (!saricMonthIsPublished(raw, raw.month)) {
+    return saricPlanningWaitingHtml(raw.month);
+  }
+
+  const publishedState = saricPublishedViewState(raw, raw.month);
+  return saricCalendarHtml("planning", publishedState);
 }
 
 function saricSelectPlanningDoctor(id) {
@@ -28018,7 +28025,13 @@ function saricDesiderataCellContent(st, iso) {
 }
 
 function saricPlanningGlobalTable() {
-  const st = saricLoadState();
+  const raw = saricLoadState();
+
+  if (!saricMonthIsPublished(raw, raw.month)) {
+    return saricPlanningWaitingHtml(raw.month);
+  }
+
+  const st = saricPublishedViewState(raw, raw.month);
   const days = saricDaysInMonth(st.month);
 
   const basePosts = typeof saricGetAllPosts === "function"
