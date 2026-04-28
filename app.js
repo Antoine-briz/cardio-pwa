@@ -28010,7 +28010,7 @@ function saricDesiderataCellContent(st, iso) {
   const docId = current?.doctorId || st.selectedDoctorId;
 
   const values = st.desiderata?.[docId]?.[iso] || [];
-  if (!values.length) return `<div class="saric-empty">Aucune demande</div>`;
+  if (!values.length) return `<div class="saric-empty"> </div>`;
 
   return `
     <div class="saric-tags">
