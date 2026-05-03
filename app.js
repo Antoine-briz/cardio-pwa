@@ -23825,14 +23825,13 @@ function renderBibliographie() {
           <div class="biblio-table-wrap">
             <table class="biblio-table biblio-live-table biblio-reco-table">
               <thead>
-                <tr>
-                  <th>Source</th>
-                  <th>Titre</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
+  <tr>
+    <th>Source</th>
+    <th>Titre &amp; description</th>
+  </tr>
+</thead>
               <tbody id="biblio-recommandations-body">
-                <tr><td colspan="3">Chargement...</td></tr>
+                <tr><td colspan="2">Chargement...</td></tr>
               </tbody>
             </table>
           </div>
@@ -24063,53 +24062,36 @@ async function loadBiblioRecommandationsTable(url, tbodyId) {
       return;
     }
 
-    tbody.innerHTML = items.map(item => {
-      const docs = Array.isArray(item.documents) && item.documents.length > 0
-        ? item.documents
-        : [{
-            date: item.date || "",
-            titre: item.titre || item.title || "",
-            description: item.description || item.resume || item.abstract || "",
-            lien: item.lien || item.url || item.link || ""
-          }];
+    tbody.innerHTML = items.map(item => `
+  <tr class="biblio-click-row"
+      onclick="window.open('${escapeHtml(item.lien || "")}', '_blank', 'noopener,noreferrer')">
+    <td>${biblioSourceHtml(item.source || "", item.domaine || "")}</td>
 
-      return `
-        <tr class="biblio-click-row"
-            onclick="window.open('${escapeHtml(docs[0]?.lien || item.lien || "")}', '_blank', 'noopener,noreferrer')">
+    <td>
+      <div class="biblio-reco-grid">
+        ${(item.documents || []).map(doc => `
+          <div class="biblio-reco-row">
+            <a class="biblio-reco-title-block"
+               href="${escapeHtml(doc.lien || "")}"
+               target="_blank"
+               rel="noopener noreferrer"
+               onclick="event.stopPropagation()">
+              <span class="biblio-reco-date">${escapeHtml(doc.date || "")}</span>
+              <span class="biblio-reco-title">${escapeHtml(doc.titre || "")}</span>
+            </a>
 
-          <td>${biblioSourceHtml(item.source || "", item.domaine || "")}</td>
-
-          <td>
-            <div class="biblio-reco-docs">
-              ${docs.map(doc => `
-                <a class="biblio-reco-doc"
-                   href="${escapeHtml(doc.lien || "")}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   onclick="event.stopPropagation()">
-                  ${doc.date ? `<span class="biblio-reco-date">${escapeHtml(doc.date)}</span>` : ""}
-                  <span class="biblio-reco-title">${escapeHtml(doc.titre || "")}</span>
-                </a>
-              `).join("")}
+            <div class="biblio-reco-description">
+              ${escapeHtml(doc.description || "")}
             </div>
-          </td>
-
-          <td>
-            <div class="biblio-reco-descriptions">
-              ${docs.map(doc => `
-                <div class="biblio-reco-description">
-                  ${escapeHtml(doc.description || "")}
-                </div>
-              `).join("")}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join("");
+          </div>
+        `).join("")}
+      </div>
+    </td>
+  </tr>
+`).join("");
 
   } catch (err) {
-    console.error("Erreur recommandations:", err);
-    tbody.innerHTML = `<tr><td colspan="3">Impossible de charger les données.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="2">Impossible de charger les données.</td></tr>`;
   }
 }
 
