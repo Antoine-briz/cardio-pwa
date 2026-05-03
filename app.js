@@ -23805,23 +23805,16 @@ function isMobile() {
     
 function renderBibliographie() {
  $app.innerHTML = `
-<section class="container biblio-page">
+<section class="container">
+    <div class="biblio-split">
+      <div class="biblio-left">
+        <h2 class="page-title page-title--biblio">Bibliographie</h2>
 
-  <!-- Titre centré -->
-  <div class="biblio-title-wrap">
-    <h2 class="page-title page-title--biblio">Bibliographie</h2>
-  </div>
-
-  <!-- Layout principal -->
-  <div class="biblio-split ${mobile ? "biblio-split--mobile" : ""}">
-
-    <div class="biblio-left">
-
-      <div class="biblio-actions">
-        <button class="btn btn-darkblue" id="btnBiblioJuniors">
-          Internes: Biblio & staff juniors
-        </button>
-      </div>
+        <div class="biblio-actions">
+          <button class="btn btn-darkblue" id="btnBiblioJuniors">
+            Internes: Biblio & staff juniors
+          </button>
+        </div>
 
       <div class="biblio-live-grid">
 
