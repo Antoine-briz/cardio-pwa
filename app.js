@@ -24234,6 +24234,7 @@ function biblioSourceHtml(source, domaine = "") {
     ["srlf", "img/journals/srlf.png"],
     ["spilf", "img/journals/spilf.png"],
     ["esc", "img/journals/esc.png"]
+    ["eacts", "img/journals/eacts.png"],
   ];
 
   const found = logoMap.find(([needle]) => key.includes(needle));
