@@ -24233,7 +24233,7 @@ function biblioSourceHtml(source, domaine = "") {
     ["sfar", "img/journals/sfar.png"],
     ["srlf", "img/journals/srlf.png"],
     ["spilf", "img/journals/spilf.png"],
-    ["esc", "img/journals/esc.png"]
+    ["esc", "img/journals/esc.png"],
     ["eacts", "img/journals/eacts.png"],
   ];
 
