@@ -11738,3 +11738,136 @@ min-width: 540px !important;
   margin: 8px 0 18px !important;
   display: block !important;
 }
+
+/* ============================================================
+   FIX BIBLIO - TEXTE TOUJOURS NOIR DANS LES TABLEAUX
+   ============================================================ */
+
+.biblio-table td,
+.biblio-live-table td,
+.biblio-reco-table td {
+  color: #111827 !important;
+}
+
+/* protège aussi les éléments internes */
+.biblio-table td *,
+.biblio-live-table td *,
+.biblio-reco-table td * {
+  color: #111827 !important;
+}
+
+/* liens toujours lisibles */
+.biblio-table td a,
+.biblio-live-table td a {
+  color: #0b3c6d !important;
+}
+body.theme-light .biblio-live-table td,
+body:not(.theme-light) .biblio-live-table td {
+  color: #111827 !important;
+}
+/* ============================================================
+   FIX BIBLIO SMARTPHONE - couleurs, images, titres
+   ============================================================ */
+
+/* 1. Titres des encadrés toujours blancs */
+.biblio-box h3,
+body.theme-light .biblio-box h3 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* 2. Texte des tableaux toujours noir */
+.biblio-table td,
+.biblio-live-table td,
+.biblio-reco-table td,
+.biblio-table td *,
+.biblio-live-table td *,
+.biblio-reco-table td * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+/* Sauf les liens */
+.biblio-table td a,
+.biblio-live-table td a,
+.biblio-reco-table td a {
+  color: #0b3c6d !important;
+  -webkit-text-fill-color: #0b3c6d !important;
+}
+
+/* 3. Images/logos divisés par deux */
+.biblio-source-logo {
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 4px !important;
+  padding: 1px !important;
+}
+
+.biblio-journal-card img {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 6px !important;
+}
+
+/* 4. Ne pas casser les badges : ils gardent leurs couleurs propres */
+.biblio-badge,
+.biblio-domain-pill {
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Domaines */
+.domain-rea {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.domain-anesth {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+}
+
+.domain-cardio {
+  background: #fce7f3 !important;
+  color: #9d174d !important;
+}
+
+.domain-chir {
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+.domain-infectio {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.domain-other {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* Types d'études */
+.biblio-badge-rct {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+}
+
+.biblio-badge-meta {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+.biblio-badge-reco {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.biblio-badge-cohort {
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+.biblio-badge-article {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+}
