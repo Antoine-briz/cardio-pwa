@@ -11876,26 +11876,32 @@ body.theme-light .biblio-box h3 {
    BIBLIO SMARTPHONE - encadrés pleine largeur + revues compactes
    ============================================================ */
 
-/* 1. Les encadrés touchent presque les bords de l'écran */
+/* ============================================================
+   BIBLIO SMARTPHONE - encadrés largeur optimisée (FIX)
+   ============================================================ */
+
+/* On garde un léger padding global */
 #app .biblio-page,
 #app .container:has(.biblio-split) {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
+/* Structure pleine largeur mais contrôlée */
 #app .biblio-split,
 #app .biblio-left {
   width: 100% !important;
   max-width: 100% !important;
 }
 
+/* Encadrés : pleine largeur SANS overflow */
 #app .biblio-box {
-  width: 100vw !important;
-  max-width: 100vw !important;
-  margin-left: calc(50% - 50vw) !important;
-  margin-right: calc(50% - 50vw) !important;
-  border-radius: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto 14px auto !important;
+  border-radius: 12px !important;
   box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 /* Le tableau reste scrollable à l'intérieur */
