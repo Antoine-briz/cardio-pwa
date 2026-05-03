@@ -11871,3 +11871,66 @@ body.theme-light .biblio-box h3 {
   background: #e5e7eb !important;
   color: #374151 !important;
 }
+
+/* ============================================================
+   BIBLIO SMARTPHONE - encadrés pleine largeur + revues compactes
+   ============================================================ */
+
+/* 1. Les encadrés touchent presque les bords de l'écran */
+#app .biblio-page,
+#app .container:has(.biblio-split) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+#app .biblio-split,
+#app .biblio-left {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#app .biblio-box {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  border-radius: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Le tableau reste scrollable à l'intérieur */
+#app .biblio-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 2. Revues médicales : 3 cartes ligne 1, 2 cartes ligne 2 */
+#app .biblio-table:not(.biblio-live-table) .biblio-journal-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  align-items: start !important;
+}
+
+#app .biblio-table:not(.biblio-live-table) .biblio-journal-card {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 6px 4px !important;
+  gap: 4px !important;
+}
+
+#app .biblio-table:not(.biblio-live-table) .biblio-journal-card img {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+#app .biblio-table:not(.biblio-live-table) .biblio-journal-card span {
+  font-size: 10px !important;
+  line-height: 1.1 !important;
+  max-height: 2.2em !important;
+  overflow: hidden !important;
+  text-align: center !important;
+  white-space: normal !important;
+}
