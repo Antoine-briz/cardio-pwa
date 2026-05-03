@@ -23938,39 +23938,52 @@ async function loadBiblioRecommandationsTable(url, tbodyId) {
       return;
     }
 
-    tbody.innerHTML = items.map(item => `
-      <tr class="biblio-click-row"
-          onclick="window.open('${escapeHtml(item.lien || "")}', '_blank', 'noopener,noreferrer')">
-        <td>${biblioSourceHtml(item.source || "", item.domaine || "")}</td>
+    tbody.innerHTML = items.map(item => {
+      const docs = Array.isArray(item.documents) && item.documents.length > 0
+        ? item.documents
+        : [{
+            date: item.date || "",
+            titre: item.titre || item.title || "",
+            description: item.description || item.resume || item.abstract || "",
+            lien: item.lien || item.url || item.link || ""
+          }];
 
-        <td>
-          <div class="biblio-reco-docs">
-            ${(item.documents || []).map(doc => `
-              <a class="biblio-reco-doc"
-                 href="${escapeHtml(doc.lien || "")}"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 onclick="event.stopPropagation()">
-                <span class="biblio-reco-date">${escapeHtml(doc.date || "")}</span>
-                <span class="biblio-reco-title">${escapeHtml(doc.titre || "")}</span>
-              </a>
-            `).join("")}
-          </div>
-        </td>
+      return `
+        <tr class="biblio-click-row"
+            onclick="window.open('${escapeHtml(docs[0]?.lien || item.lien || "")}', '_blank', 'noopener,noreferrer')">
 
-        <td>
-          <div class="biblio-reco-descriptions">
-            ${(item.documents || []).map(doc => `
-              <div class="biblio-reco-description">
-                ${escapeHtml(doc.description || "")}
-              </div>
-            `).join("")}
-          </div>
-        </td>
-      </tr>
-    `).join("");
+          <td>${biblioSourceHtml(item.source || "", item.domaine || "")}</td>
+
+          <td>
+            <div class="biblio-reco-docs">
+              ${docs.map(doc => `
+                <a class="biblio-reco-doc"
+                   href="${escapeHtml(doc.lien || "")}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   onclick="event.stopPropagation()">
+                  ${doc.date ? `<span class="biblio-reco-date">${escapeHtml(doc.date)}</span>` : ""}
+                  <span class="biblio-reco-title">${escapeHtml(doc.titre || "")}</span>
+                </a>
+              `).join("")}
+            </div>
+          </td>
+
+          <td>
+            <div class="biblio-reco-descriptions">
+              ${docs.map(doc => `
+                <div class="biblio-reco-description">
+                  ${escapeHtml(doc.description || "")}
+                </div>
+              `).join("")}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
 
   } catch (err) {
+    console.error("Erreur recommandations:", err);
     tbody.innerHTML = `<tr><td colspan="3">Impossible de charger les données.</td></tr>`;
   }
 }
@@ -23983,61 +23996,57 @@ async function loadBiblioJsonTable(url, tbodyId) {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error("JSON introuvable");
 
-    const items = await res.json();
+    const raw = await res.json();
 
-    if (!Array.isArray(items) || items.length === 0) {
+    const items = Array.isArray(raw)
+      ? raw
+      : Array.isArray(raw.items)
+        ? raw.items
+        : Array.isArray(raw.publications)
+          ? raw.publications
+          : [];
+
+    if (items.length === 0) {
       tbody.innerHTML = `<tr><td colspan="4">Aucune donnée disponible.</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = items.map(item => `
-  <tr class="biblio-click-row"
-    data-domain="${item.domaine || ''}"
-    onclick="window.open('${escapeHtml(item.lien || "")}', '_blank', 'noopener,noreferrer')">
-    <td>${biblioSourceHtml(item.source || "", item.domaine || "")}</td>
-    <td>${escapeHtml(item.date || "")}</td>
-    <td>
-      ${biblioBadgeHtml(item)}
-      <div class="biblio-title-cell">${escapeHtml(item.titre || "")}</div>
-    </td>
-    <td class="biblio-description-td">
-  <div class="biblio-description-scroll">
-    ${escapeHtml(item.description || "")}
-  </div>
-</td>
-  </tr>
-`).join("");
+    tbody.innerHTML = items.map(item => {
+      const source = item.source || item.journal || item.revue || "";
+      const domaine = item.domaine || item.domain || item.specialite || item.spécialité || "";
+      const date = item.date || item.published || item.publishedAt || item.publicationDate || "";
+      const titre = item.titre || item.title || item.nom || "";
+      const description = item.description || item.resume || item.résumé || item.abstract || item.summary || "";
+      const lien = item.lien || item.url || item.link || item.href || "";
 
-    // ✅ ICI
-setupBiblioFilters(tbodyId);
-    
+      return `
+        <tr class="biblio-click-row"
+          data-domain="${escapeHtml(domaine)}"
+          onclick="${lien ? `window.open('${escapeHtml(lien)}', '_blank', 'noopener,noreferrer')` : ""}">
+          <td>${biblioSourceHtml(source, domaine)}</td>
+          <td>${escapeHtml(date)}</td>
+          <td>
+            ${biblioBadgeHtml({ titre, description })}
+            <div class="biblio-title-cell">${escapeHtml(titre)}</div>
+          </td>
+          <td class="biblio-description-td">
+            <div class="biblio-description-scroll">
+              ${escapeHtml(description)}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    setupBiblioFilters(tbodyId);
+
   } catch (err) {
+    console.error("Erreur publications:", err);
     tbody.innerHTML = `<tr><td colspan="4">Impossible de charger les données.</td></tr>`;
   }
 }
 
-function setupBiblioFilters(tbodyId) {
-  const checkboxes = document.querySelectorAll(".biblio-filters input");
-  const rows = document.querySelectorAll(`#${tbodyId} tr`);
-
-  function updateFilter() {
-    const activeDomains = Array.from(checkboxes)
-      .filter(cb => cb.checked)
-      .map(cb => cb.value);
-
-    rows.forEach(row => {
-      const domain = row.getAttribute("data-domain");
-
-      if (activeDomains.includes(domain)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  }
-
-  checkboxes.forEach(cb => cb.addEventListener("change", updateFilter));
-}
+nction setupBiblioFilters(tbodyId
 
 function biblioBadgeHtml(item) {
   const text = `${item.titre || ""} ${item.description || ""}`.toLowerCase();
