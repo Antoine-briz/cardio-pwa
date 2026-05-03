@@ -11393,9 +11393,9 @@ body.theme-light .saric-cal-cell.weekend.holiday {
 #app .recherche-page .rch-protocol-table thead tr,
 #app .recherche-page .rch-protocol-table tbody tr {
   display: grid !important;
-  grid-template-columns: 220px 200px 150px 180px !important;
-  width: 750px !important;
-  min-width: 750px !important;
+  grid-template-columns: 110px 100px 150px 180px !important;
+width: 540px !important;
+min-width: 540px !important;
   overflow: hidden !important;
   border-radius: 12px !important;
 }
