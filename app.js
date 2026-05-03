@@ -23909,8 +23909,18 @@ function renderBibliographie() {
     location.hash = "#/bibliographie/juniors";
   });
 
-  loadBiblioRecommandationsTable("data/recommandations.json", "biblio-recommandations-body");
-  loadBiblioJsonTable("data/publications.json", "biblio-publications-body");
+  const BIBLIO_DESKTOP_BASE =
+  "https://antoine-briz.github.io/cardio-pwa-ordinateur";
+
+loadBiblioRecommandationsTable(
+  `${BIBLIO_DESKTOP_BASE}/data/recommandations.json`,
+  "biblio-recommandations-body"
+);
+
+loadBiblioJsonTable(
+  `${BIBLIO_DESKTOP_BASE}/data/publications.json`,
+  "biblio-publications-body"
+);
 }
 
 async function loadBiblioRecommandationsTable(url, tbodyId) {
