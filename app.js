@@ -24131,11 +24131,6 @@ function biblioDomainClass(domaine) {
   return "domain-other";
 }
 
-/* =========================
-   PAGES BIBLIOGRAPHIE
-   (UI IDENTIQUE à Enseignement, seule différence = titre)
-   + DONNÉES SÉPARÉES (collections + storage distincts)
-========================= */
 
 function renderBiblioJuniors() {
   return renderTeachingClonePage({
