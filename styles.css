@@ -11137,148 +11137,212 @@ body.theme-light .saric-cal-cell.weekend.holiday {
 }
 
 /* ============================================================
-   RECHERCHE - SMARTPHONE
-   Protocoles en une seule colonne + scroll horizontal
+   RECHERCHE - liste protocoles compacte en 2 colonnes
    ============================================================ */
 
 #app .recherche-page {
   width: 100% !important;
   max-width: 100% !important;
-  padding: 10px !important;
   overflow-x: hidden !important;
-}
-
-#app .recherche-page h2 {
-  font-size: 1.9rem !important;
-  line-height: 1.1 !important;
-  margin: 8px 0 14px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }
 
 #app .recherche-page .rch-protocol-list-card {
   width: 100% !important;
   max-width: 100% !important;
-  margin: 0 0 14px !important;
   overflow: hidden !important;
+  margin: 0 !important;
 }
 
-#app .recherche-page .rch-protocol-table-wrap,
-#app .recherche-page .table-wrap {
+#app .recherche-page .rch-protocol-table-wrap {
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
+  overflow: hidden !important;
 }
 
 #app .recherche-page .rch-protocol-table {
   display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 10px !important;
-  width: max-content !important;
-  min-width: 100% !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
   background: transparent !important;
 }
 
-#app .recherche-page .rch-protocol-table thead,
-#app .recherche-page .rch-protocol-table tbody {
+#app .recherche-page .rch-protocol-table thead {
   display: contents !important;
 }
 
 #app .recherche-page .rch-protocol-table thead tr,
 #app .recherche-page .rch-protocol-table tbody tr {
   display: grid !important;
-  grid-template-columns: minmax(210px, 1fr) 120px !important;
-  min-width: 340px !important;
+  grid-template-columns: 1.2fr 1.1fr 0.9fr 180px !important;
   width: 100% !important;
-  border-radius: 12px !important;
+  min-width: 0 !important;
   overflow: hidden !important;
+  border-radius: 12px !important;
 }
 
 #app .recherche-page .rch-protocol-table thead tr {
-  background: #0b3c6d !important;
+  grid-column: span 1 !important;
   border: 2px solid #0b3c6d !important;
+  background: #0b3c6d !important;
+}
+
+
+
+#app .recherche-page .rch-protocol-table thead th {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 50px !important;
+  padding: 8px !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  border-right: 1px solid rgba(255,255,255,.35) !important;
+  font-weight: 900 !important;
+}
+
+#app .recherche-page .rch-protocol-table thead th:last-child {
+  border-right: 0 !important;
+}
+
+#app .recherche-page .rch-protocol-table tbody {
+  display: contents !important;
 }
 
 #app .recherche-page .rch-protocol-table tbody tr {
-  background: #fff !important;
   border: 2px solid #dbeafe !important;
+  background: #fff !important;
 }
 
-#app .recherche-page .rch-protocol-table tbody tr.selected {
-  border-color: #0b3c6d !important;
-}
-
-#app .recherche-page .rch-protocol-table th,
-#app .recherche-page .rch-protocol-table td {
+#app .recherche-page .rch-protocol-table tbody td {
   display: flex !important;
   align-items: center !important;
-  min-height: 44px !important;
-  padding: 7px 9px !important;
-  white-space: nowrap !important;
+  min-width: 0 !important;
+  min-height: 42px !important;
+  padding: 6px 8px !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-}
-
-#app .recherche-page .rch-protocol-table th {
-  justify-content: center !important;
-  background: #0b3c6d !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  font-size: 0.85rem !important;
-}
-
-#app .recherche-page .rch-protocol-table td {
+  white-space: nowrap !important;
+  border-right: 1px solid #111827 !important;
+  border-bottom: 0 !important;
   background: #fff !important;
   color: #000 !important;
   font-size: 0.9rem !important;
-  border-right: 1px solid #111827 !important;
 }
 
-#app .recherche-page .rch-protocol-table td:last-child {
+#app .recherche-page .rch-protocol-table tbody td:last-child {
   border-right: 0 !important;
 }
 
 #app .recherche-page .rch-protocol-actions {
   display: flex !important;
+  flex-direction: row !important;
   gap: 8px !important;
   justify-content: center !important;
   align-items: center !important;
-  flex-wrap: nowrap !important;
 }
 
 #app .recherche-page .rch-protocol-actions .btn,
-#app .recherche-page .btn.small {
-  min-width: 82px !important;
-  height: 34px !important;
-  padding: 0 10px !important;
+#app .recherche-page .rch-protocol-actions .btn.ghost {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 78px !important;
+  height: 36px !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  border: 0 !important;
   border-radius: 10px !important;
-  font-size: 0.78rem !important;
+  font-size: 0.82rem !important;
   line-height: 1 !important;
+  box-shadow: none !important;
 }
 
-/* Tableau des fichiers : scroll horizontal si trop large */
-#app .recherche-page .enseignement-table {
-  width: max-content !important;
-  min-width: 620px !important;
+#app .recherche-page .rch-status-badge {
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
 }
 
-#app .recherche-page .enseignement-actions,
-#app .recherche-page .recherche-proto-actions {
+/* Mode édition */
+#app .recherche-page .rch-protocol-row-edit input,
+#app .recherche-page .rch-protocol-row-edit select {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 4px 8px !important;
+  font-size: 0.85rem !important;
+}
+
+/* En-tête du protocole ouvert */
+#app .recherche-page .rch-open-protocol-head {
   display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
-  width: 100% !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  margin: 12px 0 18px !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  background: var(--card) !important;
 }
 
-#app .recherche-page .enseignement-actions .btn,
-#app .recherche-page .recherche-proto-actions .btn {
-  width: 100% !important;
-  min-height: 42px !important;
-  font-size: 0.95rem !important;
+#app .recherche-page .rch-open-protocol-title {
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  color: var(--fg) !important;
 }
 
-#app .recherche-page .rch-protocol-table {
-  grid-template-columns: 1fr !important;
+/* Mobile / écrans moyens */
+@media (max-width: 1250px) {
+  #app .recherche-page .rch-protocol-table {
+    grid-template-columns: 1fr !important;
+  }
+
+  #app .recherche-page .rch-protocol-table thead::after {
+    display: none !important;
+  }
+}
+
+/* Recherche : headers alignés pour les 2 colonnes */
+#app .recherche-page .rch-protocol-table thead {
+  display: contents !important;
+}
+
+#app .recherche-page .rch-protocol-table thead tr {
+  display: grid !important;
+  grid-template-columns: 1.2fr 1.1fr 0.9fr 180px !important;
+  border: 2px solid #0b3c6d !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: #0b3c6d !important;
+}
+
+#app .recherche-page .rch-protocol-table thead th {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 50px !important;
+  padding: 8px !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  border-right: 1px solid rgba(255,255,255,.35) !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+#app .recherche-page .rch-protocol-table thead th:last-child {
+  border-right: 0 !important;
+}
+
+@media (max-width: 1250px) {
+  #app .recherche-page .rch-protocol-table thead tr:nth-child(2) {
+    display: none !important;
+  }
 }
