@@ -11135,3 +11135,146 @@ body.theme-light .saric-cal-cell.weekend.holiday {
     padding: 0 6px !important;
   }
 }
+
+/* ============================================================
+   RECHERCHE - SMARTPHONE
+   Protocoles en une seule colonne + scroll horizontal
+   ============================================================ */
+
+#app .recherche-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 10px !important;
+  overflow-x: hidden !important;
+}
+
+#app .recherche-page h2 {
+  font-size: 1.9rem !important;
+  line-height: 1.1 !important;
+  margin: 8px 0 14px !important;
+}
+
+#app .recherche-page .rch-protocol-list-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 14px !important;
+  overflow: hidden !important;
+}
+
+#app .recherche-page .rch-protocol-table-wrap,
+#app .recherche-page .table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+#app .recherche-page .rch-protocol-table {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  width: max-content !important;
+  min-width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+}
+
+#app .recherche-page .rch-protocol-table thead,
+#app .recherche-page .rch-protocol-table tbody {
+  display: contents !important;
+}
+
+#app .recherche-page .rch-protocol-table thead tr,
+#app .recherche-page .rch-protocol-table tbody tr {
+  display: grid !important;
+  grid-template-columns: minmax(210px, 1fr) 120px !important;
+  min-width: 340px !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+#app .recherche-page .rch-protocol-table thead tr {
+  background: #0b3c6d !important;
+  border: 2px solid #0b3c6d !important;
+}
+
+#app .recherche-page .rch-protocol-table tbody tr {
+  background: #fff !important;
+  border: 2px solid #dbeafe !important;
+}
+
+#app .recherche-page .rch-protocol-table tbody tr.selected {
+  border-color: #0b3c6d !important;
+}
+
+#app .recherche-page .rch-protocol-table th,
+#app .recherche-page .rch-protocol-table td {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 44px !important;
+  padding: 7px 9px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#app .recherche-page .rch-protocol-table th {
+  justify-content: center !important;
+  background: #0b3c6d !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 0.85rem !important;
+}
+
+#app .recherche-page .rch-protocol-table td {
+  background: #fff !important;
+  color: #000 !important;
+  font-size: 0.9rem !important;
+  border-right: 1px solid #111827 !important;
+}
+
+#app .recherche-page .rch-protocol-table td:last-child {
+  border-right: 0 !important;
+}
+
+#app .recherche-page .rch-protocol-actions {
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+#app .recherche-page .rch-protocol-actions .btn,
+#app .recherche-page .btn.small {
+  min-width: 82px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+}
+
+/* Tableau des fichiers : scroll horizontal si trop large */
+#app .recherche-page .enseignement-table {
+  width: max-content !important;
+  min-width: 620px !important;
+}
+
+#app .recherche-page .enseignement-actions,
+#app .recherche-page .recherche-proto-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+#app .recherche-page .enseignement-actions .btn,
+#app .recherche-page .recherche-proto-actions .btn {
+  width: 100% !important;
+  min-height: 42px !important;
+  font-size: 0.95rem !important;
+}
