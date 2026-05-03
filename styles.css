@@ -11278,3 +11278,7 @@ body.theme-light .saric-cal-cell.weekend.holiday {
   min-height: 42px !important;
   font-size: 0.95rem !important;
 }
+
+#app .recherche-page .rch-protocol-table {
+  grid-template-columns: 1fr !important;
+}
