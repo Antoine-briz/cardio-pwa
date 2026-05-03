@@ -24171,7 +24171,31 @@ async function loadBiblioJsonTable(url, tbodyId) {
   }
 }
 
-nction setupBiblioFilters(tbodyId
+function setupBiblioFilters(tbodyId) {
+  const checkboxes = document.querySelectorAll(".biblio-filters input");
+  const rows = document.querySelectorAll(`#${tbodyId} tr`);
+
+  const normalizeDomain = (s) =>
+    String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+  function updateFilter() {
+    const activeDomains = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => normalizeDomain(cb.value));
+
+    rows.forEach(row => {
+      const domain = normalizeDomain(row.getAttribute("data-domain"));
+      row.style.display = activeDomains.includes(domain) ? "" : "none";
+    });
+  }
+
+  checkboxes.forEach(cb => cb.addEventListener("change", updateFilter));
+  updateFilter();
+}
 
 function biblioBadgeHtml(item) {
   const text = `${item.titre || ""} ${item.description || ""}`.toLowerCase();
