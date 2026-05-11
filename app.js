@@ -965,6 +965,9 @@ function renderAnesthMenu() {
 <button class="btn btn-anesth-important" onclick="location.hash = '#/anesthesie/antibiopro'">
   Antibioprophylaxie
 </button>
+<button class="btn btn-anesth-important" onclick="location.hash = '#/anesthesie/antibiopro'">
+  ALR
+</button>
       </div>
     </section>
   `;
@@ -30993,6 +30996,7 @@ const routes = {
   "#/anesthesie/consultations": renderAnesthConsultations,
   "#/anesthesie/consultations/traitements": renderAnesthConsultTraitements,
   "#/anesthesie/antibiopro": renderAntibioproForm,
+  "#/anesthesie/alr": renderALRPage,
 
   "#/anesthesie/chir-cec": renderAnesthChirCecMenu,
   "#/anesthesie/chir-cec/pontages": sub(renderAnesthChirCecMenu, renderInterventionPontages),
