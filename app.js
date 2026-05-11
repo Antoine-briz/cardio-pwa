@@ -11812,7 +11812,7 @@ function setupPacemakerLogic() {
 
         <p>
           <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
-          ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+          ${imgLink("Brugada & traitements 🖼️", "traitementbrugada.png")}
         </p>
       `;
       return;
@@ -11828,7 +11828,7 @@ function setupPacemakerLogic() {
 
         <p>
           <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
-          ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+          ${imgLink("Brugada & traitements 🖼️", "traitementbrugada.png")}
         </p>
       `;
       return;
@@ -11843,7 +11843,7 @@ function setupPacemakerLogic() {
 
       <p>
         <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
-        ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+        ${imgLink("Brugada & traitements 🖼️", "traitementbrugada.png")}
       </p>
     `;
   }
