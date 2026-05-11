@@ -7059,7 +7059,7 @@ function renderALRPage() {
   $app.innerHTML = `
     <section class="page-alr-mobile">
 
-      ${sectionHeader("Anesthésie loco-régionale", "antibioprophylaxie.png")}
+      ${sectionHeader("Anesthésie loco-régionale", "alr.png")}
 
       <div class="alr-mobile-grid">
         ${alrItems.map(item => `
