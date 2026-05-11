@@ -12093,9 +12093,17 @@ function renderReanMenu() {
           FA post-opératoire
         </button>
 
+        <button class="btn" onclick="location.hash = '#/reanimation/ett'">
+  Échographie trans-thoracique
+</button>
+
         <button class="btn" onclick="location.hash = '#/reanimation/eto'">
-          ETO 
+          Echographie trans-oesophagienne
         </button>
+
+        <button class="btn" onclick="location.hash = '#/reanimation/echographie-generale'">
+  Échographie générale
+</button>
 
         <button class="btn" onclick="openSubPage(renderReanAntibiotherapieMenu, renderReanMenu)">
           Antibiothérapies
@@ -13593,6 +13601,57 @@ function openEtoSectionModal(sectionTitle, items) {
 
   document.body.appendChild(modal);
 }
+
+function renderReanETT() {
+  const items = [
+    { titre: "Principales coupes 1/2", img: "ett1.png" },
+    { titre: "Principales coupes 2/2", img: "ett2.png" },
+    { titre: "Estimation débit cardiaque", img: "ettDC.png" },
+    { titre: "Evaluation d’une HTP", img: "ettHTAP.png" },
+    { titre: "Pré-charge dépendance", img: "ettPC.png" },
+    { titre: "Tamponnade péricardique", img: "ettpericarde.png" },
+    { titre: "Pression de remplissage VG (PTDVG)", img: "ettptdvg.png" },
+    { titre: "Cinétique segmentaire du VG", img: "ettseg.png" },
+    { titre: "Valve aortique", img: "ettVA.png" },
+    { titre: "Fonction ventriculaire droite", img: "ettVD.png" },
+    { titre: "Valve mitrale", img: "ettVM.png" },
+  ];
+
+  renderMobileEchoPage("Échographie trans-thoracique", items);
+}
+
+function renderReanEchoGenerale() {
+  const items = [
+    { titre: "Échographie abdominale", img: "echoabdo.png" },
+    { titre: "Échographie diaphragmatique", img: "echodiaph.png" },
+    { titre: "Echo-doppler transcrânien", img: "echodtc.png" },
+    { titre: "Échographie pleuro-pulmonaire", img: "echopoumon.png" },
+    { titre: "Echo-doppler des artères rénales", img: "echorein.png" },
+    { titre: "Abords vasculaires", img: "echovascu.png" },
+  ];
+
+  renderMobileEchoPage("Échographie générale", items);
+}
+
+function renderMobileEchoPage(title, items) {
+  $app.innerHTML = `
+    <section>
+      <div class="hero">
+        <h2>${title}</h2>
+      </div>
+
+      <div class="mobile-echo-grid">
+        ${items.map(item => `
+          <button class="mobile-echo-card" type="button" onclick="openImg('${item.img}')">
+            <img src="img/${item.img}" alt="${item.titre}">
+            <div>${item.titre}</div>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 
 /* ===== Page ETO smartphone : grille d’images (max 3 colonnes) ===== */
 
