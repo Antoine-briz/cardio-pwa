@@ -12023,3 +12023,81 @@ body.theme-light .biblio-box h3 {
   border-radius: 999px;
   background: #0b3c6d;
 }
+
+/* =====================================================
+   ALR – Smartphone
+===================================================== */
+
+.page-alr-mobile {
+  padding-bottom: 24px;
+}
+
+.alr-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.alr-mobile-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--fg);
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  min-height: 220px;
+}
+
+.alr-mobile-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+
+  border-radius: 12px;
+  display: block;
+  background: #fff;
+}
+
+.alr-mobile-title {
+  margin-top: 10px;
+
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 1;
+  text-align: center;
+}
+
+/* Très petits écrans */
+@media (max-width: 380px) {
+
+  .alr-mobile-grid {
+    gap: 10px;
+  }
+
+  .alr-mobile-card {
+    min-height: 200px;
+    padding: 8px;
+  }
+
+  .alr-mobile-img {
+    height: 100px;
+  }
+
+  .alr-mobile-title {
+    font-size: 0.82rem;
+  }
+}
