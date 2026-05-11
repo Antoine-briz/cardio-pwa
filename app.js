@@ -965,7 +965,7 @@ function renderAnesthMenu() {
 <button class="btn btn-anesth-important" onclick="location.hash = '#/anesthesie/antibiopro'">
   Antibioprophylaxie
 </button>
-<button class="btn btn-anesth-important" onclick="location.hash = '#/anesthesie/antibiopro'">
+<button class="btn btn-anesth-important" onclick="location.hash = '#/anesthesie/alr'">
   ALR
 </button>
       </div>
