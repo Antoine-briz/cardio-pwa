@@ -11690,15 +11690,19 @@ function renderInterventionPacemakerDAI() {
         <div class="form">
           <div class="row">
             <label>
-              <input type="checkbox" id="pm-allergie-bl" />
-              Allergie aux bêta-lactamines
-            </label>
-          </div>
-          <div class="row">
-            <label>
-              <input type="checkbox" id="pm-retrait-sondes" />
-              Retrait de sondes de PM/DAI anciennes
-            </label>
+  <input type="checkbox" id="pm-allergie">
+  Allergie aux béta-lactamines
+</label>
+
+<label>
+  <input type="checkbox" id="pm-epicardique">
+  Pose/changement de PM/DAI sous-cutané ou épicardique
+</label>
+
+<label>
+  <input type="checkbox" id="pm-retrait-sonde">
+  Retrait de sonde de PM/DAI ancienne
+</label>
           </div>
         </div>
       `,
@@ -11767,18 +11771,20 @@ function renderInterventionPacemakerDAI() {
 
 function setupPacemakerLogic() {
   const cbAllergie = document.getElementById("pm-allergie-bl");
+  const cbEpicardique = document.getElementById("pm-epicardique");
   const cbRetrait = document.getElementById("pm-retrait-sondes");
+
   const monitorText = document.getElementById("pm-monitor-text");
   const anesthText = document.getElementById("pm-anesth-text");
   const retraitText = document.getElementById("pm-retrait-text");
+
   const liCefaStd = document.getElementById("pm-cefa-standard");
   const liCefaObese = document.getElementById("pm-cefa-obese");
   const liVanco = document.getElementById("pm-vanco");
 
-  // Ici pas de poids dans le tableau pour dosage mg/kg → on laisse la vancomycine à 30 mg/kg "sec".
-
   function updateMonitor() {
     if (!monitorText) return;
+
     if (cbRetrait && cbRetrait.checked) {
       monitorText.innerHTML = `
         KTa radial, KTc 5 voies JID, BIS ± NIRS, ETO.
@@ -11791,31 +11797,71 @@ function setupPacemakerLogic() {
   }
 
   function updateAnesth() {
-    if (!anesthText || !retraitText) return;
+    if (!anesthText) return;
+
+    if (retraitText) retraitText.style.display = "none";
+
     if (cbRetrait && cbRetrait.checked) {
-      retraitText.style.display = "";
-    } else {
-      retraitText.style.display = "none";
+      anesthText.innerHTML = `
+        <p><strong>Retrait de sonde de PM/DAI anciennes :</strong></p>
+        <ul>
+          <li>- Anesthésie générale AIVOC Propofol/Rémifentanil</li>
+          <li>- IOT systématique, sonde double lumière ou bloqueur bronchique si thoracotomie</li>
+          <li>- Si nécessité de sternotomie : remplacer Rémifentanil par Sufentanil, ajout d’Eskétamine IVSE, ajout d’Exacyl IVSE </li>
+        </ul>
+
+        <p>
+          <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
+          ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+        </p>
+      `;
+      return;
     }
+
+    if (cbEpicardique && cbEpicardique.checked) {
+      anesthText.innerHTML = `
+        <p><strong>Pose/changement de PM sous-cutané ou épicardique :</strong></p>
+        <ul>
+          <li>- Anesthésie générale AIVOC Propofol/Rémifentanil</li>
+          <li>- IOT ou masque laryngé selon le contexte</li>
+        </ul>
+
+        <p>
+          <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
+          ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+        </p>
+      `;
+      return;
+    }
+
+    anesthText.innerHTML = `
+      <p><strong>Options :</strong></p>
+      <ul>
+        <li>Option 1:  Sédation AIVOC Rémifentanil (cibles 0,8–2 ng/mL) + anesthésie locale par l’opérateur </li>
+        <li>Option 2: ALR bi-bloc (Serratus antérieur + PECS1 ou thoracique transverse) + anesthésie locale par l’opérateur </li>
+        <li>Option 3: Anesthésie générale AIVOC Propofol/Rémifentanil si intolérance, douleur, troubles cognitifs. IOT ou masque laryngé selon contexte.</li>
+      </ul>
+
+      <p>
+        <strong>Traitements contre-indiqués en cas de Sd de Brugada :</strong>
+        ${imgLink("Brugada & traitements", "traitementbrugada.png")}
+      </p>
+    `;
   }
 
   function updateATB() {
-  const allergie = !!(cbAllergie && cbAllergie.checked);
+    const allergie = !!(cbAllergie && cbAllergie.checked);
 
-  if (allergie) {
-    // ✅ Allergie BL : on masque toute céfazoline
-    if (liCefaStd) liCefaStd.style.display = "none";
-    if (liCefaObese) liCefaObese.style.display = "none";
-    // ✅ et on affiche la vancomycine
-    if (liVanco) liVanco.style.display = "";
-  } else {
-    // ✅ Pas allergique : on ré-affiche la céfazoline (standard par défaut)
-    if (liCefaStd) liCefaStd.style.display = "";
-    if (liCefaObese) liCefaObese.style.display = "none"; // pas d'IMC dans cette page
-    // ✅ et on masque la vancomycine
-    if (liVanco) liVanco.style.display = "none";
+    if (allergie) {
+      if (liCefaStd) liCefaStd.style.display = "none";
+      if (liCefaObese) liCefaObese.style.display = "none";
+      if (liVanco) liVanco.style.display = "";
+    } else {
+      if (liCefaStd) liCefaStd.style.display = "";
+      if (liCefaObese) liCefaObese.style.display = "none";
+      if (liVanco) liVanco.style.display = "none";
+    }
   }
-}
 
   function updateAll() {
     updateMonitor();
@@ -11823,7 +11869,7 @@ function setupPacemakerLogic() {
     updateATB();
   }
 
-  [cbAllergie, cbRetrait].forEach(el => {
+  [cbAllergie, cbEpicardique, cbRetrait].forEach(el => {
     if (el) el.addEventListener("change", updateAll);
   });
 
