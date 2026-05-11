@@ -31156,6 +31156,8 @@ const routes = {
   "#/reanimation/saignements": renderReanSaignementsPostOp,
   "#/reanimation/fa": renderReanFAPostOp,
   "#/reanimation/eto": renderReanEto,
+  "#/reanimation/ett": renderReanETT,
+"#/reanimation/echographie-generale": renderReanEchoGenerale,
 
   "#/reanimation/antibiotherapie": renderReanAntibiotherapieMenu,
   "#/reanimation/antibiotherapie/probabiliste": sub(renderReanAntibiotherapieMenu, renderProbaMenu),
