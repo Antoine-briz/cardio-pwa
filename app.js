@@ -7039,6 +7039,41 @@ const ANTIBIOPRO_DATA = {
   },
 };
 
+function renderALRPage() {
+  const alrItems = [
+    { file: "./img/cf-bloc-cervical.png", title: "Bloc cervical" },
+    { file: "./img/cf-bloc-thoracique-transverse.png", title: "Bloc thoracique transverse" },
+    { file: "./img/cf-bpv.png", title: "Bloc para-vertébral" },
+    { file: "./img/cf-erecteur-rachis.png", title: "Bloc des érecteurs du rachis" },
+    { file: "./img/cf-tap-bloc.png", title: "TAP bloc" },
+    { file: "./img/cf-serratus.png", title: "Bloc serratus" },
+    { file: "./img/cf-qlb.png", title: "Carré des lombes" },
+    { file: "./img/cf-biiih.png", title: "Bloc ilio-inguino-hypogastrique" },
+    { file: "./img/cf-femoral.png", title: "Bloc fémoral" },
+    { file: "./img/cf-obturateur.png", title: "Bloc obturateur" },
+    { file: "./img/cf-canal-adducteurs.png", title: "Bloc du canal des adducteurs" },
+    { file: "./img/cf-sciatique.png", title: "Bloc sciatique" },
+    { file: "./img/cf-supra-claviculaire.png", title: "Bloc supra-claviculaire" }
+  ];
+
+  $app.innerHTML = `
+    <section class="page-alr-mobile">
+
+      ${sectionHeader("Anesthésie loco-régionale", "antibioprophylaxie.png")}
+
+      <div class="alr-mobile-grid">
+        ${alrItems.map(item => `
+          <button class="alr-mobile-card" type="button" onclick="openImg('${item.file}')">
+            <img src="${item.file}" alt="${item.title}" class="alr-mobile-img">
+            <div class="alr-mobile-title">${item.title}</div>
+          </button>
+        `).join("")}
+      </div>
+
+    </section>
+  `;
+}
+
 // ===== Page Antibioprophylaxies per-opératoire (formulaire à 3 sélections)
 function renderAntibioproForm() {
   const $app = document.getElementById("app");
