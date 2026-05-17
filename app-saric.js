@@ -128,34 +128,54 @@ if ("scrollRestoration" in history) {
 // ==========================
 //  GESTION DU THÈME GLOBAL
 // ==========================
+
 const THEME_KEY = "theme"; // "dark" ou "light"
 
+// Applique le thème global
 function applyTheme(theme) {
   const isLight = theme === "light";
+
+  // Classes CSS
   document.body.classList.toggle("theme-light", isLight);
+  document.body.classList.toggle("theme-dark", !isLight);
+
+  // Compatibilité CSS data-theme
+  document.documentElement.setAttribute("data-theme", theme);
+  document.body.setAttribute("data-theme", theme);
+
+  // Sauvegarde
   localStorage.setItem(THEME_KEY, theme);
 
+  // Synchronise les radios
   const darkRadio = document.getElementById("theme-dark");
   const lightRadio = document.getElementById("theme-light");
-  if (darkRadio && lightRadio) {
-    darkRadio.checked = !isLight;
-    lightRadio.checked = isLight;
-  }
+
+  if (darkRadio) darkRadio.checked = !isLight;
+  if (lightRadio) lightRadio.checked = isLight;
 }
 
+// Initialise le thème + branche les radios
 function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY) || "dark";
-  applyTheme(saved);
+  const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
+
+  applyTheme(savedTheme);
 
   const darkRadio = document.getElementById("theme-dark");
   const lightRadio = document.getElementById("theme-light");
 
-  if (darkRadio && lightRadio) {
+  if (darkRadio) {
     darkRadio.addEventListener("change", () => {
-      if (darkRadio.checked) applyTheme("dark");
+      if (darkRadio.checked) {
+        applyTheme("dark");
+      }
     });
+  }
+
+  if (lightRadio) {
     lightRadio.addEventListener("change", () => {
-      if (lightRadio.checked) applyTheme("light");
+      if (lightRadio.checked) {
+        applyTheme("light");
+      }
     });
   }
 }
@@ -31720,8 +31740,10 @@ function initHomeQuickAccessMobile() {
 
 
 window.addEventListener("hashchange", navigate);
-window.addEventListener("load", navigate);
-
+window.addEventListener("load", () => {
+  initTheme();
+  navigate();
+});
 initActusNoonReset();
 
 let saricDeferredInstallPrompt = null;
