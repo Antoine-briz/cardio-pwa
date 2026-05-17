@@ -40,19 +40,15 @@ function initServiceSwitcher() {
   const service = SERVICES[currentService];
 
   const chip = document.getElementById("service-switch-btn");
-  const label = document.getElementById("service-chip-label");
-const icon = document.getElementById("service-chip-icon");
+  const icon = document.getElementById("service-chip-icon");
   const menu = document.getElementById("service-menu");
 
-  if (!chip || !label || !menu) return;
+  if (!chip || !menu) return;
 
-  label.textContent = service.label;
-  if (label) label.textContent = service.label;
-
-if (icon) {
-  icon.src = service.icon;
-  icon.alt = service.label;
-}
+  if (icon) {
+    icon.src = service.icon;
+    icon.alt = service.label;
+  }
 
   chip.classList.remove(
     "service-cardio",
