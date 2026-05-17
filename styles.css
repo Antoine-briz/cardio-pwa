@@ -12288,3 +12288,53 @@ body.theme-light .header-title {
 body.theme-light .header-subtitle {
   color: #555 !important;
 }
+
+/* =====================================================
+   SMARTPHONE — BOUTON SERVICE AVEC LOGO
+===================================================== */
+
+.mobile-service-switcher,
+.service-switcher {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: auto !important;
+  z-index: 9999 !important;
+}
+
+#service-switch-btn.service-chip {
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 52px !important;
+
+  padding: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+
+  border-radius: 14px !important;
+}
+
+#service-chip-icon {
+  width: 30px !important;
+  height: 30px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.service-arrow {
+  font-size: 10px !important;
+  margin-left: 1px !important;
+}
+
+/* Menu déroulant */
+.service-menu {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  left: auto !important;
+  width: 240px !important;
+}
