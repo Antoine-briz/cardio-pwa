@@ -5842,6 +5842,42 @@ body.acr-force-light .acr5-synth-live {
   opacity: 0.92;
 }
 
+.acr5-board {
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto !important;
+  padding: 0 10px !important;
+  gap: 12px !important;
+}
+
+.f-chrono { grid-column: 1 !important; grid-row: 1 !important; }
+.f-aides  { grid-column: 1 !important; grid-row: 2 !important; }
+.f-meds   { grid-column: 1 !important; grid-row: 3 !important; }
+.f-others { grid-column: 1 !important; grid-row: 4 !important; }
+.f-synth  { grid-column: 1 !important; grid-row: 5 !important; }
+
+.acr5-frame {
+  min-height: unset !important;
+}
+
+.acr5-chrono-screen {
+  font-size: 88px !important;
+  padding: 18px 10px !important;
+  letter-spacing: 2px !important;
+}
+
+.acr5-meds-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.acr5-meds-grid .acr5-btn {
+  min-height: 70px !important;
+}
+
+.acr5-btn {
+  padding: 14px 12px !important;
+  font-size: 14px !important;
+}
 
 /* =====================================================
    10 — TABLEAUX / ANNUAIRE
