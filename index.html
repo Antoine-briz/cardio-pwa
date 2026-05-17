@@ -14,10 +14,29 @@
   <div id="img-popup" class="img-popup" onclick="closePopup()">
   <img id="popup-img" src="" alt="">
 </div>
+  
   <header class="appbar app-header">
   <div class="header-text">
     <div class="header-title">Protocoles du DAR</div>
     <div class="header-subtitle">Groupe hospitalier Pitié-Salpêtrière</div>
+  </div>
+  <div class="service-switcher mobile-service-switcher">
+    <button id="service-switch-btn"
+            class="service-chip service-cardio"
+            type="button">
+      <span class="service-icon"></span>
+      <span id="service-chip-label">
+        Institut de cardiologie
+      </span>
+      <span class="service-arrow">▾</span>
+    </button>
+    <div id="service-menu"
+         class="service-menu hidden">
+      <button data-service="cardio">Institut de cardiologie</button>
+      <button data-service="gaston">Gaston Cordier</button>
+      <button data-service="husson">Husson Mourier</button>
+      <button data-service="babinski">Babinski</button>
+    </div>
   </div>
 </header>
 
