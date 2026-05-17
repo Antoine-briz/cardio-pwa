@@ -12132,7 +12132,7 @@ body.theme-light .biblio-box h3 {
 }
 
 /* =====================================================
-   SMARTPHONE — HEADER MULTI-SERVICES
+   SMARTPHONE HEADER MULTI-SERVICES — VERSION FINALE
 ===================================================== */
 
 .app-header {
@@ -12142,11 +12142,14 @@ body.theme-light .biblio-box h3 {
 
   display: flex !important;
   flex-direction: column !important;
+  justify-content: center !important;
   align-items: center !important;
 
-  gap: 10px !important;
+  min-height: 132px !important;
+  height: auto !important;
 
-  padding: 14px 12px !important;
+  padding: 10px 12px 12px !important;
+  gap: 8px !important;
 
   background: #1b2737 !important;
   color: white !important;
@@ -12155,22 +12158,31 @@ body.theme-light .biblio-box h3 {
 }
 
 .header-text {
+  position: static !important;
+  transform: none !important;
+
+  width: 100% !important;
+
   text-align: center !important;
 }
 
 .header-title {
   font-size: 22px !important;
+  line-height: 1.15 !important;
   font-weight: 900 !important;
   color: white !important;
+  margin: 0 !important;
 }
 
 .header-subtitle {
-  margin-top: 4px !important;
   font-size: 13px !important;
+  line-height: 1.2 !important;
   color: rgba(255,255,255,.65) !important;
+  margin-top: 3px !important;
 }
 
-.mobile-service-switcher {
+.mobile-service-switcher,
+.service-switcher {
   position: relative !important;
   width: 100% !important;
   z-index: 9999 !important;
@@ -12178,25 +12190,25 @@ body.theme-light .biblio-box h3 {
 
 #service-switch-btn.service-chip {
   width: 100% !important;
-  height: 52px !important;
+  min-width: 0 !important;
+  height: 44px !important;
+
+  padding: 0 14px !important;
 
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 10px !important;
 
-  padding: 0 16px !important;
+  border-radius: 14px !important;
 
-  border-radius: 16px !important;
-
-  color: white !important;
-
-  font-size: 18px !important;
+  font-size: 17px !important;
   font-weight: 900 !important;
+  color: white !important;
 
   border: 1px solid rgba(255,255,255,.28) !important;
 
   box-shadow:
-    0 10px 24px rgba(0,0,0,.30),
+    0 8px 18px rgba(0,0,0,.28),
     inset 0 1px 0 rgba(255,255,255,.22) !important;
 }
 
@@ -12208,14 +12220,14 @@ body.theme-light .biblio-box h3 {
 }
 
 .service-icon {
-  font-size: 22px !important;
+  font-size: 20px !important;
 }
 
 .service-arrow {
   margin-left: auto !important;
 }
 
-/* Couleurs services */
+/* Couleurs */
 #service-switch-btn.service-cardio {
   background: linear-gradient(135deg, #b31224, #4a040b) !important;
 }
@@ -12232,46 +12244,30 @@ body.theme-light .biblio-box h3 {
   background: linear-gradient(135deg, #7a3ec2, #311451) !important;
 }
 
-/* Menu déroulant */
 .service-menu {
   position: absolute !important;
   top: calc(100% + 8px) !important;
   left: 0 !important;
-
   width: 100% !important;
 
   background: #0f172a !important;
-
   border: 1px solid rgba(255,255,255,.18) !important;
-  border-radius: 16px !important;
-
+  border-radius: 14px !important;
   padding: 8px !important;
 
   z-index: 99999 !important;
-
-  box-shadow:
-    0 16px 40px rgba(0,0,0,.45) !important;
 }
 
 .service-menu button {
   width: 100% !important;
-
-  padding: 14px 16px !important;
-
+  padding: 13px 14px !important;
   border: 0 !important;
   border-radius: 12px !important;
-
   background: transparent !important;
-
   color: white !important;
   text-align: left !important;
-
-  font-size: 16px !important;
+  font-size: 15px !important;
   font-weight: 800 !important;
-}
-
-.service-menu button:hover {
-  background: rgba(255,255,255,.10) !important;
 }
 
 .hidden {
@@ -12283,7 +12279,6 @@ body.theme-light .app-header {
   background: #f5f5f5 !important;
   color: #111 !important;
   border-bottom: 1px solid #d4d4d4 !important;
-  box-shadow: none !important;
 }
 
 body.theme-light .header-title {
