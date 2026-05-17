@@ -230,9 +230,7 @@ window.openSubPage = function openSubPage(renderFn, backFn) {
   if (typeof backFn === "function") window.__navStack.push(backFn);
   if (typeof renderFn === "function") renderFn();
 
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  });
+ scrollToTopInstant();
 };
 
 window.goBackSmart = function goBackSmart() {
@@ -248,9 +246,20 @@ window.goBackSmart = function goBackSmart() {
 };
 
 // =====================================================================
-//  PAGE D’ACCUEIL
+// Affichage du haut de page
 // =====================================================================
 
+function scrollToTopInstant() {
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    const app = document.getElementById("app");
+    if (app) app.scrollTop = 0;
+
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
+}
 
 // =====================================================================
 //  01 — ACCUEIL / ACCÈS PROTÉGÉ / ACTUALITÉS / RECHERCHE MOBILE
@@ -31285,6 +31294,7 @@ function navigate() {
   } else {
     renderNotFound();
   }
+  scrollToTopInstant();
 }
 
 
