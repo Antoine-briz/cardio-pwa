@@ -6068,6 +6068,16 @@ body.acr-force-light .acr5-synth-live {
   background: rgba(255,255,255,0.04);
   padding: 12px;
   min-height: 120px;
+  max-height: 240px;
+  overflow: auto;
+  display: none;
+}
+
+/* Affichage uniquement quand recherche active */
+
+.annuaire-panel.has-results,
+.annuaire-panel.has-search {
+  display: block;
 }
 
 .annuaire-panel-title {
@@ -6128,6 +6138,16 @@ body.acr-force-light .acr5-synth-live {
 .annuaire-results-empty, .annuaire-results-more {
   opacity: 0.8;
   font-size: 13px;
+}
+
+/* Sous-titres annuaire */
+
+.annuaire-subtitle,
+.annuaire-section-title,
+.annuaire-panel-title,
+details.subcard summary,
+.subcard summary {
+  font-weight: 800 !important;
 }
 
 mark.annuaire-mark {
