@@ -6150,6 +6150,32 @@ details.subcard summary,
   font-weight: 800 !important;
 }
 
+#annuaire-results:empty {
+  display: none !important;
+}
+
+#annuaire-results:empty + * {
+  display: none !important;
+}
+
+/* Cache aussi le panel résultats si vide */
+
+.annuaire-results:empty {
+  display: none !important;
+}
+
+.annuaire-panel:has(.annuaire-results:empty) {
+  display: none !important;
+}
+
+
+details.subcard summary,
+.subcard summary,
+.annuaire-subcard summary,
+details.annuaire-subcard summary {
+  font-weight: 800 !important;
+}
+
 mark.annuaire-mark {
   background: rgba(124,195,255,0.35);
   color: inherit;
