@@ -16740,113 +16740,91 @@ function renderAdapteeMenu() {
   const container = document.createElement("div");
   container.classList.add("antibiotherapy-container");
 
-  // ====== Titre principal ======
   const title = document.createElement("h2");
   title.textContent = "Antibiorésistance bactérienne";
   container.appendChild(title);
 
-  // ====== 1) Tableaux des phénotypes ======
-  const block1 = document.createElement("div");
-  block1.classList.add("atb-block");
+  function makeThumbGrid(items) {
+    const grid = document.createElement("div");
+    grid.classList.add("thumb-grid");
 
-  const block1Title = document.createElement("h3");
-  block1Title.classList.add("atb-block-title");
-  block1Title.textContent = "Phénotypes habituels d'antibiorésistance";
-  block1.appendChild(block1Title);
+    items.forEach(item => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.classList.add("thumb-card");
 
-  const thumbs = document.createElement("div");
-  thumbs.classList.add("thumb-grid");
+      const img = document.createElement("img");
+      img.src = `img/${item.file}`;
+      img.alt = item.label;
+      img.loading = "lazy";
 
-  const thumbItems = [
+      const span = document.createElement("span");
+      span.textContent = item.label;
+
+      btn.appendChild(img);
+      btn.appendChild(span);
+      btn.addEventListener("click", () => openImg(item.file));
+      grid.appendChild(btn);
+    });
+
+    return grid;
+  }
+
+  function makeBlock(titleText, contentEl) {
+    const block = document.createElement("div");
+    block.classList.add("atb-block");
+
+    const h = document.createElement("h3");
+    h.classList.add("atb-block-title");
+    h.textContent = titleText;
+
+    block.appendChild(h);
+    block.appendChild(contentEl);
+    container.appendChild(block);
+  }
+
+  makeBlock("Principaux mécanismes d'antibiorésistance", makeThumbGrid([
+    { file: "resistance1.png", label: "Classification des bêta-lactamases (Ambler)" },
+    { file: "resistance2.png", label: "Classification des entérobactéries" },
+    { file: "resistance3.png", label: "Synthèse des mécanismes d'antibiorésistance" }
+  ]));
+
+  makeBlock("Phénotypes habituels d'antibiorésistance", makeThumbGrid([
     { file: "Cocci-Gram-positifs.png", label: "Cocci gram positifs" },
     { file: "Bacilles-Gram-négatifs.png", label: "Bacilles gram négatif sauvages" },
     { file: "Béta-lactamases.png", label: "Béta-lactamases" },
     { file: "Pseudomonas-aeruginosa.png", label: "Pseudomonas aeruginosa" },
     { file: "Acinetobacter-baumanii.png", label: "Acinetobacter baumanii" },
     { file: "Carbapénèmases.png", label: "Carbapénèmases" }
-  ];
+  ]));
 
-  thumbItems.forEach(item => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.classList.add("thumb-card");
-
-    const img = document.createElement("img");
-    img.src = `img/${item.file}`;
-    img.alt = item.label;
-    img.loading = "lazy";
-
-    const span = document.createElement("span");
-    span.textContent = item.label;
-
-    btn.appendChild(img);
-    btn.appendChild(span);
-
-    btn.addEventListener("click", () => openImg(item.file));
-    thumbs.appendChild(btn);
-  });
-
-  block1.appendChild(thumbs);
-  container.appendChild(block1);
-
-  // Helper pour créer un bouton "menu" qui ouvre une sous-page
   function makeMenuButton(label, key) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.classList.add("btn");
     btn.textContent = label;
-
     btn.addEventListener("click", () => {
       openSubPage(() => renderBacteriaPage(key, BACTERIA_DATA[key]), renderAdapteeMenu);
     });
-
     return btn;
   }
 
-  // ====== 2) BMR ======
-  const block2 = document.createElement("div");
-  block2.classList.add("atb-block");
-
-  const block2Title = document.createElement("h3");
-  block2Title.classList.add("atb-block-title");
-  block2Title.textContent = "Bactéries multi-résistantes (BMR)";
-  block2.appendChild(block2Title);
-
   const bmrGrid = document.createElement("div");
-  bmrGrid.classList.add("germs-links"); // tu peux garder ta classe existante
-  // (si tu veux la même grille que d’autres menus, remplace "germs-links" par "grid cols-2" si tu l’as)
-  // bmrGrid.classList.add("grid", "cols-2");
-
+  bmrGrid.classList.add("germs-links");
   bmrGrid.appendChild(makeMenuButton("SARM", "SARM"));
   bmrGrid.appendChild(makeMenuButton("Entérobactéries ampC", "ampC"));
   bmrGrid.appendChild(makeMenuButton("BLSE", "BLSE"));
   bmrGrid.appendChild(makeMenuButton("Pseudomonas aeruginosa MDR/XDR", "pyo"));
   bmrGrid.appendChild(makeMenuButton("Acinetobacter baumannii Imipénème-R", "acineto"));
   bmrGrid.appendChild(makeMenuButton("Stenotrophomonas maltophilia", "steno"));
-
-  block2.appendChild(bmrGrid);
-  container.appendChild(block2);
-
-  // ====== 3) BHRe ======
-  const block3 = document.createElement("div");
-  block3.classList.add("atb-block");
-
-  const block3Title = document.createElement("h3");
-  block3Title.classList.add("atb-block-title");
-  block3Title.textContent = "Bactéries hautement résistantes émergeantes (BHRe)";
-  block3.appendChild(block3Title);
+  makeBlock("Bactéries multi-résistantes (BMR)", bmrGrid);
 
   const bhreGrid = document.createElement("div");
   bhreGrid.classList.add("germs-links");
-  // ou bhreGrid.classList.add("grid", "cols-2");
-
   bhreGrid.appendChild(makeMenuButton("Entérobactéries carbapénémases", "carba"));
   bhreGrid.appendChild(makeMenuButton("E. faecium Vancomycine-R", "erv"));
+  makeBlock("Bactéries hautement résistantes émergeantes (BHRe)", bhreGrid);
 
-  block3.appendChild(bhreGrid);
-  container.appendChild(block3);
-
-  console.log("Inserting content into #app");
   appContainer.appendChild(container);
 }
 
