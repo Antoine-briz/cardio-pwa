@@ -6020,6 +6020,22 @@ body.acr-force-light .acr5-synth-live {
   font-size: 14px !important;
 }
 
+.acr5-pause-btn {
+  width: 100%;
+  margin-top: 8px;
+  font-size: 18px;
+}
+
+.acr5-pause-btn {
+  background: #5b3cc4 !important;
+  border-color: #5b3cc4 !important;
+}
+
+.acr5-pause-btn.is-paused {
+  background: #7b4dff !important;
+  border-color: #7b4dff !important;
+}
+
 /* =====================================================
    10 — TABLEAUX / ANNUAIRE
 ===================================================== */
